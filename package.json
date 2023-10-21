@@ -1,0 +1,42 @@
+{
+  "name": "seller",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.scss": "stylelint --fix",
+    "*": "prettier -c --write",
+    "*.{.js,.jsx,.ts,.tsx}": "eslint --fix --ext .js,.jsx,.ts,.tsx"
+  },
+  "dependencies": {
+    "@lit/react": "^1.0.0",
+    "@stylospectrum/ui": "^0.0.3",
+    "lit": "^3.0.0",
+    "next": "13.5.6",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.0.0",
+    "@commitlint/config-conventional": "^18.0.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "13.5.6",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.0.2",
+    "prettier": "^3.0.3",
+    "sass": "^1.69.4",
+    "sass-loader": "^13.3.2",
+    "sass-to-string": "^1.6.3",
+    "typescript": "^5"
+  }
+}
