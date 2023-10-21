@@ -1,18 +1,23 @@
 {
-  "name": "seller",
+  "name": "seller-app",
   "version": "0.0.1",
-  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint": "npm run tsc && npm run lint:script && npm run lint:style",
+    "lint-fix": "npm run lint-fix:script && npm run lint-fix:style",
+    "lint-fix:script": "next lint --fix",
+    "lint-fix:style": "npm run lint:style -- --fix",
+    "lint:script": "next lint",
+    "lint:style": "stylelint 'src/**/*.scss'",
+    "tsc": "tsc --noEmit"
   },
   "lint-staged": {
     "*.scss": "stylelint --fix",
     "*": "prettier -c --write",
-    "*.{.js,.jsx,.ts,.tsx}": "eslint --fix --ext .js,.jsx,.ts,.tsx"
+    "*.{.js,.jsx,.ts,.tsx}": "next lint --fix"
   },
   "dependencies": {
     "@lit/react": "^1.0.0",
@@ -37,6 +42,12 @@
     "sass": "^1.69.4",
     "sass-loader": "^13.3.2",
     "sass-to-string": "^1.6.3",
+    "stylelint": "^15.11.0",
+    "stylelint-config-prettier": "^9.0.5",
+    "stylelint-config-rational-order": "^0.1.2",
+    "stylelint-config-standard": "^34.0.0",
+    "stylelint-declaration-block-no-ignored-properties": "^2.7.0",
+    "stylelint-order": "^6.0.3",
     "typescript": "^5"
   }
 }
