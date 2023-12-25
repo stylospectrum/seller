@@ -8,7 +8,7 @@ import { isTabNext } from '@stylospectrum/ui/dist/utils/Keys';
 import { useRouter } from 'next/navigation';
 
 import styles from './page.module.scss';
-import { LoginWrapper } from '@/components';
+import { AuthWrapper } from '@/components';
 
 export default function LoginPage() {
   const formRef: RefObject<IForm> = useRef(null);
@@ -66,7 +66,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <LoginWrapper
+      <AuthWrapper
         title="Sign in"
         buttonText="Sign In"
         onButtonKeyDown={handleButtonKeyDown}
@@ -74,7 +74,7 @@ export default function LoginPage() {
         bottomNode={
           <div className={styles.boxText}>
             <span>Do you not have an account?</span>
-            <Link ref={createAnAccRef} slot="suffix-label">
+            <Link ref={createAnAccRef} onClick={() => router.push('/registration')}>
               Create an account!
             </Link>
           </div>
@@ -120,7 +120,7 @@ export default function LoginPage() {
             <Checkbox text="Keep me signed in" style={{ marginLeft: '-0.25rem' }} />
           </FormItem>
         </Form>
-      </LoginWrapper>
+      </AuthWrapper>
       <Toast ref={toastRef} />
     </>
   );

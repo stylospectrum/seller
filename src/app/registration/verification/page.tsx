@@ -34,7 +34,7 @@ export default function VerificationPage() {
       const data = await res.json();
 
       if (data.valid) {
-        router.push('/login/new-password');
+        // router.push('/login/new-password');
       } else {
         toastRef.current?.show('Invalid OTP. Please check your code and try again');
       }
@@ -49,6 +49,7 @@ export default function VerificationPage() {
       },
       body: JSON.stringify({
         email,
+        isRegistration: true,
         role: 'Seller',
       }),
     });
@@ -60,8 +61,14 @@ export default function VerificationPage() {
     <>
       <AuthWrapper
         title="Verification required"
-        buttonText="Continue"
+        buttonText="Create account"
         onButtonSubmit={handleSubmit}
+        intro={{
+          height: 372.64,
+          width: 400,
+          src: '/images/registration.png',
+          title: 'Be a power seller',
+        }}
         bottomNode={
           <Button onClick={handleResend} className={styles.button} type={ButtonDesign.Tertiary}>
             Resend OTP
@@ -69,8 +76,7 @@ export default function VerificationPage() {
         }
       >
         <div className={styles.description}>
-          To continue, complete this verification step. We have sent OTP to the email {email}.
-          Please enter it below.
+          To verify your email, we have sent a One Time Password (OTP) to <b>{email}</b>.
         </div>
         <Form ref={formRef}>
           <FormItem

@@ -6,14 +6,14 @@ import type { IForm, IToast } from '@stylospectrum/ui/dist/types';
 import { useRouter } from 'next/navigation';
 
 import styles from './page.module.scss';
-import { LoginWrapper } from '@/components';
-import { usePasswordAssistanceStore } from '@/store';
+import { AuthWrapper } from '@/components';
+import { useEmailStore } from '@/store';
 
 export default function PasswordAssistancePage() {
   const formRef: RefObject<IForm> = useRef(null);
   const toastRef: RefObject<IToast> = useRef(null);
   const router = useRouter();
-  const setEmail = usePasswordAssistanceStore((state) => state.setEmail);
+  const setEmail = useEmailStore((state) => state.setEmail);
 
   const handleSubmit = async () => {
     const values = await formRef.current?.validateFields();
@@ -45,7 +45,7 @@ export default function PasswordAssistancePage() {
 
   return (
     <>
-      <LoginWrapper title="Password assistance" buttonText="Continue" onButtonSubmit={handleSubmit}>
+      <AuthWrapper title="Password assistance" buttonText="Continue" onButtonSubmit={handleSubmit}>
         <div className={styles.description}>
           Enter the email address associated with your account.
         </div>
@@ -65,7 +65,7 @@ export default function PasswordAssistancePage() {
             <Input style={{ width: '100%' }} allowClear className={styles.boxFormInput} />
           </FormItem>
         </Form>
-      </LoginWrapper>
+      </AuthWrapper>
       <Toast ref={toastRef} />
     </>
   );

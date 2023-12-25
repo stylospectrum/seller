@@ -1,1 +1,1 @@
-export { default as usePasswordAssistanceStore } from './password-assistance';
+export { default as useEmailStore } from './email';

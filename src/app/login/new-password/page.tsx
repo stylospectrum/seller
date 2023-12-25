@@ -6,12 +6,12 @@ import { InputType } from '@stylospectrum/ui/dist/enums';
 import type { IForm } from '@stylospectrum/ui/dist/types';
 
 import styles from './page.module.scss';
-import { LoginWrapper } from '@/components';
-import { usePasswordAssistanceStore } from '@/store';
+import { AuthWrapper } from '@/components';
+import { useEmailStore } from '@/store';
 
 export default function PasswordAssistancePage() {
   const formRef: RefObject<IForm> = useRef(null);
-  const email = usePasswordAssistanceStore((state) => state.email);
+  const email = useEmailStore((state) => state.email);
 
   const handleSubmit = async () => {
     const values = await formRef.current?.validateFields();
@@ -34,7 +34,7 @@ export default function PasswordAssistancePage() {
   };
 
   return (
-    <LoginWrapper
+    <AuthWrapper
       title="Create new password"
       buttonText="Save changes and Sign-In"
       onButtonSubmit={handleSubmit}
@@ -55,6 +55,6 @@ export default function PasswordAssistancePage() {
           />
         </FormItem>
       </Form>
-    </LoginWrapper>
+    </AuthWrapper>
   );
 }

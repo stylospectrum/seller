@@ -5,9 +5,9 @@ interface PasswordAssistanceStore {
   setEmail: (email: string) => void;
 }
 
-const usePasswordAssistanceStore = create<PasswordAssistanceStore>((set) => ({
+const useEmailStore = create<PasswordAssistanceStore>((set) => ({
   email: '',
   setEmail: (email) => set(() => ({ email })),
 }));
 
-export default usePasswordAssistanceStore;
+export default useEmailStore;
