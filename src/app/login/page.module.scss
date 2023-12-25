@@ -1,0 +1,21 @@
+@import '../../../styles/_var.scss';
+
+.box {
+  &FormInput {
+    width: 100%;
+  }
+
+  &Text {
+    display: inline-flex;
+    gap: 0.3125rem;
+    justify-content: center;
+    text-align: center;
+
+    & > span {
+      color: #eaecee;
+      font-weight: 400;
+      font-size: 0.875rem;
+      font-family: $font-family;
+    }
+  }
+}
