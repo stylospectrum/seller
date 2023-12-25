@@ -63,11 +63,11 @@ export default function VerificationPage() {
         title="Verification required"
         buttonText="Create account"
         onButtonSubmit={handleSubmit}
-        intro={{
+        introTitle="Be a power seller"
+        img={{
           height: 372.64,
           width: 400,
           src: '/images/registration.png',
-          title: 'Be a power seller',
         }}
         bottomNode={
           <Button onClick={handleResend} className={styles.button} type={ButtonDesign.Tertiary}>

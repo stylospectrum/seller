@@ -11,11 +11,11 @@ interface AuthWrapper {
   buttonText: string;
   onButtonSubmit?: MouseEventHandler;
   onButtonKeyDown?: KeyboardEventHandler;
-  intro?: {
+  introTitle?: string;
+  img?: {
     src: string;
     width: number;
     height: number;
-    title: string;
   };
 }
 
@@ -26,20 +26,20 @@ const AuthWrapper: FC<AuthWrapper> = ({
   buttonText,
   onButtonKeyDown,
   onButtonSubmit,
-  intro = {
+  introTitle = 'Grow your business and Sell more',
+  img = {
     height: 248.75,
     width: 400,
     src: '/images/login.png',
-    title: 'Grow your business and Sell more',
   },
 }) => {
   return (
     <div className={styles.container}>
       <div className={styles.wrapper}>
         <div className={styles.intro}>
-          <div className={styles.introText}>{intro.title}</div>
+          <div className={styles.introText}>{introTitle}</div>
           <div className={styles.introImage}>
-            <Image src={intro.src} height={intro.height} width={intro.width} alt="Illustration" />
+            <Image {...img} alt="Illustration" />
           </div>
         </div>
 

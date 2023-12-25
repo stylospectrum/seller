@@ -65,11 +65,11 @@ export default function LoginPage() {
         title="Create account"
         buttonText="Verify email"
         onButtonSubmit={handleSubmit}
-        intro={{
+        introTitle="Be a power seller"
+        img={{
           height: 372.64,
           width: 400,
           src: '/images/registration.png',
-          title: 'Be a power seller',
         }}
         bottomNode={
           <div className={styles.boxText}>
