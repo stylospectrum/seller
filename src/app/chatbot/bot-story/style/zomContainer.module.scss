@@ -1,0 +1,51 @@
+.zoom {
+  cursor: grab;
+  background: rgb(34, 48, 74);
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.zoom:active {
+  cursor: grabbing;
+}
+
+.diagram {
+  width: 100%;
+  transform-origin: 0 0;
+  height: 100%;
+}
+
+.svg-paths {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.svg-paths path {
+  stroke: #59687b;
+  fill: none;
+  stroke-width: 2px;
+  transition: stroke 0.5s;
+}
+
+.block-wrapper {
+  position: absolute;
+}
+
+.block {
+  max-width: 210px;
+  min-width: 150px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.071);
+  height: 40px;
+  background: #566e8a;
+}
+
+.block[data-type='USER_INPUT'],
+.block[data-type='ATTACHMENT'] {
+  height: 60px;
+  max-width: none;
+  min-width: auto;
+  padding: 10px;
+  position: relative;
+  width: 60px;
+}

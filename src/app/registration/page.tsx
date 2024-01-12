@@ -7,54 +7,44 @@ import type { IForm, IToast } from '@stylospectrum/ui/dist/types';
 import { useRouter } from 'next/navigation';
 
 import styles from './page.module.scss';
+import { authApi } from '@/api';
 import { AuthWrapper } from '@/components';
-import { useEmailStore } from '@/store';
+import { User } from '@/model';
+import { useUserStore } from '@/store';
 
 export default function LoginPage() {
   const formRef: RefObject<IForm> = useRef(null);
   const toastRef: RefObject<IToast> = useRef(null);
-  const setEmail = useEmailStore((state) => state.setEmail);
-
+  const userStore = useUserStore();
   const router = useRouter();
 
   const handleSubmit = async () => {
     const values = await formRef.current?.validateFields();
 
     if (values) {
-      let res = await fetch(`/api/registration`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: values.name,
+      try {
+        const response = await authApi.sendOTPToEmail({
           email: values.email,
-          password: values.password,
-        }),
-      });
-      let data = await res.json();
+          isSignUp: true,
+        });
 
-      if (data.statusCode === 401) {
-        toastRef.current?.show(data.message);
-        return;
-      }
+        if (response.statusCode !== 200) {
+          toastRef.current?.show(response.message);
+          return;
+        }
 
-      res = await fetch(`/api/send-otp-to-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: values.email,
-          isRegistration: true,
-          role: 'Seller',
-        }),
-      });
-      data = await res.json();
-
-      if (data.sent) {
-        setEmail(values.email);
-        router.push('/registration/verification');
+        if (response.data.sent) {
+          userStore.setUser(
+            new User({
+              name: values.name,
+              email: values.email,
+              password: values.password,
+            }),
+          );
+          router.push('/registration/verification');
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
   };

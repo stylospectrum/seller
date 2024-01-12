@@ -7,13 +7,15 @@ import type { IForm, IToast } from '@stylospectrum/ui/dist/types';
 import { useRouter } from 'next/navigation';
 
 import styles from './page.module.scss';
+import { authApi } from '@/api';
 import { AuthWrapper } from '@/components';
-import { useEmailStore } from '@/store';
+import { useAuthStore, useUserStore } from '@/store';
 
 export default function VerificationPage() {
   const formRef: RefObject<IForm> = useRef(null);
   const toastRef: RefObject<IToast> = useRef(null);
-  const email = useEmailStore((state) => state.email);
+  const user = useUserStore((state) => state.user);
+  const authStore = useAuthStore();
   const [infoVisible, setInfoVisible] = useState(false);
   const router = useRouter();
 
@@ -21,40 +23,32 @@ export default function VerificationPage() {
     const values = await formRef.current?.validateFields();
 
     if (values) {
-      const res = await fetch(`/api/verify-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          code: values.otp,
-        }),
-      });
-      const data = await res.json();
+      try {
+        const response = await authApi.signUp({
+          name: user.name!,
+          email: user.email,
+          password: user.password!,
+          otp: values.otp,
+        });
 
-      if (data.valid) {
-        // router.push('/login/new-password');
-      } else {
-        toastRef.current?.show('Invalid OTP. Please check your code and try again');
+        if (response.data.emailValid) {
+          authStore.setAccessToken(response.data.accessToken);
+          router.push('/');
+        } else {
+          toastRef.current?.show('Invalid OTP. Please check your code and try again');
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
   };
 
   const handleResend = async () => {
-    const res = await fetch(`/api/send-otp-to-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        isRegistration: true,
-        role: 'Seller',
-      }),
+    const response = await authApi.sendOTPToEmail({
+      email: user.email,
+      isSignUp: true,
     });
-    const data = await res.json();
-    setInfoVisible(data.sent);
+    setInfoVisible(response.data.sent);
   };
 
   return (
@@ -76,7 +70,7 @@ export default function VerificationPage() {
         }
       >
         <div className={styles.description}>
-          To verify your email, we have sent a One Time Password (OTP) to <b>{email}</b>.
+          To verify your email, we have sent a One Time Password (OTP) to <b>{user.email}</b>.
         </div>
         <Form ref={formRef}>
           <FormItem

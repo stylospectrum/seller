@@ -7,13 +7,14 @@ import type { IForm, IToast } from '@stylospectrum/ui/dist/types';
 import { useRouter } from 'next/navigation';
 
 import styles from './page.module.scss';
+import { authApi } from '@/api';
 import { AuthWrapper } from '@/components';
-import { useEmailStore } from '@/store';
+import { useUserStore } from '@/store';
 
 export default function VerificationPage() {
   const formRef: RefObject<IForm> = useRef(null);
   const toastRef: RefObject<IToast> = useRef(null);
-  const email = useEmailStore((state) => state.email);
+  const user = useUserStore((state) => state.user);
   const [infoVisible, setInfoVisible] = useState(false);
   const router = useRouter();
 
@@ -21,39 +22,28 @@ export default function VerificationPage() {
     const values = await formRef.current?.validateFields();
 
     if (values) {
-      const res = await fetch(`/api/verify-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          code: values.otp,
-        }),
-      });
-      const data = await res.json();
+      try {
+        const response = await authApi.verifyOTP({
+          email: user.email,
+          otp: values.otp,
+        });
 
-      if (data.valid) {
-        router.push('/login/new-password');
-      } else {
-        toastRef.current?.show('Invalid OTP. Please check your code and try again');
+        if (response.data.valid) {
+          router.push('/login/new-password');
+        } else {
+          toastRef.current?.show('Invalid OTP. Please check your code and try again');
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
   };
 
   const handleResend = async () => {
-    const res = await fetch(`/api/send-otp-to-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        role: 'Seller',
-      }),
+    const response = await authApi.sendOTPToEmail({
+      email: user.email,
     });
-    const data = await res.json();
-    setInfoVisible(data.sent);
+    setInfoVisible(response.data.sent);
   };
 
   return (
@@ -69,7 +59,7 @@ export default function VerificationPage() {
         }
       >
         <div className={styles.description}>
-          To continue, complete this verification step. We have sent OTP to the email {email}.
+          To continue, complete this verification step. We have sent OTP to the email {user.email}.
           Please enter it below.
         </div>
         <Form ref={formRef}>

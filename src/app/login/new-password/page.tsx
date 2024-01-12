@@ -1,60 +1,73 @@
 'use client';
 
 import { useRef, type RefObject } from 'react';
-import { Form, FormItem, Input } from '@stylospectrum/ui';
+import { Form, FormItem, Input, Toast } from '@stylospectrum/ui';
 import { InputType } from '@stylospectrum/ui/dist/enums';
-import type { IForm } from '@stylospectrum/ui/dist/types';
+import type { IForm, IToast } from '@stylospectrum/ui/dist/types';
+import { useRouter } from 'next/navigation';
 
 import styles from './page.module.scss';
+import { authApi } from '@/api';
 import { AuthWrapper } from '@/components';
-import { useEmailStore } from '@/store';
+import { useAuthStore, useUserStore } from '@/store';
 
 export default function PasswordAssistancePage() {
   const formRef: RefObject<IForm> = useRef(null);
-  const email = useEmailStore((state) => state.email);
+  const router = useRouter();
+  const toastRef: RefObject<IToast> = useRef(null);
+  const user = useUserStore((state) => state.user);
+  const authStore = useAuthStore();
 
   const handleSubmit = async () => {
     const values = await formRef.current?.validateFields();
 
     if (values) {
-      const res = await fetch(`/api/update-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
+      try {
+        const response = await authApi.updatePassword({
           password: values.password,
-          role: 'Seller',
-        }),
-      });
-      const data = await res.json();
-      console.log(data);
+          email: user.email,
+        });
+
+        if (response.statusCode !== 200) {
+          toastRef.current?.show(response.message);
+          return;
+        }
+
+        authStore.setAccessToken(response.data.accessToken);
+        router.push('/');
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
 
   return (
-    <AuthWrapper
-      title="Create new password"
-      buttonText="Save changes and Sign-In"
-      onButtonSubmit={handleSubmit}
-    >
-      <div className={styles.description}>We will ask for this password whenever you Sign-In.</div>
-      <Form ref={formRef}>
-        <FormItem
-          label="New password"
-          name="password"
-          style={{ marginBottom: 0 }}
-          rules={[{ required: true, message: 'Enter new password' }]}
-        >
-          <Input
-            style={{ width: '100%' }}
-            type={InputType.Password}
-            allowClear
-            className={styles.boxFormInput}
-          />
-        </FormItem>
-      </Form>
-    </AuthWrapper>
+    <>
+      <AuthWrapper
+        title="Create new password"
+        buttonText="Save changes and Sign-In"
+        onButtonSubmit={handleSubmit}
+      >
+        <div className={styles.description}>
+          We will ask for this password whenever you Sign-In.
+        </div>
+        <Form ref={formRef}>
+          <FormItem
+            label="New password"
+            name="password"
+            style={{ marginBottom: 0 }}
+            rules={[{ required: true, message: 'Enter new password' }]}
+          >
+            <Input
+              style={{ width: '100%' }}
+              type={InputType.Password}
+              allowClear
+              className={styles.boxFormInput}
+            />
+          </FormItem>
+        </Form>
+      </AuthWrapper>
+      <Toast ref={toastRef} />
+    </>
   );
 }

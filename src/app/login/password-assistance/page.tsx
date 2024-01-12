@@ -6,39 +6,37 @@ import type { IForm, IToast } from '@stylospectrum/ui/dist/types';
 import { useRouter } from 'next/navigation';
 
 import styles from './page.module.scss';
+import { authApi } from '@/api';
 import { AuthWrapper } from '@/components';
-import { useEmailStore } from '@/store';
+import { User } from '@/model';
+import { useUserStore } from '@/store';
 
 export default function PasswordAssistancePage() {
   const formRef: RefObject<IForm> = useRef(null);
   const toastRef: RefObject<IToast> = useRef(null);
   const router = useRouter();
-  const setEmail = useEmailStore((state) => state.setEmail);
+  const userStore = useUserStore();
 
   const handleSubmit = async () => {
     const values = await formRef.current?.validateFields();
 
     if (values) {
-      const res = await fetch(`/api/send-otp-to-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      try {
+        const response = await authApi.sendOTPToEmail({
           email: values.email,
-          role: 'Seller',
-        }),
-      });
-      const data = await res.json();
+        });
 
-      if (data.statusCode === 401) {
-        toastRef.current?.show(data.message);
-        return;
-      }
+        if (response.statusCode !== 200) {
+          toastRef.current?.show(response.message);
+          return;
+        }
 
-      if (data.sent) {
-        setEmail(values.email);
-        router.push('/login/verification');
+        if (response.data.sent) {
+          userStore.setUser(new User({ email: values.email }));
+          router.push('/login/verification');
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
   };

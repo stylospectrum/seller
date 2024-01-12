@@ -8,7 +8,10 @@ import { isTabNext } from '@stylospectrum/ui/dist/utils/Keys';
 import { useRouter } from 'next/navigation';
 
 import styles from './page.module.scss';
+import { authApi } from '@/api';
 import { AuthWrapper } from '@/components';
+import { useAuthStore } from '@/store';
+import storage from '@/utils/storage';
 
 export default function LoginPage() {
   const formRef: RefObject<IForm> = useRef(null);
@@ -17,26 +20,32 @@ export default function LoginPage() {
   const createAnAccRef: RefObject<ILink> = useRef(null);
   const toastRef: RefObject<IToast> = useRef(null);
   const router = useRouter();
+  const authStore = useAuthStore();
 
   const handleSubmit = async () => {
     const values = await formRef.current?.validateFields();
 
     if (values) {
-      const res = await fetch(`/api/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-        }),
+      const response = await authApi.signIn({
+        email: values.email,
+        password: values.password,
       });
-      const data = await res.json();
 
-      if (data.statusCode === 401) {
-        toastRef.current?.show(data.message);
+      if (response.statusCode !== 200) {
+        toastRef.current?.show(response.message);
+        return;
       }
+
+      if (values['keep-me-signed-in']) {
+        storage.setToken({
+          accessToken: response.data.accessToken,
+          refreshToken: response.data.refreshToken,
+        });
+      } else {
+        authStore.setAccessToken(response.data.accessToken);
+      }
+
+      router.push('/');
     }
   };
 

@@ -1,10 +1,14 @@
-const storagePrefix = 'bulletproof_react_';
+import { SignInResponse } from '@/interface';
+
+const storagePrefix = 'stylospectrum_seller_';
 
 const storage = {
   getToken: () => {
-    return JSON.parse(window.localStorage.getItem(`${storagePrefix}token`) as string);
+    return JSON.parse(
+      window.localStorage.getItem(`${storagePrefix}token`) as string,
+    ) as SignInResponse;
   },
-  setToken: (token: string) => {
+  setToken: (token: SignInResponse) => {
     window.localStorage.setItem(`${storagePrefix}token`, JSON.stringify(token));
   },
   clearToken: () => {
