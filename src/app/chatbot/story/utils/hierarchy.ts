@@ -1,8 +1,9 @@
+import { CSSProperties } from 'react';
 import { hierarchy, HierarchyNode } from 'd3-hierarchy';
 
 import { Box } from './box';
 
-interface CustomHierarchyNode<Datum>
+export interface CustomHierarchyNode<Datum>
   extends Omit<HierarchyNode<Datum>, 'value' | 'depth' | 'parent' | 'children' | 'height'> {
   value?: number;
   depth: number;
@@ -12,6 +13,7 @@ interface CustomHierarchyNode<Datum>
   x?: number;
   y?: number;
   height?: number;
+  styleBlock?: CSSProperties;
 }
 
 export default function createHierarchyTree<Datum extends Box>(

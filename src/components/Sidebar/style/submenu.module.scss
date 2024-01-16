@@ -1,0 +1,28 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  box-sizing: border-box;
+  height: 2rem;
+  padding: 0 2.5rem;
+  background: #12171c;
+  border-bottom: 1px solid #12171c;
+  cursor: pointer;
+  user-select: none;
+
+  &-active {
+    background: #1d2d3e;
+    border-bottom-color: #4db1ff;
+  }
+}
+
+.wrapper:not(.wrapper-active):hover {
+  background-color: #232b33;
+}
+
+.text {
+  color: #eaecee;
+  font-weight: 400;
+  font-size: 0.875rem;
+  font-family: $font-family;
+}

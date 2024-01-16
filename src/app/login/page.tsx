@@ -2,7 +2,7 @@
 
 import { useRef, type KeyboardEvent, type RefObject } from 'react';
 import { Checkbox, Form, FormItem, Input, Link, Toast } from '@stylospectrum/ui';
-import { InputType } from '@stylospectrum/ui/dist/enums';
+import { InputType } from '@stylospectrum/ui/dist/types';
 import type { IButton, IForm, IInput, ILink, IToast } from '@stylospectrum/ui/dist/types';
 import { isTabNext } from '@stylospectrum/ui/dist/utils/Keys';
 import { useRouter } from 'next/navigation';
@@ -74,63 +74,60 @@ export default function LoginPage() {
   };
 
   return (
-    <>
-      <AuthWrapper
-        title="Sign in"
-        buttonText="Sign In"
-        onButtonKeyDown={handleButtonKeyDown}
-        onButtonSubmit={handleSubmit}
-        bottomNode={
-          <div className={styles.boxText}>
-            <span>Do you not have an account?</span>
-            <Link ref={createAnAccRef} onClick={() => router.push('/registration')}>
-              Create an account!
-            </Link>
-          </div>
-        }
-      >
-        <Form ref={formRef}>
-          <FormItem
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: 'Enter your email' },
-              {
-                pattern: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
-                message: 'Wrong or Invalid email address. Please correct and try again',
-              },
-            ]}
-          >
-            <Input onKeyDown={handleEmailKeyDown} allowClear className={styles.boxFormInput} />
-          </FormItem>
+    <AuthWrapper
+      title="Sign in"
+      buttonText="Sign In"
+      onButtonKeyDown={handleButtonKeyDown}
+      onButtonSubmit={handleSubmit}
+      bottomNode={
+        <div className={styles.boxText}>
+          <span>Do you not have an account?</span>
+          <Link ref={createAnAccRef} onClick={() => router.push('/registration')}>
+            Create an account!
+          </Link>
+        </div>
+      }
+    >
+      <Form ref={formRef}>
+        <FormItem
+          label="Email"
+          name="email"
+          rules={[
+            { required: true, message: 'Enter your email' },
+            {
+              pattern: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
+              message: 'Wrong or Invalid email address. Please correct and try again',
+            },
+          ]}
+        >
+          <Input onKeyDown={handleEmailKeyDown} allowClear className={styles.boxFormInput} />
+        </FormItem>
 
-          <FormItem
-            label="Password"
-            name="password"
-            rules={[{ required: true, message: 'Enter your password' }]}
+        <FormItem
+          label="Password"
+          name="password"
+          rules={[{ required: true, message: 'Enter your password' }]}
+        >
+          <Link
+            onClick={() => router.push('/login/password-assistance')}
+            onKeyDown={handleForgotPassKeyDown}
+            ref={forgotPassRef}
+            slot="suffix-label"
           >
-            <Link
-              onClick={() => router.push('/login/password-assistance')}
-              onKeyDown={handleForgotPassKeyDown}
-              ref={forgotPassRef}
-              slot="suffix-label"
-            >
-              Forgot your password?
-            </Link>
-            <Input
-              ref={passRef}
-              type={InputType.Password}
-              allowClear
-              className={styles.boxFormInput}
-            />
-          </FormItem>
+            Forgot your password?
+          </Link>
+          <Input
+            ref={passRef}
+            type={InputType.Password}
+            allowClear
+            className={styles.boxFormInput}
+          />
+        </FormItem>
 
-          <FormItem name="keep-me-signed-in" style={{ marginBottom: 0 }}>
-            <Checkbox text="Keep me signed in" style={{ marginLeft: '-0.25rem' }} />
-          </FormItem>
-        </Form>
-      </AuthWrapper>
-      <Toast ref={toastRef} />
-    </>
+        <FormItem name="keep-me-signed-in" style={{ marginBottom: 0 }}>
+          <Checkbox text="Keep me signed in" style={{ marginLeft: '-0.25rem' }} />
+        </FormItem>
+      </Form>
+    </AuthWrapper>
   );
 }

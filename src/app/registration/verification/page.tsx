@@ -2,7 +2,7 @@
 
 import { useRef, useState, type RefObject } from 'react';
 import { Button, Form, FormItem, Input, MessageStrip, Toast } from '@stylospectrum/ui';
-import { ButtonDesign } from '@stylospectrum/ui/dist/enums';
+import { ButtonDesign } from '@stylospectrum/ui/dist/types';
 import type { IForm, IToast } from '@stylospectrum/ui/dist/types';
 import { useRouter } from 'next/navigation';
 

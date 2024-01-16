@@ -1,3 +1,5 @@
+'use client';
+
 import type { FC, KeyboardEventHandler, MouseEventHandler, ReactNode } from 'react';
 import { Button } from '@stylospectrum/ui';
 import Image from 'next/image';

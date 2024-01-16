@@ -1,0 +1,121 @@
+.container {
+  position: relative;
+}
+
+.title {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 1rem;
+  color: #8396a8;
+  font-weight: 400;
+  font-size: 0.875rem;
+  font-family: $font-family;
+}
+
+.body[data-type='START_POINT'],
+.body[data-type='BOT_RESPONSE'],
+.body[data-type='DEFAULT_FALLBACK'] {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  box-sizing: border-box;
+  min-width: 9.375rem;
+  max-width: 13.125rem;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  user-select: none;
+
+  .text {
+    font-size: 1rem;
+    font-family: $font-family;
+  }
+
+  .icon {
+    font-size: 1rem;
+  }
+}
+
+.body[data-type='START_POINT'],
+.body[data-type='DEFAULT_FALLBACK'] {
+  cursor: not-allowed;
+}
+
+.body[data-type='START_POINT'] {
+  background: #566e8a;
+
+  .text {
+    color: #eaecee;
+    font-weight: 700;
+  }
+
+  .icon {
+    color: #8aa4be;
+  }
+}
+
+.body[data-type='BOT_RESPONSE'] {
+  background: #e2e5e9;
+
+  .text {
+    color: #384350;
+    font-weight: 700;
+  }
+
+  .icon {
+    color: #647283;
+  }
+}
+
+.body[data-type='DEFAULT_FALLBACK'] {
+  background: #797b8c;
+
+  .text {
+    color: #eaecee;
+    font-weight: 700;
+  }
+
+  .icon {
+    color: #fff;
+  }
+}
+
+.body[data-type='USER_INPUT'] {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 3.75rem;
+  min-width: auto;
+  max-width: none;
+  height: 3.75rem;
+  padding: 0.625rem;
+
+  &::before {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: 0.125rem solid #354961;
+    border-radius: 0.5rem;
+    transform: rotate(45deg);
+    transition:
+      background-color 0.5s,
+      border 0.5s;
+    content: '';
+  }
+
+  .icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #c7ced4;
+    font-size: 1.5rem;
+    transition: color 0.5s;
+  }
+}

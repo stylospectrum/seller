@@ -2,7 +2,7 @@
 
 import { useRef, type RefObject } from 'react';
 import { Form, FormItem, Input, Toast } from '@stylospectrum/ui';
-import { InputType } from '@stylospectrum/ui/dist/enums';
+import { InputType } from '@stylospectrum/ui/dist/types';
 import type { IForm, IToast } from '@stylospectrum/ui/dist/types';
 import { useRouter } from 'next/navigation';
 
