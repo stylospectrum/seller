@@ -20,6 +20,8 @@ export interface Box {
   flowParent: this | null;
   children: this[];
   parent: this;
+  width: number;
+  name: string;
 }
 
 function createBox(height: number, width: number, extraHeight = 85, extraWidth = 100): BoxSize {

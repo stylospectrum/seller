@@ -12,7 +12,7 @@ export default function BotStoryPage() {
   const zoomContainerDomRef = useRef<HTMLDivElement>(null);
   const bottomLeftMenuRef = useRef<BottomLeftMenuRef>(null);
   const { area, hierarchyTree, paths } = useDiagram(mockData);
-  const { centerRoot, zoomIn, zoomOut, resetZoom } = useZoom({
+  const { centerRoot, zoomIn, zoomOut, resetZoom, centerBlock } = useZoom({
     area,
     onChangeScale(scale) {
       bottomLeftMenuRef.current!.changeScale(scale);
@@ -22,7 +22,12 @@ export default function BotStoryPage() {
 
   return (
     <>
-      <ZoomContainer hierarchyTree={hierarchyTree} paths={paths} ref={zoomContainerDomRef} />
+      <ZoomContainer
+        centerBlock={centerBlock}
+        hierarchyTree={hierarchyTree}
+        paths={paths}
+        ref={zoomContainerDomRef}
+      />
       <BottomLeftMenu
         onCenterRoot={() => centerRoot(700)}
         onZoomIn={zoomIn}

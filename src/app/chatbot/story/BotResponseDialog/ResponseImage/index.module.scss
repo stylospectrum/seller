@@ -1,0 +1,71 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  align-self: stretch;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 20.3125rem;
+  height: 16.25rem;
+  background: #242e38;
+  border: 0.125rem solid transparent;
+  border-radius: 0.5rem;
+
+  box-shadow:
+    0 2px 8px 0 rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+
+  img {
+    border-radius: 0.5rem;
+  }
+
+  &-no-image {
+    border-color: rgba(85, 107, 130, 0.1);
+
+    &:hover {
+      border: 0.125rem dashed #a9b4be;
+    }
+  }
+}
+
+.icon {
+  color: #a9b4be;
+  font-size: 3rem;
+}
+
+.text {
+  color: #eaecee;
+  font-weight: 700;
+  font-size: 0.875rem;
+  font-family: $font-family;
+  user-select: none;
+}
+
+.actions {
+  position: absolute;
+  width: 20.3125rem;
+  height: 16.25rem;
+  border-radius: 0.5rem;
+
+  &-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: 0.5;
+  }
+
+  &-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+}

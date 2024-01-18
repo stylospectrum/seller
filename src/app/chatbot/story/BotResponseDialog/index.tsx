@@ -1,0 +1,195 @@
+import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react';
+import { Button, Dialog, Icon, Input } from '@stylospectrum/ui';
+import { ButtonDesign } from '@stylospectrum/ui/dist/types';
+import update from 'immutability-helper';
+import Image from 'next/image';
+import { useDrop } from 'react-dnd';
+import { v4 as uuidv4 } from 'uuid';
+
+import styles from './index.module.scss';
+import ResponseBlock from './ResponseBlock';
+import ResponseContainer from './ResponseContainer';
+import ResponseImage from './ResponseImage';
+import ResponseInput from './ResponseInput';
+import ResponseVariants from './ResponseVariants';
+
+import '@stylospectrum/ui/dist/icon/data/background';
+import '@stylospectrum/ui/dist/icon/data/image-viewer';
+import '@stylospectrum/ui/dist/icon/data/response';
+import '@stylospectrum/ui/dist/icon/data/text-formatting';
+
+export interface BotResponseDialogRef {
+  open: () => void;
+}
+
+interface BotResponseDialogProps {
+  onClose: () => void;
+}
+
+export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function BotResponseDialog(
+  { onClose },
+  ref,
+) {
+  const dialogRef: RefObject<any> = useRef(null);
+  const dropDomRef = useRef<HTMLDivElement>(null);
+  const [responses, setResponses] = useState<string[]>([]);
+  const [hoveredIndex, setHoveredIndex] = useState(0);
+  const [{ item, isOver }, drop] = useDrop(
+    () => ({
+      accept: 'BOX',
+      drop: (item: any) => {
+        setResponses((prev) => {
+          const newResponses = [...prev];
+          newResponses.splice(hoveredIndex, 0, item.id + '?' + uuidv4());
+          return newResponses;
+        });
+      },
+      collect: (monitor) => ({
+        isOver: monitor.isOver(),
+        canDrop: monitor.canDrop(),
+        item: monitor.getItem<{ icon: string; id: string }>(),
+      }),
+      hover(_, monitor) {
+        const hoverBoundingRect = dropDomRef.current!.getBoundingClientRect();
+        const clientOffset = monitor.getClientOffset();
+        const hoverClientY = clientOffset!.y - hoverBoundingRect.top;
+
+        let newHoveredIndex = responses.length;
+
+        for (let i = 0; i < responses.length; i++) {
+          const itemHeight = {
+            text: 62,
+            'random-text': 98,
+            image: 325,
+            gallery: 62,
+            'quick-reply': 62,
+          }[responses[i].split('?')[0]];
+
+          if (hoverClientY < (i + 1) * itemHeight!) {
+            newHoveredIndex = i;
+            break;
+          }
+        }
+
+        setHoveredIndex(newHoveredIndex);
+      },
+    }),
+    [responses.length, hoveredIndex],
+  );
+
+  function handleClose() {
+    onClose();
+    dialogRef.current.hide();
+  }
+
+  function handleOpen() {
+    dialogRef.current.show();
+  }
+
+  function handleDeleteResponse(index: number) {
+    setResponses((prev) => {
+      const newResponses = [...prev];
+      newResponses.splice(index, 1);
+      return newResponses;
+    });
+  }
+
+  function handleMoveItem(dragIdx: number, hoverIdx: number) {
+    setResponses((prev) => {
+      return update(prev, {
+        $splice: [
+          [dragIdx, 1],
+          [hoverIdx, 0, prev[dragIdx]],
+        ],
+      });
+    });
+  }
+
+  useImperativeHandle(ref, () => ({ open: handleOpen }));
+
+  const noDraggingNode = (
+    <div className={styles['no-dragging-wrapper']}>
+      <Image src="/images/dragging.png" width={122} height={122} alt="" />
+      <div className={styles['no-dragging-title']}>Drag and drop a response here</div>
+      <div className={styles['no-dragging-description']}>
+        In the menu on the left-hand side, you can select a response you want to send to users.
+      </div>
+    </div>
+  );
+
+  const renderDraggingNode = () => {
+    if (!item.icon) {
+      return null;
+    }
+
+    return (
+      <div className={styles['dragging-wrapper']}>
+        <div className={styles['dragging-icon-wrapper']}>
+          <Icon name={item.icon} className={styles['dragging-icon']} />
+        </div>
+      </div>
+    );
+  };
+
+  drop(dropDomRef);
+
+  return (
+    <Dialog
+      ref={dialogRef}
+      headerText="Bot response"
+      style={{ right: '1rem', top: '0.375rem', width: '30rem' }}
+    >
+      <Dialog
+        hideFooter
+        headerText="Responses"
+        slot="second-dialog"
+        style={{ right: '32rem', width: '15.62500rem', display: 'flex', minWidth: '1rem' }}
+      >
+        <div className={styles['response-dialog-content']}>
+          <div className={styles['response-dialog-row']}>
+            <ResponseBlock icon="text-formatting" text="Text" id="text" />
+            <ResponseBlock icon="text-formatting" text="Random text" id="random-text" />
+          </div>
+
+          <div className={styles['response-dialog-row']}>
+            <ResponseBlock icon="background" text="Image" id="image" />
+            <ResponseBlock icon="image-viewer" text="Gallery" id="gallery" />
+          </div>
+
+          <div className={styles['response-dialog-row']}>
+            <ResponseBlock icon="response" text="Quick reply" id="quick-reply" />
+          </div>
+        </div>
+      </Dialog>
+      <Input slot="sub-header" style={{ width: '100%' }} />
+
+      <div ref={dropDomRef} className={styles.content}>
+        {responses.length < 1 && !isOver && noDraggingNode}
+        {responses.map((response, idx) => {
+          return (
+            <div key={response}>
+              {hoveredIndex === idx && isOver && (
+                <div style={{ marginBottom: '1rem' }}>{renderDraggingNode()}</div>
+              )}
+              <ResponseContainer
+                moveItem={handleMoveItem}
+                index={idx}
+                id={response}
+                onDelete={() => handleDeleteResponse(idx)}
+              >
+                {response.startsWith('text') && <ResponseInput />}
+                {response.startsWith('random-text') && <ResponseVariants />}
+                {response.startsWith('image') && <ResponseImage />}
+              </ResponseContainer>
+            </div>
+          );
+        })}
+        {hoveredIndex === responses.length && isOver && renderDraggingNode()}
+      </div>
+      <Button slot="ok-button">Save</Button>
+      <Button slot="cancel-button" onClick={handleClose} type={ButtonDesign.Tertiary}>
+        Close
+      </Button>
+    </Dialog>
+  );
+});

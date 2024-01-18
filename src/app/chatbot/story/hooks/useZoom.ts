@@ -2,6 +2,9 @@
 import { useCallback, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
+import { Box } from '../utils/box';
+import { CustomHierarchyNode } from '../utils/hierarchy';
+
 interface ZoomParams {
   getContainer: () => HTMLDivElement | null;
   onChangeScale: (scale: number) => void;
@@ -51,10 +54,11 @@ export default function useZoom({ area, getContainer, onChangeScale }: ZoomParam
   }, []);
 
   const zoomIn = useCallback(() => {
-    if (currentScale.current < 1.5) {
-      currentScale.current += 0.25;
+    if (currentScale.current >= 1.5) {
+      return;
     }
 
+    currentScale.current = parseFloat((currentScale.current + 0.25).toFixed(2));
     selection.current
       ?.transition()
       .duration(700)
@@ -63,10 +67,11 @@ export default function useZoom({ area, getContainer, onChangeScale }: ZoomParam
   }, []);
 
   const zoomOut = useCallback(() => {
-    if (currentScale.current > 0.5) {
-      currentScale.current -= 0.25;
+    if (currentScale.current <= 0.5) {
+      return;
     }
 
+    currentScale.current = parseFloat((currentScale.current - 0.25).toFixed(2));
     selection.current
       ?.transition()
       .duration(700)
@@ -122,7 +127,7 @@ export default function useZoom({ area, getContainer, onChangeScale }: ZoomParam
     onChangeScale(1);
   }, []);
 
-  const centerBlock = useCallback((block: any) => {
+  const centerBlock = useCallback((block: CustomHierarchyNode<Box>) => {
     selection.current
       ?.transition()
       .duration(700)
@@ -131,8 +136,8 @@ export default function useZoom({ area, getContainer, onChangeScale }: ZoomParam
         d3.zoomIdentity
           .scale(currentScale.current)
           .translate(
-            -block.x - block.data.width / 2 + viewportWidth.current / currentScale.current / 3,
-            -block.y + viewportHeight.current / currentScale.current / 2,
+            -block.x! - block.data.width / 2 + viewportWidth.current / currentScale.current / 3,
+            -block.y! + viewportHeight.current / currentScale.current / 2,
           ),
       );
   }, []);

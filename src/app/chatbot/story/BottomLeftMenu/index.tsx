@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Button } from '@stylospectrum/ui';
-import { ButtonDesign, TooltipPlacement } from '@stylospectrum/ui/dist/types';
+import { ButtonDesign, Placement } from '@stylospectrum/ui/dist/types';
 
 import styles from './index.module.scss';
 
@@ -47,14 +47,14 @@ export default forwardRef<BottomLeftMenuRef, BottomLeftMenuProps>(function Botto
         icon="home"
         type={ButtonDesign.Tertiary}
         tooltip="Start point"
-        tooltipPlacement={TooltipPlacement.Top}
+        tooltipPlacement={Placement.Top}
         onClick={onCenterRoot}
       />
       <Button
         icon={fullScreen ? 'exit-full-screen' : 'full-screen'}
         type={ButtonDesign.Tertiary}
         tooltip="Fullscreen"
-        tooltipPlacement={TooltipPlacement.Top}
+        tooltipPlacement={Placement.Top}
         onClick={() => {
           if (fullScreen) {
             document.exitFullscreen();
@@ -77,14 +77,14 @@ export default forwardRef<BottomLeftMenuRef, BottomLeftMenuProps>(function Botto
           <>
             <Button
               tooltip="Zoom out Ctrl + [-]"
-              tooltipPlacement={TooltipPlacement.Top}
+              tooltipPlacement={Placement.Top}
               icon="less"
               type={ButtonDesign.Tertiary}
               onClick={onZoomOut}
             />
             <Button
               tooltip="Zoom in Ctrl + [+]"
-              tooltipPlacement={TooltipPlacement.Top}
+              tooltipPlacement={Placement.Top}
               icon="add"
               type={ButtonDesign.Tertiary}
               onClick={onZoomIn}
@@ -93,7 +93,7 @@ export default forwardRef<BottomLeftMenuRef, BottomLeftMenuProps>(function Botto
         )}
         <Button
           tooltip={zoomAreaVisible ? 'Reset zoom' : undefined}
-          tooltipPlacement={TooltipPlacement.Top}
+          tooltipPlacement={Placement.Top}
           type={ButtonDesign.Tertiary}
           onClick={onResetZoom}
         >
