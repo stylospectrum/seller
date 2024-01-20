@@ -21,7 +21,9 @@ export default function ResponseImage() {
   }
 
   function uploadFiles(files: File[]) {
-    setImageUrl(URL.createObjectURL(files[0]));
+    if (files.length > 0) {
+      setImageUrl(URL.createObjectURL(files[0]));
+    }
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {

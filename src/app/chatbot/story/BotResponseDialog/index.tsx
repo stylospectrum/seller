@@ -11,6 +11,7 @@ import ResponseBlock from './ResponseBlock';
 import ResponseContainer from './ResponseContainer';
 import ResponseImage from './ResponseImage';
 import ResponseInput from './ResponseInput';
+import ResponseQuickReply from './ResponseQuickReply';
 import ResponseVariants from './ResponseVariants';
 
 import '@stylospectrum/ui/dist/icon/data/background';
@@ -34,6 +35,18 @@ export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function
   const dropDomRef = useRef<HTMLDivElement>(null);
   const [responses, setResponses] = useState<string[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(0);
+
+  const getItemHeight = (type: string) => {
+    const itemHeight: { [key: string]: number } = {
+      text: 62,
+      'random-text': 98,
+      image: 325,
+      gallery: 62,
+      'quick-reply': 62,
+    };
+    return itemHeight[type] || 0;
+  };
+
   const [{ item, isOver }, drop] = useDrop(
     () => ({
       accept: 'BOX',
@@ -50,31 +63,35 @@ export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function
         item: monitor.getItem<{ icon: string; id: string }>(),
       }),
       hover(_, monitor) {
+        monitor.isOver({ shallow: true });
         const hoverBoundingRect = dropDomRef.current!.getBoundingClientRect();
         const clientOffset = monitor.getClientOffset();
-        const hoverClientY = clientOffset!.y - hoverBoundingRect.top;
+        const hoverClientY =
+          clientOffset!.y - hoverBoundingRect.top + dropDomRef.current!.scrollTop;
 
         let newHoveredIndex = responses.length;
+        let totalHeight = 0;
 
         for (let i = 0; i < responses.length; i++) {
-          const itemHeight = {
-            text: 62,
-            'random-text': 98,
-            image: 325,
-            gallery: 62,
-            'quick-reply': 62,
-          }[responses[i].split('?')[0]];
+          const [itemType] = responses[i].split('?');
+          const itemHeight = getItemHeight(itemType);
 
-          if (hoverClientY < (i + 1) * itemHeight!) {
+          totalHeight += itemHeight;
+
+          if (hoverClientY < totalHeight) {
             newHoveredIndex = i;
             break;
           }
         }
 
+        if (hoverClientY >= totalHeight) {
+          newHoveredIndex = responses.length;
+        }
+
         setHoveredIndex(newHoveredIndex);
       },
     }),
-    [responses.length, hoveredIndex],
+    [responses, hoveredIndex],
   );
 
   function handleClose() {
@@ -143,7 +160,7 @@ export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function
         hideFooter
         headerText="Responses"
         slot="second-dialog"
-        style={{ right: '32rem', width: '15.62500rem', display: 'flex', minWidth: '1rem' }}
+        className={styles['response-dialog']}
       >
         <div className={styles['response-dialog-content']}>
           <div className={styles['response-dialog-row']}>
@@ -180,6 +197,7 @@ export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function
                 {response.startsWith('text') && <ResponseInput />}
                 {response.startsWith('random-text') && <ResponseVariants />}
                 {response.startsWith('image') && <ResponseImage />}
+                {response.startsWith('quick-reply') && <ResponseQuickReply />}
               </ResponseContainer>
             </div>
           );

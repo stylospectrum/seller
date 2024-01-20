@@ -4,3 +4,29 @@ body {
   font-family: '72override', '72', '72full', Arial, Helvetica, sans-serif;
   background-color: #12171c;
 }
+
+html ::-webkit-scrollbar:horizontal {
+  height: 0.75rem;
+}
+
+html ::-webkit-scrollbar:vertical {
+  width: 0.75rem;
+}
+
+html ::-webkit-scrollbar {
+  background-color: #1d232a;
+}
+
+html ::-webkit-scrollbar-thumb {
+  background-color: #647891;
+  border: 0.125rem solid #1d232a;
+  border-radius: 0.75rem;
+}
+
+html ::-webkit-scrollbar-thumb:hover {
+  background-color: #8697ac;
+}
+
+html ::-webkit-scrollbar-corner {
+  background-color: #1d232a;
+}
