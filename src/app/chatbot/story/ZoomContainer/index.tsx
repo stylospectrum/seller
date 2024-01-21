@@ -1,9 +1,10 @@
-import { forwardRef, MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
+import { forwardRef, MouseEvent, useEffect, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import Block from '../Block';
-import BotResponseDialog, { BotResponseDialogRef } from '../BotResponseDialog';
+import BotResponseDialog from '../BotResponseDialog';
+import UserInputDialog from '../UserInputDialog';
 import { Box } from '../utils/box';
 import type { CustomHierarchyNode } from '../utils/hierarchy';
 import styles from './index.module.scss';
@@ -28,7 +29,8 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
     {},
   );
   const [selectedBlock, setSelectedBlock] = useState('');
-  const botResponseDialogRef: RefObject<BotResponseDialogRef> = useRef(null);
+  const [botResDialogVisible, setBotResDialogVisible] = useState(false);
+  const [userInputDialog, setUserInputDialog] = useState(false);
 
   useEffect(() => {
     setDiagram({
@@ -49,8 +51,18 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
     centerBlock(block);
 
     if (block.data.type === 'BOT_RESPONSE') {
-      botResponseDialogRef.current?.open();
+      setBotResDialogVisible(true);
     }
+
+    if (block.data.type === 'USER_INPUT') {
+      setUserInputDialog(true);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setUserInputDialog(false);
+    setBotResDialogVisible(false);
+    setSelectedBlock('');
   };
 
   return (
@@ -80,9 +92,14 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
           ))}
         </div>
       </div>
-      <DndProvider backend={HTML5Backend}>
-        <BotResponseDialog onClose={() => setSelectedBlock('')} ref={botResponseDialogRef} />
-      </DndProvider>
+
+      {botResDialogVisible && (
+        <DndProvider backend={HTML5Backend}>
+          <BotResponseDialog onClose={handleCloseDialog} />
+        </DndProvider>
+      )}
+
+      {userInputDialog && <UserInputDialog onClose={handleCloseDialog} />}
     </>
   );
 });

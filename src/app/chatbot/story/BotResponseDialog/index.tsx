@@ -20,19 +20,11 @@ import '@stylospectrum/ui/dist/icon/data/image-viewer';
 import '@stylospectrum/ui/dist/icon/data/response';
 import '@stylospectrum/ui/dist/icon/data/text-formatting';
 
-export interface BotResponseDialogRef {
-  open: () => void;
-}
-
 interface BotResponseDialogProps {
   onClose: () => void;
 }
 
-export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function BotResponseDialog(
-  { onClose },
-  ref,
-) {
-  const dialogRef: RefObject<any> = useRef(null);
+export default function BotResponseDialog({ onClose }: BotResponseDialogProps) {
   const dropDomRef = useRef<HTMLDivElement>(null);
   const [responses, setResponses] = useState<string[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(0);
@@ -97,11 +89,6 @@ export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function
 
   function handleClose() {
     onClose();
-    dialogRef.current.hide();
-  }
-
-  function handleOpen() {
-    dialogRef.current.show();
   }
 
   function handleDeleteResponse(index: number) {
@@ -122,8 +109,6 @@ export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function
       });
     });
   }
-
-  useImperativeHandle(ref, () => ({ open: handleOpen }));
 
   const noDraggingNode = (
     <div className={styles['no-dragging-wrapper']}>
@@ -152,11 +137,7 @@ export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function
   drop(dropDomRef);
 
   return (
-    <Dialog
-      ref={dialogRef}
-      headerText="Bot response"
-      style={{ right: '1rem', top: '0.375rem', width: '30rem' }}
-    >
+    <Dialog headerText="Bot response" className={styles.dialog}>
       <Dialog
         hideFooter
         headerText="Responses"
@@ -213,4 +194,4 @@ export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function
       </Button>
     </Dialog>
   );
-});
+}

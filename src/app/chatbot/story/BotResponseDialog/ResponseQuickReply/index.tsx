@@ -14,11 +14,11 @@ export default function ResponseQuickReply() {
   const [buttons, setButtons] = useState<string[]>([uuidv4()]);
 
   function handleAdd() {
-    setButtons([...buttons, uuidv4()]);
+    setButtons((prev) => [...prev, uuidv4()]);
   }
 
   function handleDelete(id: string) {
-    setButtons(buttons.filter((button) => button !== id));
+    setButtons((prev) => prev.filter((button) => button !== id));
   }
 
   function handleMoveButton(dragIdx: number, hoverIdx: number) {
