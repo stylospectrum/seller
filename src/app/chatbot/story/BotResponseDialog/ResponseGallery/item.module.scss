@@ -1,0 +1,93 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 15rem;
+  border: 1px solid rgba(85, 107, 130, 0.1);
+  border-radius: 0.5rem;
+  box-shadow:
+    0 2px 8px 0 rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.image {
+  width: 100%;
+  height: 9.0625rem;
+  background: #242e38;
+  border: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  box-shadow: 0 1px 0 0 #a9b4be;
+
+  &:hover {
+    border: none;
+
+    &::after {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 0.125rem dashed #a9b4be;
+      border-radius: 0.5rem 0.5rem 0 0;
+      content: '';
+    }
+  }
+}
+
+.form {
+  display: block;
+  width: 100%;
+  margin-top: -2px;
+}
+
+.input {
+  width: 100%;
+  border-radius: 0;
+  box-shadow: none;
+
+  --stylospectrum-input-inset: -1px;
+  --stylospectrum-input-border-radius: 0;
+  --stylospectrum-textarea-inset: 0;
+  --stylospectrum-textarea-border-radius: 0;
+}
+
+.buttons {
+  width: 100%;
+}
+
+.add-button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &-line {
+    height: 1.75rem;
+    border-left: 0.125rem dashed #a9b4be;
+  }
+
+  &-text {
+    position: absolute;
+    top: 2.25rem;
+    right: -5.1875rem;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.875rem;
+    font-family: $font-family;
+  }
+}
+
+.actions {
+  position: absolute;
+  top: -0.9375rem;
+  right: -0.9375rem;
+  z-index: 10;
+  display: flex;
+  gap: 0.25rem;
+  align-items: flex-start;
+}

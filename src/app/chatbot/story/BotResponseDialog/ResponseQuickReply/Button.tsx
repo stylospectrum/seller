@@ -1,10 +1,10 @@
 import { MouseEvent, useRef, useState } from 'react';
 import { Button, Form, FormItem, Input, Popover } from '@stylospectrum/ui';
 import { ButtonDesign, IForm, IInput, IPopover, Placement } from '@stylospectrum/ui/dist/types';
-import type { Identifier, XYCoord } from 'dnd-core';
+import type { Identifier } from 'dnd-core';
 import { useDrag, useDrop } from 'react-dnd';
 
-import styles from './quick-reply.module.scss';
+import styles from './button.module.scss';
 
 import '@stylospectrum/ui/dist/icon/data/delete';
 import '@stylospectrum/ui/dist/icon/data/sort';
@@ -52,27 +52,11 @@ export default function QuickReplyButton({
           handlerId: monitor.getHandlerId(),
         };
       },
-      hover(item: DragItem, monitor) {
+      hover(item: DragItem) {
         const dragIndex = item.index;
         const hoverIndex = index;
 
         if (dragIndex === hoverIndex) {
-          return;
-        }
-
-        const hoverBoundingRect = wrapperDomRef.current!.getBoundingClientRect();
-        const hoverMiddleX = (hoverBoundingRect.right - hoverBoundingRect.left) / 2;
-        const clientOffset = monitor.getClientOffset();
-        const hoverClientX = clientOffset!.x - hoverBoundingRect.left;
-
-        const dragRight = dragIndex === hoverIndex - 1;
-        const dragLeft = dragIndex === hoverIndex + 1;
-
-        if (dragRight && dragIndex < hoverIndex && hoverClientX < hoverMiddleX) {
-          return;
-        }
-
-        if (dragLeft && dragIndex > hoverIndex && hoverClientX > hoverMiddleX) {
           return;
         }
 
@@ -143,7 +127,7 @@ export default function QuickReplyButton({
           </div>
         )}
       </div>
-      <Popover ref={popoverRef} placement={Placement.Left}>
+      <Popover ref={popoverRef} placement={Placement.Left} style={{ display: 'none' }}>
         <Button slot="ok-button" onClick={handleOk}>
           Ok
         </Button>

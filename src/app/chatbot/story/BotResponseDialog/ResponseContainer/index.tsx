@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Button } from '@stylospectrum/ui';
 import type { Identifier, XYCoord } from 'dnd-core';
 import { useDrag, useDrop } from 'react-dnd';
@@ -14,6 +14,7 @@ interface ResponseContainerProps {
   children: React.ReactNode;
   onDelete: () => void;
   moveItem: (dragIndex: number, hoverIndex: number) => void;
+  isGallery: boolean;
 }
 
 interface DragItem {
@@ -28,6 +29,7 @@ export default function ResponseContainer({
   id,
   index,
   moveItem,
+  isGallery,
 }: ResponseContainerProps) {
   const [hover, setHover] = useState(false);
   const containerDomRef = useRef<HTMLDivElement>(null);
@@ -94,15 +96,17 @@ export default function ResponseContainer({
     if (hover && containerDomRef.current && !isDragging) {
       const { top, left } = containerDomRef.current.getBoundingClientRect();
       const actionsDom = actionsDomRef.current;
+      const extraTop = isGallery ? 16 : 0;
 
       if (actionsDom) {
-        actionsDom.style.top = `${top}px`;
-        actionsDom.style.left = `${left - 40}px`;
+        actionsDom.style.top = `${top + extraTop}px`;
+        actionsDom.style.left = `${left - 24}px`;
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hover, isDragging]);
 
-  dragPreview(drop(containerDomRef));
+  drop(dragPreview(containerDomRef));
 
   return (
     <div
@@ -111,7 +115,11 @@ export default function ResponseContainer({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       data-handler-id={handlerId}
-      style={{ opacity: isDragging ? 0 : 1 }}
+      style={{
+        opacity: isDragging ? 0 : 1,
+        marginTop: isGallery ? '-1rem' : 0,
+        marginLeft: isGallery ? '-0.125rem' : 0,
+      }}
     >
       {hover && !isDragging && (
         <div className={styles.actions} ref={actionsDomRef}>

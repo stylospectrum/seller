@@ -5,8 +5,8 @@ import update from 'immutability-helper';
 import { v4 as uuidv4 } from 'uuid';
 
 import ResponseInput from '../ResponseInput';
+import QuickReplyButton from './Button';
 import styles from './index.module.scss';
-import QuickReplyButton from './QuickReplyButton';
 
 import '@stylospectrum/ui/dist/icon/data/add';
 

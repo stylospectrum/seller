@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import styles from './index.module.scss';
 import ResponseBlock from './ResponseBlock';
 import ResponseContainer from './ResponseContainer';
+import ResponseGallery from './ResponseGallery';
 import ResponseImage from './ResponseImage';
 import ResponseInput from './ResponseInput';
 import ResponseQuickReply from './ResponseQuickReply';
@@ -191,6 +192,7 @@ export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function
               <ResponseContainer
                 moveItem={handleMoveItem}
                 index={idx}
+                isGallery={response.startsWith('gallery')}
                 id={response}
                 onDelete={() => handleDeleteResponse(idx)}
               >
@@ -198,6 +200,7 @@ export default forwardRef<BotResponseDialogRef, BotResponseDialogProps>(function
                 {response.startsWith('random-text') && <ResponseVariants />}
                 {response.startsWith('image') && <ResponseImage />}
                 {response.startsWith('quick-reply') && <ResponseQuickReply />}
+                {response.startsWith('gallery') && <ResponseGallery />}
               </ResponseContainer>
             </div>
           );

@@ -4,8 +4,8 @@
   gap: 1rem;
   box-sizing: border-box;
   max-height: calc(100vh - 11rem);
-  padding: 1rem;
-  overflow: auto;
+  padding: 1rem 0;
+  overflow: hidden auto;
 }
 
 .response-dialog {
@@ -40,6 +40,7 @@
     align-self: stretch;
     justify-content: center;
     box-sizing: border-box;
+    padding: 0 1rem;
     user-select: none;
   }
 
@@ -64,6 +65,7 @@
     display: flex;
     align-items: flex-start;
     align-self: stretch;
+    padding: 0 1rem;
   }
 
   &-icon-wrapper {

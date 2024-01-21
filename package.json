@@ -20,7 +20,7 @@
     "*.{.js,.jsx,.ts,.tsx}": "next lint --fix"
   },
   "dependencies": {
-    "@stylospectrum/ui": "^0.0.28",
+    "@stylospectrum/ui": "^0.0.30",
     "axios": "^1.6.2",
     "classnames": "^2.5.1",
     "d3": "^7.8.5",

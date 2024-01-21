@@ -1,0 +1,50 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+}
+
+.scroll-container {
+  display: flex;
+  width: calc(100% + 1rem);
+  padding: 1.125rem 0 0 0.125rem;
+  overflow: hidden;
+}
+
+.items {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.add-item {
+  display: flex;
+  align-items: center;
+
+  &-line {
+    width: 1.75rem;
+    border-bottom: 0.125rem dashed #a9b4be;
+  }
+
+  &-text {
+    margin-left: 0.5rem;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.875rem;
+    font-family: $font-family;
+    white-space: nowrap;
+  }
+}
+
+.nav-button {
+  position: absolute;
+  z-index: 1;
+
+  &-next {
+    right: -1rem;
+  }
+
+  &-prev {
+    left: -1rem;
+  }
+}

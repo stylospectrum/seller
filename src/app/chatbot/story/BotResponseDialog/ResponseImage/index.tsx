@@ -7,7 +7,14 @@ import styles from './index.module.scss';
 
 import '@stylospectrum/ui/dist/icon/data/upload';
 
-export default function ResponseImage() {
+interface ResponseImageProps {
+  className?: string;
+  width?: number;
+  height?: number;
+  iconSize?: number;
+}
+
+export default function ResponseImage({ className, width, height, iconSize }: ResponseImageProps) {
   const [imageUrl, setImageUrl] = useState<string>();
   const inputDomRef = useRef<HTMLInputElement>(null);
   const [hovered, setHovered] = useState(false);
@@ -52,7 +59,7 @@ export default function ResponseImage() {
 
   return (
     <div
-      className={classNames(styles.wrapper, { [styles['wrapper-no-image']]: !imageUrl })}
+      className={classNames(styles.wrapper, className, { [styles['wrapper-no-image']]: !imageUrl })}
       onClick={handleClick}
       onDrop={handleDrop}
       onDragOver={handleDrop}
@@ -68,10 +75,10 @@ export default function ResponseImage() {
         onClick={(e) => e.stopPropagation()}
       />
       {imageUrl ? (
-        <Image src={imageUrl} width={325} height={260} alt="" />
+        <Image src={imageUrl} width={width || 325} height={height || 260} alt="" />
       ) : (
         <>
-          <Icon name="upload" className={styles.icon} />
+          <Icon name="upload" className={styles.icon} style={{ fontSize: `${iconSize}rem` }} />
           <div className={styles.text}>Drag and drop or browse</div>
         </>
       )}
@@ -81,7 +88,7 @@ export default function ResponseImage() {
           <div className={styles['actions-bg']} />
 
           <div className={styles['actions-content']}>
-            <Icon name="upload" className={styles.icon} />
+            <Icon name="upload" className={styles.icon} style={{ fontSize: `${iconSize}rem` }} />
             <div className={styles.text}>
               Click to choose a new image
               <br />
