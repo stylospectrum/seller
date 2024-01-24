@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Dialog, Form, FormItem, Input, Textarea } from '@stylospectrum/ui';
 import { ButtonDesign, IForm } from '@stylospectrum/ui/dist/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,6 +15,7 @@ interface UserInputDialogProps {
 
 export default function UserInputDialog({ onClose }: UserInputDialogProps) {
   const [inputs, setInputs] = useState<string[]>([uuidv4()]);
+  const dialogRef = useRef<any>(null);
   const formRef = useRef<IForm>(null);
   const count = useRef<{ [key: string]: number }>({});
 
@@ -28,11 +29,16 @@ export default function UserInputDialog({ onClose }: UserInputDialogProps) {
 
   function handleSave() {
     console.log(formRef.current?.getFieldsValue());
+    dialogRef.current?.hide();
     onClose();
   }
 
+  useEffect(() => {
+    dialogRef.current?.show();
+  }, []);
+
   return (
-    <Dialog headerText="User input" className={styles.dialog}>
+    <Dialog ref={dialogRef} headerText="User input" className={styles.dialog}>
       <Input slot="sub-header" style={{ width: '100%' }} />
 
       <Form ref={formRef} className={styles.form}>

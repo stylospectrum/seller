@@ -48,8 +48,11 @@ export default function useZoom({ area, getContainer, onChangeScale }: ZoomParam
     }
 
     if (hasChanges) {
-      const diagramDom = getContainer()!.querySelector('#diagram') as HTMLDivElement;
-      diagramDom!.style.transform = `translate(${currentTranslationX.current}px,${currentTranslationY.current}px) scale(${currentScale.current})`;
+      const diagramDom = getContainer()?.querySelector('#diagram') as HTMLDivElement;
+
+      if (diagramDom) {
+        diagramDom.style.transform = `translate(${currentTranslationX.current}px,${currentTranslationY.current}px) scale(${currentScale.current})`;
+      }
     }
   }, []);
 

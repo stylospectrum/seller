@@ -38,9 +38,9 @@
   border-radius: 1.625rem;
 }
 
-.container[data-type='START_POINT'],
-.container[data-type='BOT_RESPONSE'],
-.container[data-type='DEFAULT_FALLBACK'] {
+.container[data-type='StartPoint'],
+.container[data-type='BotResponse'],
+.container[data-type='DefaultFallback'] {
   .body {
     display: flex;
     gap: 0.5rem;
@@ -71,7 +71,7 @@
   }
 }
 
-.container[data-type='USER_INPUT'] {
+.container[data-type='UserInput'] {
   .body {
     position: relative;
     display: flex;
@@ -121,12 +121,12 @@
   }
 }
 
-.container[data-type='START_POINT'] .body,
-.container[data-type='DEFAULT_FALLBACK'] .body {
+.container[data-type='StartPoint'] .body,
+.container[data-type='DefaultFallback'] .body {
   cursor: not-allowed;
 }
 
-.container[data-type='START_POINT'] .body {
+.container[data-type='StartPoint'] .body {
   background: #566e8a;
 
   .text {
@@ -139,7 +139,7 @@
   }
 }
 
-.container[data-type='BOT_RESPONSE'] .body {
+.container[data-type='BotResponse'] .body {
   background: #e2e5e9;
 
   .text {
@@ -152,7 +152,7 @@
   }
 }
 
-.container[data-type='DEFAULT_FALLBACK'] .body {
+.container[data-type='DefaultFallback'] .body {
   background: #797b8c;
 
   .text {

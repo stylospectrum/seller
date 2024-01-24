@@ -1,10 +1,4 @@
-enum BlockTypes {
-  START_POINT = 'START_POINT',
-  USER_INPUT = 'USER_INPUT',
-  BOT_RESPONSE = 'BOT_RESPONSE',
-  FALLBACK = 'FALLBACK',
-  DEFAULT_FALLBACK = 'DEFAULT_FALLBACK',
-}
+import { BotStoryBlockType } from '@/model/bot-story-block';
 
 interface BoxSize {
   height: number;
@@ -15,7 +9,7 @@ interface BoxSize {
 export interface Box {
   value?: any;
   id: string;
-  type: BlockTypes;
+  type: BotStoryBlockType;
   nested: any[];
   flowParent: this | null;
   children: this[];
@@ -32,14 +26,14 @@ function createBox(height: number, width: number, extraHeight = 85, extraWidth =
   };
 }
 
-const BOX_TYPES: { [key in BlockTypes | 'DEFAULT']?: BoxSize } = {
-  [BlockTypes.USER_INPUT]: createBox(60, 60, 80),
-  [BlockTypes.DEFAULT_FALLBACK]: createBox(40, 164),
-  DEFAULT: createBox(40, 150),
+const BOX_TYPES: { [key in BotStoryBlockType | 'Default']?: BoxSize } = {
+  [BotStoryBlockType.UserInput]: createBox(60, 60, 80),
+  [BotStoryBlockType.DefaultFallback]: createBox(40, 164),
+  Default: createBox(40, 150),
 };
 
 function getBoxSize(box: Box) {
-  return BOX_TYPES[box.type] || BOX_TYPES.DEFAULT;
+  return BOX_TYPES[box.type] || BOX_TYPES.Default;
 }
 
 export default function processBoxes(rootBox: any) {

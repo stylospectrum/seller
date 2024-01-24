@@ -27,7 +27,9 @@ export default function ResponseVariants() {
     const activeIndex = variants.findIndex((variant) => variant === activeVariant);
     const newVariants = variants.filter((variant) => variant !== activeVariant);
     setVariants(newVariants);
-    setActiveVariant(newVariants.length === 1 ? newVariants[0] : newVariants[activeIndex - 1]);
+    setActiveVariant(
+      newVariants.length === 1 || activeIndex === 0 ? newVariants[0] : newVariants[activeIndex - 1],
+    );
   }
 
   return (

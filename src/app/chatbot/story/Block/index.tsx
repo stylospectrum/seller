@@ -23,19 +23,19 @@ export default function Block({ type, title, id, chosen, onClick }: BlockProps) 
   const [hover, setHover] = useState(false);
   const menuRef: RefObject<IMenu> = useRef(null);
   const data: { [key: string]: { [key1: string]: string } } = {
-    START_POINT: {
+    StartPoint: {
       icon: 'home',
       text: 'Start point',
     },
-    DEFAULT_FALLBACK: {
+    DefaultFallback: {
       icon: 'fallback',
       text: 'Default fallback',
     },
-    BOT_RESPONSE: {
+    BotResponse: {
       icon: 'response',
       text: 'Bot response',
     },
-    USER_INPUT: {
+    UserInput: {
       icon: 'post',
     },
   };
@@ -65,7 +65,7 @@ export default function Block({ type, title, id, chosen, onClick }: BlockProps) 
 
         {hover && (
           <>
-            {['BOT_RESPONSE', 'USER_INPUT'].includes(type) && (
+            {!['StartPoint', 'DefaultFallback'].includes(type) && (
               <MenuButton
                 className={styles['menu-button']}
                 onButtonClick={(e) => e.preventDefault()}

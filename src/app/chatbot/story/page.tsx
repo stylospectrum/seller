@@ -5,13 +5,12 @@ import { useRef } from 'react';
 import BottomLeftMenu, { BottomLeftMenuRef } from './BottomLeftMenu';
 import useDiagram from './hooks/useDiagram';
 import useZoom from './hooks/useZoom';
-import mockData from './mockData';
 import ZoomContainer from './ZoomContainer';
 
 export default function BotStoryPage() {
   const zoomContainerDomRef = useRef<HTMLDivElement>(null);
   const bottomLeftMenuRef = useRef<BottomLeftMenuRef>(null);
-  const { area, hierarchyTree, paths } = useDiagram(mockData);
+  const { area, blocks, paths } = useDiagram();
   const { centerRoot, zoomIn, zoomOut, resetZoom, centerBlock } = useZoom({
     area,
     onChangeScale(scale) {
@@ -24,7 +23,7 @@ export default function BotStoryPage() {
     <>
       <ZoomContainer
         centerBlock={centerBlock}
-        hierarchyTree={hierarchyTree}
+        blocks={blocks}
         paths={paths}
         ref={zoomContainerDomRef}
       />

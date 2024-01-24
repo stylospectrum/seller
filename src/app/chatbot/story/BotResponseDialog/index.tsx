@@ -1,4 +1,4 @@
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Dialog, Icon, Input } from '@stylospectrum/ui';
 import { ButtonDesign } from '@stylospectrum/ui/dist/types';
 import update from 'immutability-helper';
@@ -21,13 +21,20 @@ import '@stylospectrum/ui/dist/icon/data/response';
 import '@stylospectrum/ui/dist/icon/data/text-formatting';
 
 interface BotResponseDialogProps {
+  title?: string;
+  id: string;
   onClose: () => void;
 }
 
-export default function BotResponseDialog({ onClose }: BotResponseDialogProps) {
+export default function BotResponseDialog({ onClose, title }: BotResponseDialogProps) {
   const dropDomRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<any>(null);
   const [responses, setResponses] = useState<string[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(0);
+
+  useEffect(() => {
+    dialogRef.current?.show();
+  }, []);
 
   const getItemHeight = (type: string) => {
     const itemHeight: { [key: string]: number } = {
@@ -88,6 +95,7 @@ export default function BotResponseDialog({ onClose }: BotResponseDialogProps) {
   );
 
   function handleClose() {
+    dialogRef.current.hide();
     onClose();
   }
 
@@ -137,7 +145,7 @@ export default function BotResponseDialog({ onClose }: BotResponseDialogProps) {
   drop(dropDomRef);
 
   return (
-    <Dialog headerText="Bot response" className={styles.dialog}>
+    <Dialog ref={dialogRef} headerText="Bot response" className={styles.dialog}>
       <Dialog
         hideFooter
         headerText="Responses"
@@ -160,7 +168,7 @@ export default function BotResponseDialog({ onClose }: BotResponseDialogProps) {
           </div>
         </div>
       </Dialog>
-      <Input slot="sub-header" style={{ width: '100%' }} />
+      <Input slot="sub-header" value={title} style={{ width: '100%' }} />
 
       <div ref={dropDomRef} className={styles.content}>
         {responses.length < 1 && !isOver && noDraggingNode}
