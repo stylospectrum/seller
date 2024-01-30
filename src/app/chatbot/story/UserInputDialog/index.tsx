@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, Dialog, Form, FormItem, Input, Textarea } from '@stylospectrum/ui';
+import { Button, Dialog, Form, Input } from '@stylospectrum/ui';
 import { ButtonDesign, IForm } from '@stylospectrum/ui/dist/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -27,10 +27,14 @@ export default function UserInputDialog({ onClose }: UserInputDialogProps) {
     setInputs((prev) => prev.filter((button) => button !== id));
   }
 
-  function handleSave() {
-    console.log(formRef.current?.getFieldsValue());
+  function handleClose() {
     dialogRef.current?.hide();
     onClose();
+  }
+
+  function handleSave() {
+    console.log(formRef.current?.getFieldsValue());
+    handleClose();
   }
 
   useEffect(() => {
@@ -68,7 +72,7 @@ export default function UserInputDialog({ onClose }: UserInputDialogProps) {
       <Button slot="ok-button" onClick={handleSave}>
         Save
       </Button>
-      <Button slot="cancel-button" type={ButtonDesign.Tertiary} onClick={onClose}>
+      <Button slot="cancel-button" type={ButtonDesign.Tertiary} onClick={handleClose}>
         Close
       </Button>
     </Dialog>

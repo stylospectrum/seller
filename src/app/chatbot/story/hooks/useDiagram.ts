@@ -4,107 +4,83 @@ import { flextree } from 'd3-flextree';
 import { createHierarchyTree, generatePath, processBoxes } from '../utils';
 import { Box } from '../utils/box';
 import { CustomHierarchyNode } from '../utils/hierarchy';
-import { botStoryApi } from '@/api';
+import { BotStoryBlock } from '@/model';
 
-export default function useDiagram() {
+export default function useDiagram(rawBlock: BotStoryBlock | null) {
   const [diagram, setDiagram] = useState<{ blocks?: CustomHierarchyNode<Box>[]; paths?: string[] }>(
     {},
   );
-  const area = useRef({
-    maxX: 0,
-    maxY: 0,
-    minY: 0,
-  });
 
   useEffect(() => {
-    async function fetchData() {
-      const data = await botStoryApi.getStoryBlocks();
+    if (!rawBlock) {
+      return;
+    }
 
-      if (!data) {
-        return;
-      }
+    const boxes = processBoxes(rawBlock);
+    const hierarchyTree = createHierarchyTree(boxes.tree, (node) => {
+      const data = node.data;
+      const childNodes = data.children;
+      const shouldCollapse = false;
+      const shouldExclude = false;
 
-      const boxes = processBoxes(data);
-      const hierarchyTree = createHierarchyTree(boxes.tree, (node) => {
-        const data = node.data;
-        const childNodes = data.children;
-        const shouldCollapse = false;
-        const shouldExclude = false;
-
-        Object.assign(node, {
-          isCollapsed: shouldCollapse,
-        });
-
-        if (shouldExclude || shouldCollapse) {
-          return [];
-        }
-        return childNodes;
+      Object.assign(node, {
+        isCollapsed: shouldCollapse,
       });
-      flextree({})(hierarchyTree.tree as any);
 
-      for (const node of hierarchyTree.array) {
-        const posX = node.x!;
-        const posY = node.y;
-        const halfHeight = node.data.height / 2;
-
-        area.current = {
-          maxX: Math.max(area.current.maxX, posY + node.data.width),
-          maxY: Math.max(area.current.maxY, posX + halfHeight),
-          minY: Math.min(area.current.minY, posX - halfHeight),
-        };
-
-        const positionStyles = {
-          left: posY,
-          top: posX - halfHeight,
-        };
-
-        const dimensions = {
-          x: posY,
-          y: posX - halfHeight,
-          height: node.data.height,
-          width: node.data.width,
-          rx: 20,
-        };
-
-        Object.assign(node, {
-          x: posY,
-          y: posX,
-          styleBlock: positionStyles,
-          styleMock: dimensions,
-        });
+      if (shouldExclude || shouldCollapse) {
+        return [];
       }
+      return childNodes;
+    });
+    flextree({})(hierarchyTree.tree as any);
 
-      const paths: string[] = [];
-      for (const node of hierarchyTree.array) {
-        if (node?.parent?.data) {
-          const parentXOffset = node.parent.x + node.parent.data.width + 6;
-          const parentY = node.parent.y!;
-          const childXOffset = node.x! - 6;
-          const childY = node.y!;
+    for (const node of hierarchyTree.array) {
+      const posX = node.x!;
+      const posY = node.y;
+      const halfHeight = node.data.height / 2;
 
-          paths.push(
-            generatePath(
-              node.parent.children!.length,
-              parentXOffset,
-              parentY,
-              childXOffset,
-              childY,
-            ),
-          );
-        }
-      }
+      const positionStyles = {
+        left: posY,
+        top: posX - halfHeight,
+      };
 
-      setDiagram({
-        blocks: hierarchyTree.array,
-        paths,
+      const dimensions = {
+        x: posY,
+        y: posX - halfHeight,
+        height: node.data.height,
+        width: node.data.width,
+        rx: 20,
+      };
+
+      Object.assign(node, {
+        x: posY,
+        y: posX,
+        styleBlock: positionStyles,
+        styleMock: dimensions,
       });
     }
 
-    fetchData();
-  }, []);
+    const paths: string[] = [];
+    for (const node of hierarchyTree.array) {
+      if (node?.parent?.data) {
+        const parentXOffset = node.parent.x + node.parent.data.width + 6;
+        const parentY = node.parent.y!;
+        const childXOffset = node.x! - 6;
+        const childY = node.y!;
+
+        paths.push(
+          generatePath(node.parent.children!.length, parentXOffset, parentY, childXOffset, childY),
+        );
+      }
+    }
+
+    setDiagram({
+      blocks: hierarchyTree.array,
+      paths,
+    });
+  }, [rawBlock]);
 
   return {
-    area: area.current,
     blocks: diagram.blocks,
     paths: diagram.paths,
   };

@@ -2,20 +2,21 @@
 import { useCallback, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
+import { SearchInPopoverRef } from '../SearchInPopover';
 import { Box } from '../utils/box';
 import { CustomHierarchyNode } from '../utils/hierarchy';
 
 interface ZoomParams {
+  getSearchInPopoverRefs: () => SearchInPopoverRef[] | null;
   getContainer: () => HTMLDivElement | null;
   onChangeScale: (scale: number) => void;
-  area: {
-    maxX: number;
-    maxY: number;
-    minY: number;
-  };
 }
 
-export default function useZoom({ area, getContainer, onChangeScale }: ZoomParams) {
+export default function useZoom({
+  getContainer,
+  onChangeScale,
+  getSearchInPopoverRefs,
+}: ZoomParams) {
   const selection = useRef<d3.Selection<HTMLDivElement, unknown, null, undefined>>();
   const zoomBehavior = useRef<d3.ZoomBehavior<HTMLDivElement, unknown>>();
   const currentScale = useRef(1);
@@ -23,6 +24,16 @@ export default function useZoom({ area, getContainer, onChangeScale }: ZoomParam
   const currentTranslationY = useRef(0);
   const viewportWidth = useRef(0);
   const viewportHeight = useRef(0);
+
+  const hidePopover = () => {
+    const refs = getSearchInPopoverRefs();
+
+    if (refs) {
+      refs.forEach((ref) => {
+        ref!.close!();
+      });
+    }
+  };
 
   const zoomed = useCallback((event: d3.D3ZoomEvent<HTMLDivElement, unknown>) => {
     let hasChanges = false;
@@ -35,9 +46,10 @@ export default function useZoom({ area, getContainer, onChangeScale }: ZoomParam
     currentTranslationX.current = Number(event.transform.x.toFixed(2));
     currentTranslationY.current = Number(event.transform.y.toFixed(2));
 
+    hidePopover();
+
     if (previousScale !== currentScale.current) {
       hasChanges = true;
-      setTranslateExtent();
     }
 
     if (
@@ -95,6 +107,7 @@ export default function useZoom({ area, getContainer, onChangeScale }: ZoomParam
     const deltaMode = event.deltaMode;
 
     event.preventDefault();
+    hidePopover();
 
     const scaleMultiplier = -deltaY * (1 === deltaMode ? 0.05 : deltaMode ? 1 : 5e-4);
     zoomBehavior.current!.scaleTo(selection.current!, currentScale.current + scaleMultiplier, [
@@ -102,21 +115,6 @@ export default function useZoom({ area, getContainer, onChangeScale }: ZoomParam
       mouseCoordinates[1],
     ]);
     onChangeScale(currentScale.current);
-  }, []);
-
-  const setTranslateExtent = useCallback(() => {
-    const shiftConstant = 100;
-
-    const translationXLimit = viewportWidth.current / currentScale.current;
-    const translationYLimit = viewportHeight.current / currentScale.current;
-
-    zoomBehavior.current?.translateExtent([
-      [-translationXLimit - shiftConstant, -translationYLimit + area.minY - shiftConstant],
-      [
-        translationXLimit + area.maxX + shiftConstant,
-        translationYLimit + area.maxY + shiftConstant,
-      ],
-    ]);
   }, []);
 
   const centerRoot = useCallback((duration = 0) => {
@@ -157,13 +155,15 @@ export default function useZoom({ area, getContainer, onChangeScale }: ZoomParam
 
     selection.current
       .call(zoomBehavior.current)
+      .on('click', () => {
+        hidePopover();
+      })
       .on('dblclick.zoom', null)
       .on('wheel.zoom', wheeled);
 
     viewportWidth.current = container!.clientWidth;
     viewportHeight.current = container!.clientHeight;
 
-    setTranslateExtent();
     centerRoot();
   }, []);
 

@@ -1,26 +1,49 @@
 'use client';
 
-import { useRef } from 'react';
+import { MutableRefObject, RefObject, useEffect, useRef, useState } from 'react';
 
 import BottomLeftMenu, { BottomLeftMenuRef } from './BottomLeftMenu';
+import { ChatBotContext } from './context';
 import useDiagram from './hooks/useDiagram';
 import useZoom from './hooks/useZoom';
+import { SearchInPopoverRef } from './SearchInPopover';
 import ZoomContainer from './ZoomContainer';
+import { botStoryApi } from '@/api';
+import { BotStoryBlock } from '@/model';
 
 export default function BotStoryPage() {
   const zoomContainerDomRef = useRef<HTMLDivElement>(null);
   const bottomLeftMenuRef = useRef<BottomLeftMenuRef>(null);
-  const { area, blocks, paths } = useDiagram();
+  const searchInPopoverRefs: MutableRefObject<SearchInPopoverRef[]> = useRef([]);
+  const [rawBlock, setRawBlock] = useState<BotStoryBlock>();
+  const { blocks, paths } = useDiagram(rawBlock!);
   const { centerRoot, zoomIn, zoomOut, resetZoom, centerBlock } = useZoom({
-    area,
     onChangeScale(scale) {
       bottomLeftMenuRef.current!.changeScale(scale);
     },
     getContainer: () => zoomContainerDomRef.current!,
+    getSearchInPopoverRefs: () => searchInPopoverRefs.current!,
   });
 
+  useEffect(() => {
+    async function fetchBlocks() {
+      const res = await botStoryApi.getStoryBlocks();
+
+      if (res) {
+        setRawBlock(res);
+      }
+    }
+
+    fetchBlocks();
+  }, []);
+
   return (
-    <>
+    <ChatBotContext.Provider
+      value={{
+        changeRawBlock: setRawBlock,
+        registerSearchInPopoverRef: (ref) => searchInPopoverRefs.current?.push(ref),
+      }}
+    >
       <ZoomContainer
         centerBlock={centerBlock}
         blocks={blocks}
@@ -34,6 +57,6 @@ export default function BotStoryPage() {
         onResetZoom={resetZoom}
         ref={bottomLeftMenuRef}
       />
-    </>
+    </ChatBotContext.Provider>
   );
 }

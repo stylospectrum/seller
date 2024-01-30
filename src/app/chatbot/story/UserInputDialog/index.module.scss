@@ -1,14 +1,14 @@
 .dialog {
-  right: 1rem;
   top: 0.375rem;
-  width: 30rem;
+  right: 1rem;
   display: flex;
+  width: 30rem;
 }
 
 .form {
   display: block;
-  padding-top: 1rem;
   box-sizing: border-box;
   max-height: calc(100vh - 11rem);
+  padding-top: 1rem;
   overflow: hidden auto;
 }

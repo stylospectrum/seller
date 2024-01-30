@@ -1,22 +1,22 @@
 .wrapper {
   display: inline-flex;
   flex-direction: column;
-  align-items: center;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .icon-wrapper {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   width: 5rem;
   height: 5rem;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-radius: 0.5rem;
-  cursor: grab;
   background: #242e38;
   border: 0.125rem solid transparent;
-  box-sizing: border-box;
+  border-radius: 0.5rem;
+  cursor: grab;
 
   &:hover {
     border-color: #a9b4be;
