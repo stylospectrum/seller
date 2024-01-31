@@ -108,7 +108,11 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
           offsetX={-16}
         >
           <Input
-            onBlur={handleClose}
+            onBlur={() => {
+              setTimeout(() => {
+                handleClose();
+              }, 500);
+            }}
             onChange={handleSearch}
             placeholder="Search"
             showSearch
