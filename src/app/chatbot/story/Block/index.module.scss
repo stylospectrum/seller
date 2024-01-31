@@ -19,6 +19,7 @@
   font-weight: 400;
   font-size: 0.875rem;
   font-family: $font-family;
+  text-align: center;
 }
 
 .add-button {
@@ -62,7 +63,21 @@
     }
   }
 
-  .title,
+  .edit-name-input {
+    position: absolute;
+    right: 0.5rem;
+    bottom: calc(100% + 0.5rem);
+    left: 0.5rem;
+    width: 8.75rem;
+  }
+
+  .title {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: 0;
+    width: 8.75rem;
+  }
+
   .menu-button {
     position: absolute;
     right: 1rem;
@@ -113,7 +128,20 @@
     }
   }
 
-  .title,
+  .edit-name-input {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: -1.875rem;
+    width: 8.75rem;
+  }
+
+  .title {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: 0;
+    width: 3.75rem;
+  }
+
   .menu-button {
     position: absolute;
     bottom: calc(100% + 0.5rem);

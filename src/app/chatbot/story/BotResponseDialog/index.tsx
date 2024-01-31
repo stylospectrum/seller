@@ -145,7 +145,12 @@ export default function BotResponseDialog({ onClose, title }: BotResponseDialogP
   drop(dropDomRef);
 
   return (
-    <Dialog ref={dialogRef} headerText="Bot response" className={styles.dialog}>
+    <Dialog
+      onMaskClick={handleClose}
+      ref={dialogRef}
+      headerText="Bot response"
+      className={styles.dialog}
+    >
       <Dialog
         hideFooter
         headerText="Responses"

@@ -56,8 +56,8 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
     };
 
     const handleClose = () => {
-      searchRef.current!.hide();
-      dropDownRef.current!.hide();
+      searchRef.current?.hide();
+      dropDownRef.current?.hide();
       onClose();
     };
 
@@ -69,7 +69,7 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
       const res = await botStoryApi.createStoryBlock({
         name: '',
         type: id,
-        parent_id: parentId.current,
+        parentId: parentId.current,
       });
       changeRawBlock(res!);
     };
@@ -90,8 +90,6 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
     };
 
     useEffect(() => {
-      searchRef.current!.setScaleElement(document.querySelector('#diagram')!);
-      dropDownRef.current!.setScaleElement(document.querySelector('#diagram')!);
       registerSearchInPopoverRef({
         close: handleClose,
       });

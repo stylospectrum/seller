@@ -65,11 +65,11 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
               style={block.styleBlock}
               key={`block-${block.data.id}`}
             >
+              {/* 
+              // @ts-expect-error */}
               <Block
+                {...block}
                 chosen={selectedBlock?.id === block.data.id && index > 0}
-                id={block.data.id}
-                type={block.data.type}
-                title={block.data.name}
                 onClick={(e) => {
                   handleClick(e, block);
                 }}

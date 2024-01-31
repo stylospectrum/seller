@@ -30,7 +30,7 @@ export default function useZoom({
 
     if (refs) {
       refs.forEach((ref) => {
-        ref!.close!();
+        ref?.close?.();
       });
     }
   };
@@ -155,7 +155,10 @@ export default function useZoom({
 
     selection.current
       .call(zoomBehavior.current)
-      .on('click', () => {
+      .on('click', (e) => {
+        if (e.target.tagName.includes('STYLOSPECTRUM')) {
+          return;
+        }
         hidePopover();
       })
       .on('dblclick.zoom', null)

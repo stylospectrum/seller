@@ -42,7 +42,12 @@ export default function UserInputDialog({ onClose }: UserInputDialogProps) {
   }, []);
 
   return (
-    <Dialog ref={dialogRef} headerText="User input" className={styles.dialog}>
+    <Dialog
+      onMaskClick={handleClose}
+      ref={dialogRef}
+      headerText="User input"
+      className={styles.dialog}
+    >
       <Input slot="sub-header" style={{ width: '100%' }} />
 
       <Form ref={formRef} className={styles.form}>

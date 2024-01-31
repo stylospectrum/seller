@@ -7,13 +7,13 @@ export enum BotStoryBlockType {
 
 export default class BotStoryBlock {
   id?: string;
-  name: string;
-  type: BotStoryBlockType;
-  parent_id?: string;
+  name?: string;
+  type?: BotStoryBlockType;
+  parentId?: string;
   children?: BotStoryBlock[];
 
   constructor(block: BotStoryBlock) {
-    this.id = block.id || '';
+    this.id = block.id;
     this.name = block.name;
     this.type = block.type;
     this.children = (block.children || []).map((child) => new BotStoryBlock(child));
