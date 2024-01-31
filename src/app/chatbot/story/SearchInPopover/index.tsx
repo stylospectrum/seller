@@ -1,4 +1,4 @@
-import { forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useContext, useImperativeHandle, useRef, useState } from 'react';
 import { Input, ListItem, Popover } from '@stylospectrum/ui';
 import { IPopover, Placement } from '@stylospectrum/ui/dist/types';
 
@@ -45,7 +45,7 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
     const parentId = useRef('');
     const defaultOptions = getDefaultOptions(type);
     const [options, setOptions] = useState(defaultOptions);
-    const { changeRawBlock, registerSearchInPopoverRef } = useContext(ChatBotContext);
+    const { changeRawBlock } = useContext(ChatBotContext);
 
     const handleOpen = (opener: HTMLElement, pId: string) => {
       parentId.current = pId;
@@ -89,13 +89,6 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
       setOptions(searchedOptions);
     };
 
-    useEffect(() => {
-      registerSearchInPopoverRef({
-        close: handleClose,
-      });
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [handleClose]);
-
     useImperativeHandle(
       ref,
       () => ({
@@ -115,6 +108,7 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
           offsetX={-16}
         >
           <Input
+            onBlur={handleClose}
             onChange={handleSearch}
             placeholder="Search"
             showSearch

@@ -7,16 +7,11 @@ import { Box } from '../utils/box';
 import { CustomHierarchyNode } from '../utils/hierarchy';
 
 interface ZoomParams {
-  getSearchInPopoverRefs: () => SearchInPopoverRef[] | null;
   getContainer: () => HTMLDivElement | null;
   onChangeScale: (scale: number) => void;
 }
 
-export default function useZoom({
-  getContainer,
-  onChangeScale,
-  getSearchInPopoverRefs,
-}: ZoomParams) {
+export default function useZoom({ getContainer, onChangeScale }: ZoomParams) {
   const selection = useRef<d3.Selection<HTMLDivElement, unknown, null, undefined>>();
   const zoomBehavior = useRef<d3.ZoomBehavior<HTMLDivElement, unknown>>();
   const currentScale = useRef(1);
@@ -24,16 +19,6 @@ export default function useZoom({
   const currentTranslationY = useRef(0);
   const viewportWidth = useRef(0);
   const viewportHeight = useRef(0);
-
-  const hidePopover = () => {
-    const refs = getSearchInPopoverRefs();
-
-    if (refs) {
-      refs.forEach((ref) => {
-        ref?.close?.();
-      });
-    }
-  };
 
   const zoomed = useCallback((event: d3.D3ZoomEvent<HTMLDivElement, unknown>) => {
     let hasChanges = false;
@@ -45,8 +30,6 @@ export default function useZoom({
     currentScale.current = event.transform.k;
     currentTranslationX.current = Number(event.transform.x.toFixed(2));
     currentTranslationY.current = Number(event.transform.y.toFixed(2));
-
-    hidePopover();
 
     if (previousScale !== currentScale.current) {
       hasChanges = true;
@@ -107,7 +90,6 @@ export default function useZoom({
     const deltaMode = event.deltaMode;
 
     event.preventDefault();
-    hidePopover();
 
     const scaleMultiplier = -deltaY * (1 === deltaMode ? 0.05 : deltaMode ? 1 : 5e-4);
     zoomBehavior.current!.scaleTo(selection.current!, currentScale.current + scaleMultiplier, [
@@ -159,7 +141,6 @@ export default function useZoom({
         if (e.target.tagName.includes('STYLOSPECTRUM')) {
           return;
         }
-        hidePopover();
       })
       .on('dblclick.zoom', null)
       .on('wheel.zoom', wheeled);

@@ -22,7 +22,6 @@ export default function BotStoryPage() {
       bottomLeftMenuRef.current!.changeScale(scale);
     },
     getContainer: () => zoomContainerDomRef.current!,
-    getSearchInPopoverRefs: () => searchInPopoverRefs.current!,
   });
 
   useEffect(() => {
@@ -41,7 +40,6 @@ export default function BotStoryPage() {
     <ChatBotContext.Provider
       value={{
         changeRawBlock: setRawBlock,
-        registerSearchInPopoverRef: (ref) => searchInPopoverRefs.current?.push(ref),
       }}
     >
       <ZoomContainer
