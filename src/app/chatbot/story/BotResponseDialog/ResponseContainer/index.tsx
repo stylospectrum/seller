@@ -110,6 +110,7 @@ export default function ResponseContainer({
 
   return (
     <div
+      id={id}
       ref={containerDomRef}
       className={styles.container}
       onMouseEnter={handleMouseEnter}

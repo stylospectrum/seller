@@ -59,6 +59,14 @@ export default function Block({ data, chosen, onClick }: BlockProps) {
       data.parent?.type !== BotStoryBlockType.DefaultFallback,
     [data],
   );
+  const enableDelete = useMemo(
+    () =>
+      !(
+        data.parent?.type === BotStoryBlockType.UserInput &&
+        data.children?.[0]?.type === BotStoryBlockType.UserInput
+      ),
+    [data],
+  );
   const template: { [key: string]: { [key1: string]: string } } = {
     [BotStoryBlockType.StartPoint]: {
       icon: 'home',
@@ -166,9 +174,11 @@ export default function Block({ data, chosen, onClick }: BlockProps) {
           {hover && (
             <Menu ref={menuRef}>
               <MenuItem icon="move">Move</MenuItem>
-              <MenuItem icon="delete" onClick={() => setMsgBoxOpened(true)}>
-                Delete
-              </MenuItem>
+              {enableDelete && (
+                <MenuItem icon="delete" onClick={() => setMsgBoxOpened(true)}>
+                  Delete
+                </MenuItem>
+              )}
             </Menu>
           )}
 

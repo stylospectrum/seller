@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { Button, Dialog, Icon, Input } from '@stylospectrum/ui';
-import { ButtonDesign } from '@stylospectrum/ui/dist/types';
+import { ButtonDesign, IDialog } from '@stylospectrum/ui/dist/types';
 import update from 'immutability-helper';
 import Image from 'next/image';
 import { useDrop } from 'react-dnd';
@@ -11,41 +11,44 @@ import ResponseBlock from './ResponseBlock';
 import ResponseContainer from './ResponseContainer';
 import ResponseGallery from './ResponseGallery';
 import ResponseImage from './ResponseImage';
-import ResponseInput from './ResponseInput';
+import ResponseInput, { ResponseInputRef } from './ResponseInput';
 import ResponseQuickReply from './ResponseQuickReply';
-import ResponseVariants from './ResponseVariants';
+import ResponseVariants, { ResponseVariantsRef } from './ResponseVariants';
+import { botStoryApi } from '@/api';
+import { BotResponse, BotStoryBlock } from '@/model';
 
 import '@stylospectrum/ui/dist/icon/data/background';
 import '@stylospectrum/ui/dist/icon/data/image-viewer';
 import '@stylospectrum/ui/dist/icon/data/response';
 import '@stylospectrum/ui/dist/icon/data/text-formatting';
 
+import { BotResponseType } from '@/model/bot-response';
+
 interface BotResponseDialogProps {
-  title?: string;
-  id: string;
+  data: BotStoryBlock;
   onClose: () => void;
 }
 
-export default function BotResponseDialog({ onClose, title }: BotResponseDialogProps) {
+export default function BotResponseDialog({ onClose, data }: BotResponseDialogProps) {
   const dropDomRef = useRef<HTMLDivElement>(null);
-  const dialogRef = useRef<any>(null);
-  const [responses, setResponses] = useState<string[]>([]);
+  const dialogRef = useRef<IDialog>(null);
+  const responseInputRefs: RefObject<{ [key: string]: ResponseInputRef }> = useRef({});
+  const responseVariantsRef: RefObject<ResponseVariantsRef> = useRef(null);
+  const [responses, setResponses] = useState<BotResponse[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(0);
 
   useEffect(() => {
-    dialogRef.current?.show();
-  }, []);
+    async function fetchResponse() {
+      const res = await botStoryApi.getBotResponse(data.id!);
 
-  const getItemHeight = (type: string) => {
-    const itemHeight: { [key: string]: number } = {
-      text: 62,
-      'random-text': 98,
-      image: 325,
-      gallery: 62,
-      'quick-reply': 62,
-    };
-    return itemHeight[type] || 0;
-  };
+      if (res) {
+        setResponses(res);
+      }
+      dialogRef.current?.show();
+    }
+
+    fetchResponse();
+  }, [data.id]);
 
   const [{ item, isOver }, drop] = useDrop(
     () => ({
@@ -53,7 +56,11 @@ export default function BotResponseDialog({ onClose, title }: BotResponseDialogP
       drop: (item: any) => {
         setResponses((prev) => {
           const newResponses = [...prev];
-          newResponses.splice(hoveredIndex, 0, item.id + '?' + uuidv4());
+          newResponses.splice(
+            hoveredIndex,
+            0,
+            new BotResponse({ id: 'client-' + uuidv4(), type: item.type }),
+          );
           return newResponses;
         });
       },
@@ -73,8 +80,7 @@ export default function BotResponseDialog({ onClose, title }: BotResponseDialogP
         let totalHeight = 0;
 
         for (let i = 0; i < responses.length; i++) {
-          const [itemType] = responses[i].split('?');
-          const itemHeight = getItemHeight(itemType);
+          const itemHeight = document.getElementById(responses[i].id!)?.clientHeight || 0;
 
           totalHeight += itemHeight;
 
@@ -95,16 +101,22 @@ export default function BotResponseDialog({ onClose, title }: BotResponseDialogP
   );
 
   function handleClose() {
-    dialogRef.current.hide();
+    dialogRef.current!.hide();
     onClose();
   }
 
   function handleDeleteResponse(index: number) {
-    setResponses((prev) => {
-      const newResponses = [...prev];
-      newResponses.splice(index, 1);
-      return newResponses;
-    });
+    if (responses[index].id?.includes('client-')) {
+      setResponses((prev) => {
+        const newResponses = [...prev];
+        newResponses.splice(index, 1);
+        return newResponses;
+      });
+    } else {
+      const cloned: BotResponse[] = JSON.parse(JSON.stringify(responses));
+      cloned[index].deleted = true;
+      setResponses(cloned);
+    }
   }
 
   function handleMoveItem(dragIdx: number, hoverIdx: number) {
@@ -118,15 +130,78 @@ export default function BotResponseDialog({ onClose, title }: BotResponseDialogP
     });
   }
 
-  const noDraggingNode = (
-    <div className={styles['no-dragging-wrapper']}>
-      <Image src="/images/dragging.png" width={122} height={122} alt="" />
-      <div className={styles['no-dragging-title']}>Drag and drop a response here</div>
-      <div className={styles['no-dragging-description']}>
-        In the menu on the left-hand side, you can select a response you want to send to users.
-      </div>
-    </div>
-  );
+  async function handleSave() {
+    const input: BotResponse[] = [];
+
+    responses.forEach((response) => {
+      const id = response.id?.includes('client-') ? undefined : response.id;
+
+      if (response.type === BotResponseType.Text) {
+        input.push({
+          id,
+          type: response.type,
+          storyBlockId: data.id!,
+          text: {
+            content: responseInputRefs.current![response.id!]?.getValue() || '',
+          },
+          deleted: response.deleted,
+        });
+      }
+
+      if (response.type === BotResponseType.RandomText) {
+        input.push({
+          id,
+          type: response.type,
+          storyBlockId: data.id!,
+          variants: responseVariantsRef.current?.getValues() || [],
+          deleted: response.deleted,
+        });
+      }
+    });
+    console.log(input);
+    // await botStoryApi.createBotResponse(input);
+    handleClose();
+  }
+
+  function getResponseNode(response: BotResponse) {
+    switch (response.type) {
+      case BotResponseType.Text:
+        return (
+          <ResponseInput
+            defaultValue={response.text?.content}
+            ref={(el) => (responseInputRefs.current![response.id!] = el!)}
+          />
+        );
+      case BotResponseType.RandomText:
+        return (
+          <ResponseVariants defaultValues={response.variants || []} ref={responseVariantsRef} />
+        );
+      case BotResponseType.Image:
+        return <ResponseImage />;
+      case BotResponseType.QuickReply:
+        return <ResponseQuickReply />;
+      case BotResponseType.Gallery:
+        return <ResponseGallery />;
+      default:
+        return null;
+    }
+  }
+
+  const renderNoDraggingNode = () => {
+    if (responses.filter((response) => !response.deleted).length < 1 && !isOver) {
+      return (
+        <div className={styles['no-dragging-wrapper']}>
+          <Image src="/images/dragging.png" width={122} height={122} alt="" />
+          <div className={styles['no-dragging-title']}>Drag and drop a response here</div>
+          <div className={styles['no-dragging-description']}>
+            In the menu on the left-hand side, you can select a response you want to send to users.
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   const renderDraggingNode = () => {
     if (!item.icon) {
@@ -159,49 +234,55 @@ export default function BotResponseDialog({ onClose, title }: BotResponseDialogP
       >
         <div className={styles['response-dialog-content']}>
           <div className={styles['response-dialog-row']}>
-            <ResponseBlock icon="text-formatting" text="Text" id="text" />
-            <ResponseBlock icon="text-formatting" text="Random text" id="random-text" />
+            <ResponseBlock icon="text-formatting" text="Text" type={BotResponseType.Text} />
+            <ResponseBlock
+              icon="text-formatting"
+              text="Random text"
+              type={BotResponseType.RandomText}
+            />
           </div>
 
           <div className={styles['response-dialog-row']}>
-            <ResponseBlock icon="background" text="Image" id="image" />
-            <ResponseBlock icon="image-viewer" text="Gallery" id="gallery" />
+            <ResponseBlock icon="background" text="Image" type={BotResponseType.Image} />
+            <ResponseBlock icon="image-viewer" text="Gallery" type={BotResponseType.Gallery} />
           </div>
 
           <div className={styles['response-dialog-row']}>
-            <ResponseBlock icon="response" text="Quick reply" id="quick-reply" />
+            <ResponseBlock icon="response" text="Quick reply" type={BotResponseType.QuickReply} />
           </div>
         </div>
       </Dialog>
-      <Input slot="sub-header" value={title} style={{ width: '100%' }} />
+      <Input slot="sub-header" defaultValue={data.name} style={{ width: '100%' }} />
 
       <div ref={dropDomRef} className={styles.content}>
-        {responses.length < 1 && !isOver && noDraggingNode}
+        {renderNoDraggingNode()}
         {responses.map((response, idx) => {
+          if (response.deleted) {
+            return null;
+          }
+
           return (
-            <div key={response}>
+            <div key={response.id + '-wrapper'}>
               {hoveredIndex === idx && isOver && (
                 <div style={{ marginBottom: '1rem' }}>{renderDraggingNode()}</div>
               )}
               <ResponseContainer
                 moveItem={handleMoveItem}
                 index={idx}
-                isGallery={response.startsWith('gallery')}
-                id={response}
+                isGallery={response.type === BotResponseType.Gallery}
+                id={response.id!}
                 onDelete={() => handleDeleteResponse(idx)}
               >
-                {response.startsWith('text') && <ResponseInput />}
-                {response.startsWith('random-text') && <ResponseVariants />}
-                {response.startsWith('image') && <ResponseImage />}
-                {response.startsWith('quick-reply') && <ResponseQuickReply />}
-                {response.startsWith('gallery') && <ResponseGallery />}
+                {getResponseNode(response)}
               </ResponseContainer>
             </div>
           );
         })}
         {hoveredIndex === responses.length && isOver && renderDraggingNode()}
       </div>
-      <Button slot="ok-button">Save</Button>
+      <Button slot="ok-button" onClick={handleSave}>
+        Save
+      </Button>
       <Button slot="cancel-button" onClick={handleClose} type={ButtonDesign.Tertiary}>
         Close
       </Button>

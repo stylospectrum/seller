@@ -81,11 +81,7 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
 
       {botResDialogVisible && (
         <DndProvider backend={HTML5Backend}>
-          <BotResponseDialog
-            onClose={handleCloseDialog}
-            title={selectedBlock?.name}
-            id={selectedBlock?.id || ''}
-          />
+          <BotResponseDialog onClose={handleCloseDialog} data={selectedBlock!} />
         </DndProvider>
       )}
 

@@ -2,24 +2,30 @@ import { Icon } from '@stylospectrum/ui';
 import { useDrag } from 'react-dnd';
 
 import styles from './index.module.scss';
+import { BotResponseType } from '@/model/bot-response';
 
 interface ResponseBlockProps {
-  id: string;
+  type: BotResponseType;
   icon: string;
   text: string;
 }
 
-export default function ResponseBlock({ icon, text, id }: ResponseBlockProps) {
+export default function ResponseBlock({ icon, text, type }: ResponseBlockProps) {
   const [{ isDragging }, drag, dragPreview] = useDrag(() => ({
     type: 'BOX',
-    item: { icon, id },
+    item: { icon, type },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   }));
 
   return (
-    <div className={styles.wrapper} ref={dragPreview} style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <div
+      className={styles.wrapper}
+      id={type}
+      ref={dragPreview}
+      style={{ opacity: isDragging ? 0.5 : 1 }}
+    >
       <div className={styles['icon-wrapper']} ref={drag}>
         <Icon name={icon} className={styles.icon} />
       </div>

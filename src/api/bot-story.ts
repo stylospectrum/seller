@@ -1,15 +1,11 @@
 import type { ServerResponse } from '@/interface';
 import { axios } from '@/lib/axios';
-import { BotStoryBlock } from '@/model';
+import { BotResponse, BotStoryBlock } from '@/model';
 
 class BotStoryApi {
   async getStoryBlocks() {
     try {
       const res: ServerResponse<BotStoryBlock> = await axios.get('/seller-chatbot/story-block/');
-
-      if (typeof res === 'string') {
-        return null;
-      }
 
       return new BotStoryBlock({
         children: res.data.children,
@@ -28,10 +24,6 @@ class BotStoryApi {
         ...rest,
         parent_id: parentId,
       });
-
-      if (typeof res === 'string') {
-        return null;
-      }
 
       return new BotStoryBlock({
         children: res.data.children,
@@ -56,10 +48,6 @@ class BotStoryApi {
         },
       );
 
-      if (typeof res === 'string') {
-        return null;
-      }
-
       return new BotStoryBlock({
         children: res.data.children,
         name: res.data.name,
@@ -77,15 +65,49 @@ class BotStoryApi {
         params,
       );
 
-      if (typeof res === 'string') {
-        return null;
-      }
-
       return new BotStoryBlock({
         children: res.data.children,
         name: res.data.name,
         type: res.data.type,
       });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getBotResponse(storyBlockId: string) {
+    try {
+      const res: ServerResponse<BotResponse[]> = await axios.get(
+        `/seller-chatbot/story-block/bot-response/${storyBlockId}/`,
+      );
+
+      if (res.statusCode === 404 || !res.data) {
+        return null;
+      }
+
+      return res.data.map((item) => {
+        return new BotResponse({
+          id: item.id,
+          type: item.type,
+          text: item.text,
+        });
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async createBotResponse(params: BotResponse[]) {
+    try {
+      const newParams = params.map((param) => {
+        const { storyBlockId, ...rest } = param;
+
+        return {
+          ...rest,
+          story_block_id: storyBlockId,
+        };
+      });
+      return await axios.post('/seller-chatbot/story-block/bot-response/', newParams);
     } catch (err) {
       throw err;
     }
