@@ -2,10 +2,10 @@ import { createContext } from 'react';
 
 import { BotStoryBlock } from '@/model';
 
-interface ChatBotContextProps {
+interface BotBuilderContextProps {
   changeRawBlock: (rawBlock: BotStoryBlock) => void;
 }
 
-export const ChatBotContext = createContext<ChatBotContextProps>({
+export const BotBuilderContext = createContext<BotBuilderContextProps>({
   changeRawBlock: () => {},
 });

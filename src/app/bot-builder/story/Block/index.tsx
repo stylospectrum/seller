@@ -11,7 +11,7 @@ import {
 import { Button, Icon, Input, Menu, MenuButton, MenuItem, MessageBox } from '@stylospectrum/ui';
 import { ButtonDesign, IButton, IInput, IMenu } from '@stylospectrum/ui/dist/types';
 
-import { ChatBotContext } from '../context';
+import { BotBuilderContext } from '../context';
 import SearchInPopover, { SearchInPopoverRef } from '../SearchInPopover';
 import { Box } from '../utils/box';
 import { CustomHierarchyNode } from '../utils/hierarchy';
@@ -42,7 +42,7 @@ export default function Block({ data, chosen, onClick }: BlockProps) {
   const editNameInputRef: RefObject<IInput> = useRef(null);
   const searchInPopoverRef: RefObject<SearchInPopoverRef> = useRef(null);
   const addButtonRef: RefObject<IButton> = useRef(null);
-  const { changeRawBlock } = useContext(ChatBotContext);
+  const { changeRawBlock } = useContext(BotBuilderContext);
   const isDeleteMany = useMemo(
     () =>
       data.type === BotStoryBlockType.UserInput &&

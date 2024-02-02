@@ -5,7 +5,7 @@ import { BotResponse, BotStoryBlock } from '@/model';
 class BotStoryApi {
   async getStoryBlocks() {
     try {
-      const res: ServerResponse<BotStoryBlock> = await axios.get('/seller-chatbot/story-block/');
+      const res: ServerResponse<BotStoryBlock> = await axios.get('/bot-builder/story-block/');
 
       return new BotStoryBlock({
         children: res.data.children,
@@ -20,7 +20,7 @@ class BotStoryApi {
   async createStoryBlock(params: BotStoryBlock) {
     try {
       const { parentId, ...rest } = params;
-      const res: ServerResponse<BotStoryBlock> = await axios.post('/seller-chatbot/story-block/', {
+      const res: ServerResponse<BotStoryBlock> = await axios.post('/bot-builder/story-block/', {
         ...rest,
         parent_id: parentId,
       });
@@ -38,15 +38,12 @@ class BotStoryApi {
   async deleteStoryBlock(params: { id: string; isDeleteMany: boolean }) {
     try {
       const { isDeleteMany, ...rest } = params;
-      const res: ServerResponse<BotStoryBlock> = await axios.delete(
-        '/seller-chatbot/story-block/',
-        {
-          data: {
-            ...rest,
-            is_delete_many: isDeleteMany,
-          },
+      const res: ServerResponse<BotStoryBlock> = await axios.delete('/bot-builder/story-block/', {
+        data: {
+          ...rest,
+          is_delete_many: isDeleteMany,
         },
-      );
+      });
 
       return new BotStoryBlock({
         children: res.data.children,
@@ -61,7 +58,7 @@ class BotStoryApi {
   async updateStoryBlock(params: BotStoryBlock) {
     try {
       const res: ServerResponse<BotStoryBlock> = await axios.put(
-        '/seller-chatbot/story-block/',
+        '/bot-builder/story-block/',
         params,
       );
 
@@ -78,7 +75,7 @@ class BotStoryApi {
   async getBotResponse(storyBlockId: string) {
     try {
       const res: ServerResponse<BotResponse[]> = await axios.get(
-        `/seller-chatbot/story-block/bot-response/${storyBlockId}/`,
+        `/bot-builder/story-block/bot-response/${storyBlockId}/`,
       );
 
       if (res.statusCode === 404 || !res.data) {
@@ -107,7 +104,7 @@ class BotStoryApi {
           story_block_id: storyBlockId,
         };
       });
-      return await axios.post('/seller-chatbot/story-block/bot-response/', newParams);
+      return await axios.post('/bot-builder/story-block/bot-response/', newParams);
     } catch (err) {
       throw err;
     }

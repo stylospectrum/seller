@@ -2,7 +2,7 @@ import { forwardRef, useContext, useImperativeHandle, useRef, useState } from 'r
 import { Input, ListItem, Popover } from '@stylospectrum/ui';
 import { IPopover, Placement } from '@stylospectrum/ui/dist/types';
 
-import { ChatBotContext } from '../context';
+import { BotBuilderContext } from '../context';
 import styles from './index.module.scss';
 import { botStoryApi } from '@/api';
 import { BotStoryBlockType } from '@/model/bot-story-block';
@@ -45,7 +45,7 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
     const parentId = useRef('');
     const defaultOptions = getDefaultOptions(type);
     const [options, setOptions] = useState(defaultOptions);
-    const { changeRawBlock } = useContext(ChatBotContext);
+    const { changeRawBlock } = useContext(BotBuilderContext);
 
     const handleOpen = (opener: HTMLElement, pId: string) => {
       parentId.current = pId;

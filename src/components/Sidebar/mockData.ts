@@ -1,11 +1,11 @@
 const data = [
   {
     id: '1',
-    name: 'Chatbot',
+    name: 'Bot builder',
     icon: 'circle-task',
     children: [
       {
-        id: '/chatbot/story',
+        id: '/bot-builder/story',
         name: 'Story',
       },
     ],

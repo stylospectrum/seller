@@ -3,7 +3,7 @@
 import { MutableRefObject, RefObject, useEffect, useRef, useState } from 'react';
 
 import BottomLeftMenu, { BottomLeftMenuRef } from './BottomLeftMenu';
-import { ChatBotContext } from './context';
+import { BotBuilderContext } from './context';
 import useDiagram from './hooks/useDiagram';
 import useZoom from './hooks/useZoom';
 import { SearchInPopoverRef } from './SearchInPopover';
@@ -37,7 +37,7 @@ export default function BotStoryPage() {
   }, []);
 
   return (
-    <ChatBotContext.Provider
+    <BotBuilderContext.Provider
       value={{
         changeRawBlock: setRawBlock,
       }}
@@ -55,6 +55,6 @@ export default function BotStoryPage() {
         onResetZoom={resetZoom}
         ref={bottomLeftMenuRef}
       />
-    </ChatBotContext.Provider>
+    </BotBuilderContext.Provider>
   );
 }
