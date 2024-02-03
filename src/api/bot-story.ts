@@ -7,6 +7,10 @@ class BotStoryApi {
     try {
       const res: ServerResponse<BotStoryBlock> = await axios.get('/bot-builder/story-block/');
 
+      if (!res?.data) {
+        return null;
+      }
+
       return new BotStoryBlock({
         children: res.data.children,
         name: res.data.name,
@@ -24,6 +28,10 @@ class BotStoryApi {
         ...rest,
         parent_id: parentId,
       });
+
+      if (!res?.data) {
+        return null;
+      }
 
       return new BotStoryBlock({
         children: res.data.children,
@@ -45,6 +53,10 @@ class BotStoryApi {
         },
       });
 
+      if (!res?.data) {
+        return null;
+      }
+
       return new BotStoryBlock({
         children: res.data.children,
         name: res.data.name,
@@ -62,6 +74,10 @@ class BotStoryApi {
         params,
       );
 
+      if (!res?.data) {
+        return null;
+      }
+
       return new BotStoryBlock({
         children: res.data.children,
         name: res.data.name,
@@ -78,7 +94,7 @@ class BotStoryApi {
         `/bot-builder/story-block/bot-response/${storyBlockId}/`,
       );
 
-      if (res.statusCode === 404 || !res.data) {
+      if (res.statusCode === 404 || !res?.data) {
         return null;
       }
 
@@ -86,7 +102,8 @@ class BotStoryApi {
         return new BotResponse({
           id: item.id,
           type: item.type,
-          text: item.text,
+          variants: item.variants,
+          buttons: item.buttons,
         });
       });
     } catch (err) {

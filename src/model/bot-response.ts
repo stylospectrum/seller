@@ -17,19 +17,32 @@ export class BotResponseText {
   }
 }
 
+export class BotResponseButton {
+  deleted?: boolean;
+  content: string;
+  goTo?: string;
+  id?: string;
+
+  constructor(button: BotResponseButton) {
+    this.content = button?.content;
+    this.id = button?.id;
+    this.goTo = button?.goTo;
+  }
+}
+
 export default class BotResponse {
   id?: string;
   storyBlockId?: string;
   type: BotResponseType;
-  text?: BotResponseText;
   deleted?: boolean;
   variants?: BotResponseText[] = [];
+  buttons?: BotResponseButton[] = [];
 
   constructor(response: BotResponse) {
     this.id = response.id;
     this.type = response.type;
-    this.text = new BotResponseText(response.text!);
-    this.variants = (response.variants || []).map((variant) => new BotResponseText(variant));
     this.storyBlockId = response.storyBlockId;
+    this.variants = (response.variants || []).map((variant) => new BotResponseText(variant));
+    this.buttons = (response.buttons || []).map((button) => new BotResponseButton(button));
   }
 }

@@ -12,7 +12,7 @@ import ResponseContainer from './ResponseContainer';
 import ResponseGallery from './ResponseGallery';
 import ResponseImage from './ResponseImage';
 import ResponseInput, { ResponseInputRef } from './ResponseInput';
-import ResponseQuickReply from './ResponseQuickReply';
+import ResponseQuickReply, { ResponseQuickReplyRef } from './ResponseQuickReply';
 import ResponseVariants, { ResponseVariantsRef } from './ResponseVariants';
 import { botStoryApi } from '@/api';
 import { BotResponse, BotStoryBlock } from '@/model';
@@ -34,6 +34,7 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
   const dialogRef = useRef<IDialog>(null);
   const responseInputRefs: RefObject<{ [key: string]: ResponseInputRef }> = useRef({});
   const responseVariantsRef: RefObject<ResponseVariantsRef> = useRef(null);
+  const responseQuickReply: RefObject<ResponseQuickReplyRef> = useRef(null);
   const [responses, setResponses] = useState<BotResponse[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(0);
 
@@ -137,13 +138,18 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
       const id = response.id?.includes('client-') ? undefined : response.id;
 
       if (response.type === BotResponseType.Text) {
+        const value = responseInputRefs.current![response.id!]?.getValue?.() || {};
         input.push({
           id,
           type: response.type,
           storyBlockId: data.id!,
-          text: {
-            content: responseInputRefs.current![response.id!]?.getValue() || '',
-          },
+          variants: [
+            {
+              id: value.id,
+              content: value.content,
+              deleted: false,
+            },
+          ],
           deleted: response.deleted,
         });
       }
@@ -157,9 +163,26 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
           deleted: response.deleted,
         });
       }
+
+      if (response.type === BotResponseType.QuickReply) {
+        const value = responseQuickReply.current?.getValue?.();
+        input.push({
+          id,
+          type: response.type,
+          storyBlockId: data.id!,
+          variants: [
+            {
+              id: value?.text?.id,
+              content: value?.text?.content!,
+              deleted: false,
+            },
+          ],
+          buttons: value?.buttons || [],
+          deleted: response.deleted,
+        });
+      }
     });
-    console.log(input);
-    // await botStoryApi.createBotResponse(input);
+    await botStoryApi.createBotResponse(input);
     handleClose();
   }
 
@@ -168,7 +191,7 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
       case BotResponseType.Text:
         return (
           <ResponseInput
-            defaultValue={response.text?.content}
+            defaultValue={response.variants?.[0]}
             ref={(el) => (responseInputRefs.current![response.id!] = el!)}
           />
         );
@@ -179,7 +202,12 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
       case BotResponseType.Image:
         return <ResponseImage />;
       case BotResponseType.QuickReply:
-        return <ResponseQuickReply />;
+        return (
+          <ResponseQuickReply
+            ref={responseQuickReply}
+            defaultValue={{ text: response.variants?.[0]!, buttons: response.buttons! }}
+          />
+        );
       case BotResponseType.Gallery:
         return <ResponseGallery />;
       default:

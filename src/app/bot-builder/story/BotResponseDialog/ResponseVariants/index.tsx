@@ -55,7 +55,7 @@ const ResponseVariants = forwardRef<ResponseVariantsRef, ResponseVariantsProps>(
 
       setVariants(newVariants);
 
-      if (isClientId) {
+      if (!isClientId) {
         newVariants = newVariants.filter((variant) => !variant.deleted);
       }
 
@@ -70,7 +70,8 @@ const ResponseVariants = forwardRef<ResponseVariantsRef, ResponseVariantsProps>(
       getValues() {
         return variants.map((variant) => ({
           id: variant.id?.startsWith('client-') ? undefined : variant.id,
-          content: inputRefs.current[variant.id!].getValue(),
+          content: inputRefs.current[variant.id!]?.getValue?.()?.content || '',
+          deleted: variant.deleted || false,
         }));
       },
     }));
@@ -80,17 +81,21 @@ const ResponseVariants = forwardRef<ResponseVariantsRef, ResponseVariantsProps>(
         <div className={styles.top}>
           <div className={styles.text}>Variants</div>
           <div className={styles.tab}>
-            {variants.map((variant, index) => (
-              <Button
-                type={ButtonDesign.Secondary}
-                tabSelected={activeVariant === variant.id}
-                circle
-                key={'tab' + variant.id}
-                onClick={() => handleItemClick(variant.id!)}
-              >
-                {index + 1}
-              </Button>
-            ))}
+            {variants
+              .filter((variant) => !variant.deleted)
+              .map((variant, index) => {
+                return (
+                  <Button
+                    type={ButtonDesign.Secondary}
+                    tabSelected={activeVariant === variant.id}
+                    circle
+                    key={'tab' + variant.id}
+                    onClick={() => handleItemClick(variant.id!)}
+                  >
+                    {index + 1}
+                  </Button>
+                );
+              })}
 
             <Button circle type={ButtonDesign.Secondary} icon="add" onClick={handleAdd} />
           </div>
@@ -111,7 +116,7 @@ const ResponseVariants = forwardRef<ResponseVariantsRef, ResponseVariantsProps>(
                 <Button icon="delete" className={styles['delete-button']} onClick={handleDelete} />
               )}
               <ResponseInput
-                defaultValue={variant.content}
+                defaultValue={variant}
                 ref={(el) => (inputRefs.current[variant.id!] = el!)}
               />
             </div>
