@@ -10,7 +10,7 @@ import styles from './index.module.scss';
 import ResponseBlock from './ResponseBlock';
 import ResponseContainer from './ResponseContainer';
 import ResponseGallery from './ResponseGallery';
-import ResponseImage from './ResponseImage';
+import ResponseImage, { ResponseImageRef } from './ResponseImage';
 import ResponseInput, { ResponseInputRef } from './ResponseInput';
 import ResponseQuickReply, { ResponseQuickReplyRef } from './ResponseQuickReply';
 import ResponseVariants, { ResponseVariantsRef } from './ResponseVariants';
@@ -35,6 +35,7 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
   const responseInputRefs: RefObject<{ [key: string]: ResponseInputRef }> = useRef({});
   const responseVariantsRef: RefObject<ResponseVariantsRef> = useRef(null);
   const responseQuickReply: RefObject<ResponseQuickReplyRef> = useRef(null);
+  const responseImageRef: RefObject<ResponseImageRef> = useRef(null);
   const [responses, setResponses] = useState<BotResponse[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(0);
 
@@ -134,54 +135,51 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
   async function handleSave() {
     const input: BotResponse[] = [];
 
-    responses.forEach((response) => {
-      const id = response.id?.includes('client-') ? undefined : response.id;
+    await Promise.all(
+      responses.map(async (response, index) => {
+        const id = response.id?.includes('client-') ? undefined : response.id;
 
-      if (response.type === BotResponseType.Text) {
-        const value = responseInputRefs.current![response.id!]?.getValue?.() || {};
         input.push({
           id,
           type: response.type,
           storyBlockId: data.id!,
-          variants: [
+          deleted: response.deleted,
+        });
+
+        if (response.type === BotResponseType.Text) {
+          const value = responseInputRefs.current![response.id!]?.getValue?.() || {};
+          input[index].variants = [
             {
               id: value.id,
               content: value.content,
               deleted: false,
             },
-          ],
-          deleted: response.deleted,
-        });
-      }
+          ];
+        }
 
-      if (response.type === BotResponseType.RandomText) {
-        input.push({
-          id,
-          type: response.type,
-          storyBlockId: data.id!,
-          variants: responseVariantsRef.current?.getValues() || [],
-          deleted: response.deleted,
-        });
-      }
+        if (response.type === BotResponseType.RandomText) {
+          input[index].variants = responseVariantsRef.current?.getValues() || [];
+        }
 
-      if (response.type === BotResponseType.QuickReply) {
-        const value = responseQuickReply.current?.getValue?.();
-        input.push({
-          id,
-          type: response.type,
-          storyBlockId: data.id!,
-          variants: [
+        if (response.type === BotResponseType.QuickReply) {
+          const value = responseQuickReply.current?.getValue?.();
+          input[index].variants = [
             {
               id: value?.text?.id,
               content: value?.text?.content!,
               deleted: false,
             },
-          ],
-          buttons: value?.buttons || [],
-          deleted: response.deleted,
-        });
-      }
-    });
+          ];
+          input[index].buttons = value?.buttons || [];
+        }
+
+        if (response.type === BotResponseType.Image) {
+          const id = await responseImageRef.current?.uploadImage();
+          input[index].imageId = id;
+        }
+      }),
+    );
+
     await botStoryApi.createBotResponse(input);
     handleClose();
   }
@@ -200,7 +198,7 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
           <ResponseVariants defaultValues={response.variants || []} ref={responseVariantsRef} />
         );
       case BotResponseType.Image:
-        return <ResponseImage />;
+        return <ResponseImage ref={responseImageRef} src={response.imageUrl} />;
       case BotResponseType.QuickReply:
         return (
           <ResponseQuickReply

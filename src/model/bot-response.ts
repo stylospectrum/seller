@@ -31,12 +31,17 @@ export class BotResponseButton {
 }
 
 export default class BotResponse {
+  image_url?: string;
+  story_block_id?: string;
+
   id?: string;
   storyBlockId?: string;
   type: BotResponseType;
   deleted?: boolean;
   variants?: BotResponseText[] = [];
   buttons?: BotResponseButton[] = [];
+  imageId?: string;
+  imageUrl?: string;
 
   constructor(response: BotResponse) {
     this.id = response.id;
@@ -44,5 +49,6 @@ export default class BotResponse {
     this.storyBlockId = response.storyBlockId;
     this.variants = (response.variants || []).map((variant) => new BotResponseText(variant));
     this.buttons = (response.buttons || []).map((button) => new BotResponseButton(button));
+    this.imageUrl = response.imageUrl;
   }
 }

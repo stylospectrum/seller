@@ -104,6 +104,7 @@ class BotStoryApi {
           type: item.type,
           variants: item.variants,
           buttons: item.buttons,
+          imageUrl: item.image_url!,
         });
       });
     } catch (err) {
@@ -114,10 +115,11 @@ class BotStoryApi {
   async createBotResponse(params: BotResponse[]) {
     try {
       const newParams = params.map((param) => {
-        const { storyBlockId, ...rest } = param;
+        const { storyBlockId, imageId, ...rest } = param;
 
         return {
           ...rest,
+          image_id: imageId,
           story_block_id: storyBlockId,
         };
       });
