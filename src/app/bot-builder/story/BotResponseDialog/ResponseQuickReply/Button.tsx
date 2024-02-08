@@ -10,7 +10,7 @@ import '@stylospectrum/ui/dist/icon/data/delete';
 import '@stylospectrum/ui/dist/icon/data/sort';
 
 export interface QuickReplyButtonRef {
-  getValues: () => { [key: string]: string };
+  getValue: () => { [key: string]: string };
 }
 
 interface QuickReplyButtonProps {
@@ -105,7 +105,7 @@ const QuickReplyButton = forwardRef<QuickReplyButtonRef, QuickReplyButtonProps>(
     }
 
     useImperativeHandle(ref, () => ({
-      getValues() {
+      getValue() {
         return {
           content: text,
           goTo: '',

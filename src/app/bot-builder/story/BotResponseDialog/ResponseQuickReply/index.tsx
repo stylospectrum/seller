@@ -71,7 +71,7 @@ const ResponseQuickReply = forwardRef<ResponseQuickReplyRef, ResponseQuickReplyP
         return {
           text: inputRef.current!.getValue(),
           buttons: buttons.map((button) => {
-            const value = buttonsRef.current[button.id!]?.getValues?.();
+            const value = buttonsRef.current[button.id!]?.getValue?.();
 
             return {
               id: button.id?.startsWith('client-') ? undefined : button.id,

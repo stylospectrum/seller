@@ -1,205 +1,256 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Button } from '@stylospectrum/ui';
 import { ButtonDesign } from '@stylospectrum/ui/dist/types';
+import classNames from 'classnames';
 import update from 'immutability-helper';
 import { v4 as uuidv4 } from 'uuid';
 
 import styles from './index.module.scss';
-import GalleryItem from './Item';
+import GalleryItem, { GalleryItemRef } from './Item';
 
 import '@stylospectrum/ui/dist/icon/data/add';
 import '@stylospectrum/ui/dist/icon/data/navigation-right-arrow';
 import '@stylospectrum/ui/dist/icon/data/navigation-left-arrow';
 
-import classNames from 'classnames';
+import { BotResponseGalleryItem } from '@/model/bot-response';
 
 const SCROLL_DISTANCE = 272;
 
-export default function ResponseGallery() {
-  const [prevButtonVisible, setPrevButtonVisible] = useState(false);
-  const [nextButtonVisible, setNextButtonVisible] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [items, setItems] = useState<string[]>([uuidv4()]);
-  const containerDomRef = useRef<HTMLDivElement>(null);
-  const scrollContainerDomRef = useRef<HTMLDivElement>(null);
-  const prevItemsLength = useRef(items.length);
-  const preventScrolling = useRef(false);
+interface ResponseGalleryProps {
+  defaultValues: BotResponseGalleryItem[];
+}
 
-  function updateButtonVisibility() {
-    if (scrollContainerDomRef.current && containerDomRef.current) {
-      const containerWidth = containerDomRef.current.clientWidth;
-      const { scrollWidth, scrollLeft } = scrollContainerDomRef.current;
+export interface ResponseGalleryRef {
+  getValues: () => BotResponseGalleryItem[];
+}
 
-      setPrevButtonVisible(scrollLeft > 0);
-      setNextButtonVisible(scrollLeft + containerWidth + 16 < scrollWidth);
+const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
+  ({ defaultValues }, ref) => {
+    const [prevButtonVisible, setPrevButtonVisible] = useState(false);
+    const [nextButtonVisible, setNextButtonVisible] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [items, setItems] = useState<BotResponseGalleryItem[]>(
+      defaultValues.length
+        ? defaultValues
+        : [
+            {
+              id: 'client-' + uuidv4(),
+            },
+          ],
+    );
+    const containerDomRef = useRef<HTMLDivElement>(null);
+    const scrollContainerDomRef = useRef<HTMLDivElement>(null);
+    const prevItemsLength = useRef(items.length);
+    const preventScrolling = useRef(true);
+    const itemsRef = useRef<{ [key: string]: GalleryItemRef }>({});
+    const firstRender = useRef(0);
+    const filteredItems = useRef(items);
+
+    function updateButtonVisibility() {
+      if (scrollContainerDomRef.current && containerDomRef.current) {
+        const containerWidth = containerDomRef.current.clientWidth;
+        const { scrollWidth, scrollLeft } = scrollContainerDomRef.current;
+
+        setPrevButtonVisible(scrollLeft > 0);
+        setNextButtonVisible(scrollLeft + containerWidth + 16 < scrollWidth);
+      }
     }
-  }
 
-  useEffect(() => {
-    const { scrollLeft } = scrollContainerDomRef.current!;
+    useEffect(() => {
+      const scrollContainer = scrollContainerDomRef.current;
+      firstRender.current++;
 
-    if (preventScrolling.current) {
-      prevItemsLength.current = items.length;
-      preventScrolling.current = false;
-      return;
-    }
+      scrollContainer?.addEventListener('scroll', updateButtonVisibility);
 
-    updateButtonVisibility();
-
-    scrollContainerDomRef.current?.scrollTo({
-      left:
-        items.length >= prevItemsLength.current
-          ? scrollLeft + SCROLL_DISTANCE
-          : scrollLeft - SCROLL_DISTANCE,
-      behavior: 'smooth',
-    });
-
-    prevItemsLength.current = items.length;
-  }, [items.length]);
-
-  useEffect(() => {
-    const scrollContainer = scrollContainerDomRef.current;
-
-    if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', updateButtonVisibility);
-
-      // Clean up the event listener on component unmount
       return () => {
-        scrollContainer.removeEventListener('scroll', updateButtonVisibility);
+        firstRender.current = 0;
+        scrollContainer?.removeEventListener('scroll', updateButtonVisibility);
       };
-    }
-  }, []);
+    }, []);
 
-  function handleScroll(direction: 'next' | 'prev') {
-    if (scrollContainerDomRef.current) {
-      let scrollDistance = 0;
-      let newActiveIndex = activeIndex;
-      const { scrollLeft } = scrollContainerDomRef.current;
+    useEffect(() => {
+      updateButtonVisibility();
+      filteredItems.current = items.filter((item) => !item.deleted);
 
-      if (direction === 'prev') {
-        scrollDistance = -SCROLL_DISTANCE;
-        newActiveIndex--;
+      if (preventScrolling.current || firstRender.current == 1) {
+        prevItemsLength.current = filteredItems.current.length;
+        preventScrolling.current = false;
+        firstRender.current = 0;
+        return;
       }
 
-      if (direction === 'next') {
-        if (newActiveIndex === 0) {
-          scrollDistance = SCROLL_DISTANCE / 2 + 16;
+      const { scrollLeft } = scrollContainerDomRef.current!;
 
-          if (items.length === 2) {
-            scrollDistance += 16;
-          }
-        } else {
-          scrollDistance = SCROLL_DISTANCE;
-        }
-
-        newActiveIndex++;
-      }
-
-      setActiveIndex(newActiveIndex);
-      const newScrollLeft = scrollLeft + scrollDistance;
-
-      scrollContainerDomRef.current.scrollTo({
-        left: newScrollLeft,
+      scrollContainerDomRef.current?.scrollTo({
+        left:
+          filteredItems.current.length >= prevItemsLength.current
+            ? scrollLeft + SCROLL_DISTANCE
+            : scrollLeft - SCROLL_DISTANCE,
         behavior: 'smooth',
       });
-    }
-  }
 
-  function handleAdd() {
-    const newItem = uuidv4();
-    setActiveIndex(items.length);
-    setItems((prev) => [...prev, newItem]);
-  }
+      prevItemsLength.current = filteredItems.current.length;
+    }, [items]);
 
-  function handleDelete(id: string) {
-    const deletedIndex = items.findIndex((item) => item === id);
+    function handleScroll(direction: 'next' | 'prev') {
+      if (scrollContainerDomRef.current) {
+        let scrollDistance = 0;
+        let newActiveIndex = activeIndex;
+        const { scrollLeft } = scrollContainerDomRef.current;
 
-    if (items[activeIndex] === id) {
-      const newItems = items.filter((item) => item !== id);
+        if (direction === 'prev') {
+          scrollDistance = -SCROLL_DISTANCE;
+          newActiveIndex--;
+        }
 
-      if (deletedIndex === items.length - 1) {
-        preventScrolling.current = true;
+        if (direction === 'next') {
+          if (newActiveIndex === 0) {
+            scrollDistance = SCROLL_DISTANCE / 2 + 16;
+
+            if (filteredItems.current.length === 2) {
+              scrollDistance += 16;
+            }
+          } else {
+            scrollDistance = SCROLL_DISTANCE;
+          }
+
+          newActiveIndex++;
+        }
+
+        setActiveIndex(newActiveIndex);
+        const newScrollLeft = scrollLeft + scrollDistance;
+
+        scrollContainerDomRef.current.scrollTo({
+          left: newScrollLeft,
+          behavior: 'smooth',
+        });
       }
+    }
 
-      setItems(newItems);
+    function handleAdd() {
+      setActiveIndex(filteredItems.current.length);
+      setItems((prev) => [...prev, { id: 'client-' + uuidv4() }]);
+    }
 
-      if (deletedIndex === 0) {
-        setActiveIndex(0);
+    function handleDelete(id: string) {
+      let index = filteredItems.current.findIndex((item) => item.id === id);
+
+      if (activeIndex === index) {
+        if (index === filteredItems.current.length - 1) {
+          preventScrolling.current = true;
+        }
+
+        if (index === 0) {
+          setActiveIndex(0);
+        } else {
+          setActiveIndex(index - 1);
+        }
       } else {
-        setActiveIndex(deletedIndex - 1);
+        preventScrolling.current = true;
+        setActiveIndex(index);
       }
-    } else {
-      preventScrolling.current = true;
-      setItems(items.filter((button) => button !== id));
-      setActiveIndex(deletedIndex);
+
+      index = items.findIndex((item) => item.id === id);
+
+      if (id.includes('client-')) {
+        setItems((prev) => {
+          const newResponses = [...prev];
+          newResponses.splice(index, 1);
+          return newResponses;
+        });
+      } else {
+        const cloned: BotResponseGalleryItem[] = JSON.parse(JSON.stringify(items));
+        cloned[index].deleted = true;
+        setItems(cloned);
+      }
     }
-  }
 
-  function handleMoveItem(dragIdx: number, hoverIdx: number) {
-    setItems((prev) =>
-      update(prev, {
-        $splice: [
-          [dragIdx, 1],
-          [hoverIdx, 0, prev[dragIdx]],
-        ],
-      }),
-    );
-  }
+    function handleMoveItem(dragIdx: number, hoverIdx: number) {
+      setItems((prev) =>
+        update(prev, {
+          $splice: [
+            [dragIdx, 1],
+            [hoverIdx, 0, prev[dragIdx]],
+          ],
+        }),
+      );
+    }
 
-  return (
-    <div className={styles.container} ref={containerDomRef}>
-      {prevButtonVisible && (
-        <Button
-          icon="navigation-left-arrow"
-          className={classNames(styles['nav-button'], styles['nav-button-prev'])}
-          circle
-          type={ButtonDesign.Secondary}
-          onClick={() => handleScroll('prev')}
-        />
-      )}
+    useImperativeHandle(ref, () => ({
+      getValues: () =>
+        items.map((item) => {
+          const value = itemsRef.current[item.id!]?.getValue();
 
-      {nextButtonVisible && (
-        <Button
-          icon="navigation-right-arrow"
-          className={classNames(styles['nav-button'], styles['nav-button-next'])}
-          circle
-          type={ButtonDesign.Secondary}
-          onClick={() => handleScroll('next')}
-        />
-      )}
+          return {
+            id: item.id?.startsWith('client-') ? undefined : item.id,
+            deleted: item.deleted,
+            title: value?.title,
+            description: value?.description,
+            buttons: value?.buttons || [],
+            image_id: '',
+          };
+        }),
+    }));
 
-      <div
-        className={styles['scroll-container']}
-        ref={scrollContainerDomRef}
-        style={{ marginLeft: prevButtonVisible ? '-1rem' : 0 }}
-      >
-        <div className={styles.items}>
-          {items.map((item, index) => (
-            <div
-              key={item}
-              id={`gallery-item-${item}`}
-              style={{ opacity: activeIndex === index ? 1 : 0.7 }}
-            >
-              <GalleryItem
-                onDrop={(dropIndex) => {
-                  // console.log(dropIndex)
-                  // setActiveIndex(items[dropIndex])
-                }}
-                index={index}
-                moveItem={handleMoveItem}
-                onDelete={() => handleDelete(item)}
-                showActions={items.length > 1}
-              />
-            </div>
-          ))}
-        </div>
+    return (
+      <div className={styles.container} ref={containerDomRef}>
+        {prevButtonVisible && (
+          <Button
+            icon="navigation-left-arrow"
+            className={classNames(styles['nav-button'], styles['nav-button-prev'])}
+            circle
+            type={ButtonDesign.Secondary}
+            onClick={() => handleScroll('prev')}
+          />
+        )}
 
-        <div className={styles['add-item']}>
-          <div className={styles['add-item-line']}></div>
-          <Button icon="add" onClick={handleAdd} circle type={ButtonDesign.Secondary} />
-          <div className={styles['add-item-text']}>Add card</div>
+        {nextButtonVisible && (
+          <Button
+            icon="navigation-right-arrow"
+            className={classNames(styles['nav-button'], styles['nav-button-next'])}
+            circle
+            type={ButtonDesign.Secondary}
+            onClick={() => handleScroll('next')}
+          />
+        )}
+
+        <div
+          className={styles['scroll-container']}
+          ref={scrollContainerDomRef}
+          style={{ marginLeft: prevButtonVisible ? '-1rem' : 0 }}
+        >
+          <div className={styles.items}>
+            {items
+              .filter((item) => !item.deleted)
+              .map((item, index) => (
+                <div
+                  key={item.id}
+                  id={`gallery-item-${item}`}
+                  style={{ opacity: activeIndex === index ? 1 : 0.7 }}
+                >
+                  <GalleryItem
+                    ref={(el) => (itemsRef.current[item.id!] = el!)}
+                    index={index}
+                    moveItem={handleMoveItem}
+                    onDelete={() => handleDelete(item.id!)}
+                    showActions={filteredItems.current.length > 1}
+                    defaultValue={item}
+                  />
+                </div>
+              ))}
+          </div>
+
+          <div className={styles['add-item']}>
+            <div className={styles['add-item-line']}></div>
+            <Button icon="add" onClick={handleAdd} circle type={ButtonDesign.Secondary} />
+            <div className={styles['add-item-text']}>Add card</div>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+);
+
+ResponseGallery.displayName = 'ResponseGallery';
+
+export default ResponseGallery;

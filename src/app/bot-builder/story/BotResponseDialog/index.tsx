@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import styles from './index.module.scss';
 import ResponseBlock from './ResponseBlock';
 import ResponseContainer from './ResponseContainer';
-import ResponseGallery from './ResponseGallery';
+import ResponseGallery, { ResponseGalleryRef } from './ResponseGallery';
 import ResponseImage, { ResponseImageRef } from './ResponseImage';
 import ResponseInput, { ResponseInputRef } from './ResponseInput';
 import ResponseQuickReply, { ResponseQuickReplyRef } from './ResponseQuickReply';
@@ -36,6 +36,7 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
   const responseVariantsRef: RefObject<ResponseVariantsRef> = useRef(null);
   const responseQuickReply: RefObject<ResponseQuickReplyRef> = useRef(null);
   const responseImageRef: RefObject<ResponseImageRef> = useRef(null);
+  const responseGalleryRef: RefObject<ResponseGalleryRef> = useRef(null);
   const [responses, setResponses] = useState<BotResponse[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(0);
 
@@ -177,9 +178,12 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
           const id = await responseImageRef.current?.uploadImage();
           input[index].imageId = id;
         }
+
+        if (response.type === BotResponseType.Gallery) {
+          input[index].gallery = responseGalleryRef.current?.getValues()!;
+        }
       }),
     );
-
     await botStoryApi.createBotResponse(input);
     handleClose();
   }
@@ -207,7 +211,7 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
           />
         );
       case BotResponseType.Gallery:
-        return <ResponseGallery />;
+        return <ResponseGallery ref={responseGalleryRef} defaultValues={response?.gallery || []} />;
       default:
         return null;
     }

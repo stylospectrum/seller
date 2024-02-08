@@ -6,6 +6,23 @@ export enum BotResponseType {
   QuickReply = 'QuickReply',
 }
 
+export class BotResponseGalleryItem {
+  id?: string;
+  imageId?: string;
+  title?: string;
+  description?: string;
+  buttons?: BotResponseButton[];
+  deleted?: boolean;
+
+  constructor(galleryItem: BotResponseGalleryItem) {
+    this.id = galleryItem.id;
+    this.imageId = galleryItem.imageId;
+    this.title = galleryItem.title;
+    this.description = galleryItem.description;
+    this.buttons = (galleryItem.buttons || []).map((button) => new BotResponseButton(button));
+  }
+}
+
 export class BotResponseText {
   deleted?: boolean;
   content: string;
@@ -23,25 +40,23 @@ export class BotResponseButton {
   goTo?: string;
   id?: string;
 
-  constructor(button: BotResponseButton) {
+  constructor(button: BotResponseButton & { go_to?: string }) {
     this.content = button?.content;
     this.id = button?.id;
-    this.goTo = button?.goTo;
+    this.goTo = button?.go_to;
   }
 }
 
 export default class BotResponse {
-  image_url?: string;
-  story_block_id?: string;
-
   id?: string;
   storyBlockId?: string;
   type: BotResponseType;
   deleted?: boolean;
   variants?: BotResponseText[] = [];
   buttons?: BotResponseButton[] = [];
-  imageId?: string;
   imageUrl?: string;
+  imageId?: string;
+  gallery?: BotResponseGalleryItem[];
 
   constructor(response: BotResponse) {
     this.id = response.id;
@@ -50,5 +65,8 @@ export default class BotResponse {
     this.variants = (response.variants || []).map((variant) => new BotResponseText(variant));
     this.buttons = (response.buttons || []).map((button) => new BotResponseButton(button));
     this.imageUrl = response.imageUrl;
+    this.gallery = (response.gallery || []).map(
+      (galleryItem) => new BotResponseGalleryItem(galleryItem),
+    );
   }
 }

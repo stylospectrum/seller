@@ -90,7 +90,7 @@ class BotStoryApi {
 
   async getBotResponse(storyBlockId: string) {
     try {
-      const res: ServerResponse<BotResponse[]> = await axios.get(
+      const res: ServerResponse<(BotResponse & { image_url: string })[]> = await axios.get(
         `/bot-builder/story-block/bot-response/${storyBlockId}/`,
       );
 
@@ -105,6 +105,7 @@ class BotStoryApi {
           variants: item.variants,
           buttons: item.buttons,
           imageUrl: item.image_url!,
+          gallery: item.gallery,
         });
       });
     } catch (err) {
