@@ -90,33 +90,41 @@ class BotStoryApi {
 
   async getBotResponse(storyBlockId: string) {
     try {
-      const res: ServerResponse<(BotResponse & { image_url: string })[]> = await axios.get(
-        `/bot-builder/story-block/bot-response/${storyBlockId}/`,
-      );
+      const res: ServerResponse<{
+        story_block: BotStoryBlock;
+        bot_response: (BotResponse & { image_url: string })[];
+      }> = await axios.get(`/bot-builder/story-block/bot-response/${storyBlockId}/`);
 
       if (res.statusCode === 404 || !res?.data) {
         return null;
       }
 
-      return res.data.map((item) => {
-        return new BotResponse({
-          id: item.id,
-          type: item.type,
-          variants: item.variants,
-          buttons: item.buttons,
-          imageUrl: item.image_url!,
-          gallery: item.gallery,
-        });
-      });
+      return {
+        storyBlock: new BotStoryBlock({
+          children: res.data.story_block.children,
+          name: res.data.story_block.name,
+          type: res.data.story_block.type,
+        }),
+        botResponses: res.data.bot_response.map((item) => {
+          return new BotResponse({
+            id: item.id,
+            type: item.type,
+            variants: item.variants,
+            buttons: item.buttons,
+            imageUrl: item.image_url!,
+            gallery: item.gallery,
+          });
+        }),
+      };
     } catch (err) {
       throw err;
     }
   }
 
-  async createBotResponse(params: BotResponse[]) {
+  async createBotResponse(params: { storyBlock: BotStoryBlock; botResponses: BotResponse[] }) {
     try {
-      const newParams = params.map((param) => {
-        const { storyBlockId, imageId, ...rest } = param;
+      const newBotResponse = params.botResponses.map((response) => {
+        const { storyBlockId, imageId, ...rest } = response;
 
         return {
           ...rest,
@@ -124,7 +132,23 @@ class BotStoryApi {
           story_block_id: storyBlockId,
         };
       });
-      return await axios.post('/bot-builder/story-block/bot-response/', newParams);
+      const res: ServerResponse<{ story_block: BotStoryBlock; bot_response: BotResponse[] }> =
+        await axios.post('/bot-builder/story-block/bot-response/', {
+          story_block: params.storyBlock,
+          bot_responses: newBotResponse,
+        });
+
+      if (!res?.data?.story_block?.id) {
+        return null;
+      }
+
+      return {
+        storyBlock: new BotStoryBlock({
+          children: res.data.story_block.children,
+          name: res.data.story_block.name,
+          type: res.data.story_block.type,
+        }),
+      };
     } catch (err) {
       throw err;
     }

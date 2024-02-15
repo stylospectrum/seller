@@ -7,12 +7,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 import styles from './index.module.scss';
 import GalleryItem, { GalleryItemRef } from './Item';
+import { BotResponseGalleryItem } from '@/model/bot-response';
 
 import '@stylospectrum/ui/dist/icon/data/add';
 import '@stylospectrum/ui/dist/icon/data/navigation-right-arrow';
 import '@stylospectrum/ui/dist/icon/data/navigation-left-arrow';
-
-import { BotResponseGalleryItem } from '@/model/bot-response';
 
 const SCROLL_DISTANCE = 272;
 
@@ -21,7 +20,7 @@ interface ResponseGalleryProps {
 }
 
 export interface ResponseGalleryRef {
-  getValues: () => BotResponseGalleryItem[];
+  getValues: () => Promise<BotResponseGalleryItem[]>;
 }
 
 const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
@@ -43,7 +42,6 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
     const prevItemsLength = useRef(items.length);
     const preventScrolling = useRef(true);
     const itemsRef = useRef<{ [key: string]: GalleryItemRef }>({});
-    const firstRender = useRef(0);
     const filteredItems = useRef(items);
 
     function updateButtonVisibility() {
@@ -58,12 +56,10 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
 
     useEffect(() => {
       const scrollContainer = scrollContainerDomRef.current;
-      firstRender.current++;
 
       scrollContainer?.addEventListener('scroll', updateButtonVisibility);
 
       return () => {
-        firstRender.current = 0;
         scrollContainer?.removeEventListener('scroll', updateButtonVisibility);
       };
     }, []);
@@ -72,10 +68,8 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
       updateButtonVisibility();
       filteredItems.current = items.filter((item) => !item.deleted);
 
-      if (preventScrolling.current || firstRender.current == 1) {
+      if (preventScrolling.current) {
         prevItemsLength.current = filteredItems.current.length;
-        preventScrolling.current = false;
-        firstRender.current = 0;
         return;
       }
 
@@ -117,8 +111,10 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
           newActiveIndex++;
         }
 
-        setActiveIndex(newActiveIndex);
         const newScrollLeft = scrollLeft + scrollDistance;
+        preventScrolling.current = false;
+
+        setActiveIndex(newActiveIndex);
 
         scrollContainerDomRef.current.scrollTo({
           left: newScrollLeft,
@@ -128,6 +124,7 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
     }
 
     function handleAdd() {
+      preventScrolling.current = false;
       setActiveIndex(filteredItems.current.length);
       setItems((prev) => [...prev, { id: 'client-' + uuidv4() }]);
     }
@@ -166,6 +163,7 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
     }
 
     function handleMoveItem(dragIdx: number, hoverIdx: number) {
+      preventScrolling.current = true;
       setItems((prev) =>
         update(prev, {
           $splice: [
@@ -178,18 +176,20 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
 
     useImperativeHandle(ref, () => ({
       getValues: () =>
-        items.map((item) => {
-          const value = itemsRef.current[item.id!]?.getValue();
+        Promise.all(
+          items.map(async (item) => {
+            const value = await itemsRef.current[item.id!]?.getValue();
 
-          return {
-            id: item.id?.startsWith('client-') ? undefined : item.id,
-            deleted: item.deleted,
-            title: value?.title,
-            description: value?.description,
-            buttons: value?.buttons || [],
-            image_id: '',
-          };
-        }),
+            return {
+              id: item.id?.startsWith('client-') ? undefined : item.id,
+              deleted: item.deleted,
+              title: value?.title,
+              description: value?.description,
+              buttons: value?.buttons || [],
+              image_id: value?.imageId,
+            };
+          }),
+        ),
     }));
 
     return (

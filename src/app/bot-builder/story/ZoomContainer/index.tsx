@@ -23,6 +23,7 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
   const [selectedBlock, setSelectedBlock] = useState<BotStoryBlock>();
   const [botResDialogVisible, setBotResDialogVisible] = useState(false);
   const [userInputDialog, setUserInputDialog] = useState(false);
+  const [blockName, setBlockName] = useState<{ [key: string]: string }>({});
 
   const handleClick = (e: MouseEvent, block: CustomHierarchyNode<Box>) => {
     if (
@@ -69,6 +70,7 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
               // @ts-expect-error */}
               <Block
                 {...block}
+                name={blockName?.[block.data.id] || block.data.name}
                 chosen={selectedBlock?.id === block.data.id && index > 0}
                 onClick={(e) => {
                   handleClick(e, block);
@@ -81,7 +83,16 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
 
       {botResDialogVisible && (
         <DndProvider backend={HTML5Backend}>
-          <BotResponseDialog onClose={handleCloseDialog} data={selectedBlock!} />
+          <BotResponseDialog
+            onChangeBlockName={(blockId, blockName) =>
+              setBlockName((prev) => {
+                prev[blockId] = blockName;
+                return prev;
+              })
+            }
+            onClose={handleCloseDialog}
+            data={selectedBlock!}
+          />
         </DndProvider>
       )}
 

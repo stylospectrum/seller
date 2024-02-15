@@ -68,6 +68,11 @@ const ResponseImage = forwardRef<ResponseImageRef, ResponseImageProps>(
       setImageUrl('');
     }
 
+    function extractKeyFromUrl(url: string) {
+      const match = url.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/);
+      return match?.[0];
+    }
+
     useImperativeHandle(ref, () => ({
       uploadImage: async () => {
         if (presignedUrl.current) {
@@ -81,7 +86,7 @@ const ResponseImage = forwardRef<ResponseImageRef, ResponseImageProps>(
           axios.post(presignedUrl.current!.url, formData);
         }
 
-        return presignedUrl.current?.fields?.key;
+        return presignedUrl.current?.fields?.key || extractKeyFromUrl(imageUrl!);
       },
     }));
 

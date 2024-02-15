@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { Button, Dialog, Icon, Input } from '@stylospectrum/ui';
-import { ButtonDesign, IDialog } from '@stylospectrum/ui/dist/types';
+import { ButtonDesign, IDialog, IInput } from '@stylospectrum/ui/dist/types';
 import update from 'immutability-helper';
 import Image from 'next/image';
 import { useDrop } from 'react-dnd';
@@ -16,20 +16,26 @@ import ResponseQuickReply, { ResponseQuickReplyRef } from './ResponseQuickReply'
 import ResponseVariants, { ResponseVariantsRef } from './ResponseVariants';
 import { botStoryApi } from '@/api';
 import { BotResponse, BotStoryBlock } from '@/model';
+import { BotResponseType } from '@/model/bot-response';
+import { BotStoryBlockType } from '@/model/bot-story-block';
 
 import '@stylospectrum/ui/dist/icon/data/background';
 import '@stylospectrum/ui/dist/icon/data/image-viewer';
 import '@stylospectrum/ui/dist/icon/data/response';
 import '@stylospectrum/ui/dist/icon/data/text-formatting';
 
-import { BotResponseType } from '@/model/bot-response';
-
 interface BotResponseDialogProps {
   data: BotStoryBlock;
   onClose: () => void;
+  disabledInputName?: boolean;
+  onChangeBlockName: (id: string, name: string) => void;
 }
 
-export default function BotResponseDialog({ onClose, data }: BotResponseDialogProps) {
+export default function BotResponseDialog({
+  onClose,
+  data,
+  onChangeBlockName,
+}: BotResponseDialogProps) {
   const dropDomRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<IDialog>(null);
   const responseInputRefs: RefObject<{ [key: string]: ResponseInputRef }> = useRef({});
@@ -37,15 +43,18 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
   const responseQuickReply: RefObject<ResponseQuickReplyRef> = useRef(null);
   const responseImageRef: RefObject<ResponseImageRef> = useRef(null);
   const responseGalleryRef: RefObject<ResponseGalleryRef> = useRef(null);
+  const inputNameRef: RefObject<IInput> = useRef(null);
   const [responses, setResponses] = useState<BotResponse[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(0);
+  const [name, setName] = useState(data.name);
 
   useEffect(() => {
     async function fetchResponse() {
       const res = await botStoryApi.getBotResponse(data.id!);
 
       if (res) {
-        setResponses(res);
+        setResponses(res.botResponses);
+        setName(res.storyBlock.name);
       }
       dialogRef.current?.show();
     }
@@ -180,11 +189,23 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
         }
 
         if (response.type === BotResponseType.Gallery) {
-          input[index].gallery = responseGalleryRef.current?.getValues()!;
+          input[index].gallery = await responseGalleryRef.current?.getValues()!;
         }
       }),
     );
-    await botStoryApi.createBotResponse(input);
+    const name = (inputNameRef.current as any)._innerValue;
+    const res = await botStoryApi.createBotResponse({
+      storyBlock: {
+        id: name ? data.id : null,
+        name: (inputNameRef.current as any)._innerValue,
+      },
+      botResponses: input,
+    });
+
+    if (res?.storyBlock) {
+      onChangeBlockName(data.id!, res?.storyBlock?.name || '');
+    }
+
     handleClose();
   }
 
@@ -282,7 +303,16 @@ export default function BotResponseDialog({ onClose, data }: BotResponseDialogPr
           </div>
         </div>
       </Dialog>
-      <Input slot="sub-header" defaultValue={data.name} style={{ width: '100%' }} />
+      <Input
+        disabled={
+          (data as any).parent?.type === BotStoryBlockType.StartPoint ||
+          (data as any).parent?.type === BotStoryBlockType.DefaultFallback
+        }
+        ref={inputNameRef}
+        slot="sub-header"
+        defaultValue={name}
+        style={{ width: '100%' }}
+      />
 
       <div ref={dropDomRef} className={styles.content}>
         {renderNoDraggingNode()}

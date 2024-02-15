@@ -8,15 +8,17 @@ export enum BotResponseType {
 
 export class BotResponseGalleryItem {
   id?: string;
+  imageUrl?: string;
   imageId?: string;
   title?: string;
   description?: string;
   buttons?: BotResponseButton[];
   deleted?: boolean;
 
-  constructor(galleryItem: BotResponseGalleryItem) {
+  constructor(galleryItem: BotResponseGalleryItem & { image_url?: string }) {
     this.id = galleryItem.id;
     this.imageId = galleryItem.imageId;
+    this.imageUrl = galleryItem.image_url;
     this.title = galleryItem.title;
     this.description = galleryItem.description;
     this.buttons = (galleryItem.buttons || []).map((button) => new BotResponseButton(button));

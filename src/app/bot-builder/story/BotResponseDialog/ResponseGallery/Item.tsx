@@ -6,13 +6,12 @@ import update from 'immutability-helper';
 import { useDrag, useDrop } from 'react-dnd';
 import { v4 as uuidv4 } from 'uuid';
 
-import ResponseImage from '../ResponseImage';
+import ResponseImage, { ResponseImageRef } from '../ResponseImage';
 import GalleryButton, { GalleryButtonRef } from './Button';
 import styles from './item.module.scss';
+import { BotResponseButton, BotResponseGalleryItem } from '@/model/bot-response';
 
 import '@stylospectrum/ui/dist/icon/data/add';
-
-import { BotResponseButton, BotResponseGalleryItem } from '@/model/bot-response';
 
 interface GalleryItemProps {
   onDelete: () => void;
@@ -27,7 +26,7 @@ interface DragItem {
 }
 
 export interface GalleryItemRef {
-  getValue: () => BotResponseGalleryItem;
+  getValue: () => Promise<BotResponseGalleryItem>;
 }
 
 const GalleryItem = forwardRef<GalleryItemRef, GalleryItemProps>(
@@ -45,6 +44,7 @@ const GalleryItem = forwardRef<GalleryItemRef, GalleryItemProps>(
     const [hover, setHover] = useState(false);
     const wrapperDomRef = useRef<HTMLDivElement>(null);
     const buttonsRef = useRef<{ [key: string]: GalleryButtonRef }>({});
+    const imageRef = useRef<ResponseImageRef>(null);
     const formRef: RefObject<IForm> = useRef(null);
 
     const [{ isDragging }, drag, dragPreview] = useDrag(
@@ -120,10 +120,11 @@ const GalleryItem = forwardRef<GalleryItemRef, GalleryItemProps>(
     }
 
     useImperativeHandle(ref, () => ({
-      getValue: () => {
+      getValue: async () => {
         const formValue = formRef.current!.getFieldsValue();
         return {
           ...formValue,
+          imageId: await imageRef.current?.uploadImage?.(),
           buttons: buttons.map((button) => {
             const value = buttonsRef.current[button.id!]?.getValue?.();
 
@@ -161,7 +162,14 @@ const GalleryItem = forwardRef<GalleryItemRef, GalleryItemProps>(
         onMouseLeave={handleMouseLeave}
       >
         <div className={styles.card}>
-          <ResponseImage className={styles.image} width={240} height={145} iconSize={2} />
+          <ResponseImage
+            ref={imageRef}
+            src={defaultValue.imageUrl}
+            className={styles.image}
+            width={240}
+            height={145}
+            iconSize={2}
+          />
           <Form ref={formRef} className={styles.form}>
             <FormItem name="title" style={{ marginBottom: '-0.375rem' }}>
               <Input placeholder="Enter title" className={styles.input} />

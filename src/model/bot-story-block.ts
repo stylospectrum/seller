@@ -6,7 +6,7 @@ export enum BotStoryBlockType {
 }
 
 export default class BotStoryBlock {
-  id?: string;
+  id?: string | null;
   name?: string;
   type?: BotStoryBlockType;
   parentId?: string;

@@ -31,9 +31,11 @@ import '@stylospectrum/ui/dist/icon/data/move';
 interface BlockProps extends CustomHierarchyNode<Box> {
   chosen: boolean;
   onClick: (e: MouseEvent) => void;
+  name: string;
 }
 
-export default function Block({ data, chosen, onClick }: BlockProps) {
+export default function Block({ data, chosen, onClick, name }: BlockProps) {
+  const [innerName, setInnerName] = useState(name);
   const [msgBoxOpened, setMsgBoxOpened] = useState(false);
   const [hover, setHover] = useState(false);
   const [popoverOpened, setPopoverOpened] = useState(false);
@@ -113,9 +115,13 @@ export default function Block({ data, chosen, onClick }: BlockProps) {
       id: data.id,
       name: val,
     });
-    changeRawBlock(res!);
+    setInnerName(res!.name!);
     setEditName(false);
   }
+
+  useEffect(() => {
+    setInnerName(name);
+  }, [name]);
 
   return (
     <>
@@ -134,13 +140,13 @@ export default function Block({ data, chosen, onClick }: BlockProps) {
             <Input
               ref={editNameInputRef}
               className={styles['edit-name-input']}
-              defaultValue={data.name || ''}
+              defaultValue={innerName}
               onBlur={() => setEditName(false)}
               onEscape={() => setEditName(false)}
               onEnter={(e) => handleEditName((e as any).detail)}
             />
           ) : (
-            <div className={styles.title}>{data.name}</div>
+            <div className={styles.title}>{innerName}</div>
           )}
 
           {hover && !editName && (
