@@ -1,4 +1,4 @@
-import { BotStoryBlockType } from '@/model/bot-story-block';
+import { BotStoryBlockType } from '@/enums';
 
 interface BoxSize {
   height: number;

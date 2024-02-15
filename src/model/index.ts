@@ -1,3 +1,4 @@
-export { default as User } from './user';
-export { default as BotStoryBlock } from './bot-story-block';
-export { default as BotResponse } from './bot-response';
+export * from './user';
+export * from './bot-story-block';
+export * from './bot-response';
+export * from './bot-user-input';

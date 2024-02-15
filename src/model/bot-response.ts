@@ -49,7 +49,7 @@ export class BotResponseButton {
   }
 }
 
-export default class BotResponse {
+export class BotResponse {
   id?: string;
   storyBlockId?: string;
   type: BotResponseType;

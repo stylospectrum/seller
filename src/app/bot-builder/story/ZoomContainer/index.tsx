@@ -8,7 +8,8 @@ import UserInputDialog from '../UserInputDialog';
 import { Box } from '../utils/box';
 import type { CustomHierarchyNode } from '../utils/hierarchy';
 import styles from './index.module.scss';
-import BotStoryBlock, { BotStoryBlockType } from '@/model/bot-story-block';
+import { BotStoryBlockType } from '@/enums';
+import { BotStoryBlock } from '@/model';
 
 interface ZoomContainerProps {
   blocks?: CustomHierarchyNode<Box>[];
@@ -96,7 +97,18 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
         </DndProvider>
       )}
 
-      {userInputDialog && <UserInputDialog onClose={handleCloseDialog} />}
+      {userInputDialog && (
+        <UserInputDialog
+          data={selectedBlock!}
+          onChangeBlockName={(blockId, blockName) =>
+            setBlockName((prev) => {
+              prev[blockId] = blockName;
+              return prev;
+            })
+          }
+          onClose={handleCloseDialog}
+        />
+      )}
     </>
   );
 });

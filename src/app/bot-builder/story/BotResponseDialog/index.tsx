@@ -14,10 +14,10 @@ import ResponseImage, { ResponseImageRef } from './ResponseImage';
 import ResponseInput, { ResponseInputRef } from './ResponseInput';
 import ResponseQuickReply, { ResponseQuickReplyRef } from './ResponseQuickReply';
 import ResponseVariants, { ResponseVariantsRef } from './ResponseVariants';
-import { botStoryApi } from '@/api';
+import { botBuilderApi } from '@/api';
+import { BotStoryBlockType } from '@/enums';
 import { BotResponse, BotStoryBlock } from '@/model';
 import { BotResponseType } from '@/model/bot-response';
-import { BotStoryBlockType } from '@/model/bot-story-block';
 
 import '@stylospectrum/ui/dist/icon/data/background';
 import '@stylospectrum/ui/dist/icon/data/image-viewer';
@@ -46,15 +46,15 @@ export default function BotResponseDialog({
   const inputNameRef: RefObject<IInput> = useRef(null);
   const [responses, setResponses] = useState<BotResponse[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(0);
-  const [name, setName] = useState(data.name);
+  const [blockName, setBlockName] = useState(data.name);
 
   useEffect(() => {
     async function fetchResponse() {
-      const res = await botStoryApi.getBotResponse(data.id!);
+      const res = await botBuilderApi.getBotResponse(data.id!);
 
       if (res) {
         setResponses(res.botResponses);
-        setName(res.storyBlock.name);
+        setBlockName(res.storyBlock.name);
       }
       dialogRef.current?.show();
     }
@@ -193,11 +193,12 @@ export default function BotResponseDialog({
         }
       }),
     );
-    const name = (inputNameRef.current as any)._innerValue;
-    const res = await botStoryApi.createBotResponse({
+
+    const name: string = (inputNameRef.current as any)._innerValue;
+    const res = await botBuilderApi.createBotResponse({
       storyBlock: {
         id: name ? data.id : null,
-        name: (inputNameRef.current as any)._innerValue,
+        name,
       },
       botResponses: input,
     });
@@ -310,7 +311,7 @@ export default function BotResponseDialog({
         }
         ref={inputNameRef}
         slot="sub-header"
-        defaultValue={name}
+        defaultValue={blockName}
         style={{ width: '100%' }}
       />
 

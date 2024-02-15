@@ -1,11 +1,6 @@
-export enum BotStoryBlockType {
-  UserInput = 'UserInput',
-  BotResponse = 'BotResponse',
-  StartPoint = 'StartPoint',
-  DefaultFallback = 'DefaultFallback',
-}
+import { BotStoryBlockType } from '@/enums';
 
-export default class BotStoryBlock {
+export class BotStoryBlock {
   id?: string | null;
   name?: string;
   type?: BotStoryBlockType;

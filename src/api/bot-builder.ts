@@ -1,8 +1,8 @@
 import type { ServerResponse } from '@/interface';
 import { axios } from '@/lib/axios';
-import { BotResponse, BotStoryBlock } from '@/model';
+import { BotResponse, BotStoryBlock, BotUserInput } from '@/model';
 
-class BotStoryApi {
+class BotBuilderApi {
   async getStoryBlocks() {
     try {
       const res: ServerResponse<BotStoryBlock> = await axios.get('/bot-builder/story-block/');
@@ -23,11 +23,10 @@ class BotStoryApi {
 
   async createStoryBlock(params: BotStoryBlock) {
     try {
-      const { parentId, ...rest } = params;
-      const res: ServerResponse<BotStoryBlock> = await axios.post('/bot-builder/story-block/', {
-        ...rest,
-        parent_id: parentId,
-      });
+      const res: ServerResponse<BotStoryBlock> = await axios.post(
+        '/bot-builder/story-block/',
+        params,
+      );
 
       if (!res?.data) {
         return null;
@@ -45,11 +44,10 @@ class BotStoryApi {
 
   async deleteStoryBlock(params: { id: string; isDeleteMany: boolean }) {
     try {
-      const { isDeleteMany, ...rest } = params;
       const res: ServerResponse<BotStoryBlock> = await axios.delete('/bot-builder/story-block/', {
         data: {
-          ...rest,
-          is_delete_many: isDeleteMany,
+          id: params.id,
+          is_delete_many: params.isDeleteMany,
         },
       });
 
@@ -92,7 +90,7 @@ class BotStoryApi {
     try {
       const res: ServerResponse<{
         story_block: BotStoryBlock;
-        bot_response: (BotResponse & { image_url: string })[];
+        bot_responses: (BotResponse & { image_url: string })[];
       }> = await axios.get(`/bot-builder/story-block/bot-response/${storyBlockId}/`);
 
       if (res.statusCode === 404 || !res?.data) {
@@ -105,7 +103,7 @@ class BotStoryApi {
           name: res.data.story_block.name,
           type: res.data.story_block.type,
         }),
-        botResponses: res.data.bot_response.map((item) => {
+        botResponses: res.data.bot_responses.map((item) => {
           return new BotResponse({
             id: item.id,
             type: item.type,
@@ -123,19 +121,63 @@ class BotStoryApi {
 
   async createBotResponse(params: { storyBlock: BotStoryBlock; botResponses: BotResponse[] }) {
     try {
-      const newBotResponse = params.botResponses.map((response) => {
-        const { storyBlockId, imageId, ...rest } = response;
-
-        return {
-          ...rest,
-          image_id: imageId,
-          story_block_id: storyBlockId,
-        };
-      });
       const res: ServerResponse<{ story_block: BotStoryBlock; bot_response: BotResponse[] }> =
         await axios.post('/bot-builder/story-block/bot-response/', {
           story_block: params.storyBlock,
-          bot_responses: newBotResponse,
+          bot_responses: params.botResponses,
+        });
+
+      if (!res?.data?.story_block?.id) {
+        return null;
+      }
+
+      return {
+        storyBlock: new BotStoryBlock({
+          children: res.data.story_block.children,
+          name: res.data.story_block.name,
+          type: res.data.story_block.type,
+        }),
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getUserInput(storyBlockId: string) {
+    try {
+      const res: ServerResponse<{
+        story_block: BotStoryBlock;
+        user_inputs: BotUserInput[];
+      }> = await axios.get(`/bot-builder/story-block/user-input/${storyBlockId}/`);
+
+      if (res.statusCode === 404 || !res?.data) {
+        return null;
+      }
+
+      return {
+        storyBlock: new BotStoryBlock({
+          children: res.data.story_block.children,
+          name: res.data.story_block.name,
+          type: res.data.story_block.type,
+        }),
+        userInputs: res.data.user_inputs.map((item) => {
+          return new BotUserInput({
+            id: item.id,
+            content: item.content,
+          });
+        }),
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async createUserInput(params: { storyBlock: BotStoryBlock; userInputs: BotUserInput[] }) {
+    try {
+      const res: ServerResponse<{ story_block: BotStoryBlock; bot_response: BotResponse[] }> =
+        await axios.post('/bot-builder/story-block/user-input/', {
+          story_block: params.storyBlock,
+          user_inputs: params.userInputs,
         });
 
       if (!res?.data?.story_block?.id) {
@@ -155,6 +197,6 @@ class BotStoryApi {
   }
 }
 
-const botStoryApi = new BotStoryApi();
+const botBuilderApi = new BotBuilderApi();
 
-export default botStoryApi;
+export default botBuilderApi;

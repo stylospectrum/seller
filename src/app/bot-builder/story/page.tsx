@@ -8,7 +8,7 @@ import useDiagram from './hooks/useDiagram';
 import useZoom from './hooks/useZoom';
 import { SearchInPopoverRef } from './SearchInPopover';
 import ZoomContainer from './ZoomContainer';
-import { botStoryApi } from '@/api';
+import { botBuilderApi } from '@/api';
 import { BotStoryBlock } from '@/model';
 
 export default function BotStoryPage() {
@@ -26,7 +26,7 @@ export default function BotStoryPage() {
 
   useEffect(() => {
     async function fetchBlocks() {
-      const res = await botStoryApi.getStoryBlocks();
+      const res = await botBuilderApi.getStoryBlocks();
 
       if (res) {
         setRawBlock(res);

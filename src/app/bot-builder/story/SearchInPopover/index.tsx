@@ -4,8 +4,8 @@ import { IPopover, Placement } from '@stylospectrum/ui/dist/types';
 
 import { BotBuilderContext } from '../context';
 import styles from './index.module.scss';
-import { botStoryApi } from '@/api';
-import { BotStoryBlockType } from '@/model/bot-story-block';
+import { botBuilderApi } from '@/api';
+import { BotStoryBlockType } from '@/enums';
 
 interface SearchInPopoverProps {
   onClose: () => void;
@@ -66,7 +66,7 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
       dropDownRef.current?.hide();
       onClose();
 
-      const res = await botStoryApi.createStoryBlock({
+      const res = await botBuilderApi.createStoryBlock({
         name: '',
         type: id,
         parentId: parentId.current,
