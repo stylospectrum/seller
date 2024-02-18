@@ -45,14 +45,7 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
   const searchInPopoverRef: RefObject<SearchInPopoverRef> = useRef(null);
   const addButtonRef: RefObject<IButton> = useRef(null);
   const { changeRawBlock } = useContext(BotBuilderContext);
-  const isDeleteMany = useMemo(
-    () =>
-      data.type === BotStoryBlockType.UserInput &&
-      data.children.length > 0 &&
-      data.parent.type === BotStoryBlockType.BotResponse &&
-      data.parent.children.length > 1,
-    [data],
-  );
+  const isDeleteMany = useMemo(() => data.children.length > 0, [data]);
   const enableMenu = useMemo(
     () =>
       data.type !== BotStoryBlockType.StartPoint &&

@@ -7,6 +7,7 @@ import { BotBuilderContext } from './context';
 import useDiagram from './hooks/useDiagram';
 import useZoom from './hooks/useZoom';
 import { SearchInPopoverRef } from './SearchInPopover';
+import TopRightMenu from './TopRightMenu';
 import ZoomContainer from './ZoomContainer';
 import { botBuilderApi } from '@/api';
 import { BotStoryBlock } from '@/model';
@@ -42,6 +43,7 @@ export default function BotStoryPage() {
         changeRawBlock: setRawBlock,
       }}
     >
+      <TopRightMenu />
       <ZoomContainer
         centerBlock={centerBlock}
         blocks={blocks}

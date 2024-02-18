@@ -35,6 +35,10 @@ const getDefaultOptions = (type: BotStoryBlockType) => {
     return defaultOptions.filter((option) => option.id !== BotStoryBlockType.UserInput);
   }
 
+  if (type === BotStoryBlockType.BotResponse) {
+    return defaultOptions.filter((option) => option.id !== BotStoryBlockType.BotResponse);
+  }
+
   return defaultOptions;
 };
 

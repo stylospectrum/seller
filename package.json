@@ -20,7 +20,7 @@
     "*.{.js,.jsx,.ts,.tsx}": "next lint --fix"
   },
   "dependencies": {
-    "@stylospectrum/ui": "^0.0.44",
+    "@stylospectrum/ui": "^0.0.45",
     "axios": "^1.6.2",
     "classnames": "^2.5.1",
     "d3": "^7.8.5",
@@ -31,6 +31,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
+    "socket.io-client": "^4.7.4",
     "uuid": "^9.0.1",
     "zustand": "^4.4.7"
   },

@@ -109,9 +109,9 @@ export default function UserInputDialog({
 
           setInputs([...res.userInputs, newInput]);
 
-          setTimeout(() => {
+          requestAnimationFrame(() => {
             formRef.current?.setFieldsValue(formValues);
-          }, 100);
+          });
         } else {
           setInputs([newInput]);
         }
