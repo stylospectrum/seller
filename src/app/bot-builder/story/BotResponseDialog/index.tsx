@@ -14,7 +14,7 @@ import ResponseImage, { ResponseImageRef } from './ResponseImage';
 import ResponseInput, { ResponseInputRef } from './ResponseInput';
 import ResponseQuickReply, { ResponseQuickReplyRef } from './ResponseQuickReply';
 import ResponseVariants, { ResponseVariantsRef } from './ResponseVariants';
-import { botBuilderApi } from '@/api';
+import { botBuilderStoryApi } from '@/api';
 import { BotStoryBlockType } from '@/enums';
 import { BotResponse, BotStoryBlock } from '@/model';
 import { BotResponseType } from '@/model/bot-response';
@@ -50,7 +50,7 @@ export default function BotResponseDialog({
 
   useEffect(() => {
     async function fetchResponse() {
-      const res = await botBuilderApi.getBotResponse(data.id!);
+      const res = await botBuilderStoryApi.getBotResponse(data.id!);
 
       if (res) {
         setResponses(res.botResponses);
@@ -195,7 +195,7 @@ export default function BotResponseDialog({
     );
 
     const name: string = (inputNameRef.current as any)._innerValue;
-    const res = await botBuilderApi.createBotResponse({
+    const res = await botBuilderStoryApi.createBotResponse({
       storyBlock: {
         id: name ? data.id : null,
         name,

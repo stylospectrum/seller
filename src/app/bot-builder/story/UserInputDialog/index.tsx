@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import styles from './index.module.scss';
 import UserInput from './Input';
-import { botBuilderApi } from '@/api';
+import { botBuilderStoryApi } from '@/api';
 import { BotStoryBlock, BotUserInput } from '@/model';
 
 import '@stylospectrum/ui/dist/icon/data/delete';
@@ -75,7 +75,7 @@ export default function UserInputDialog({
     }
 
     const name: string = (inputNameRef.current as any)._innerValue;
-    const res = await botBuilderApi.createUserInput({
+    const res = await botBuilderStoryApi.createUserInput({
       storyBlock: {
         id: name ? data.id : null,
         name,
@@ -92,7 +92,7 @@ export default function UserInputDialog({
 
   useEffect(() => {
     const fetchApi = async () => {
-      const res = await botBuilderApi.getUserInput(data.id!);
+      const res = await botBuilderStoryApi.getUserInput(data.id!);
       const newInput = { id: 'client-' + uuidv4(), content: '' };
 
       if (res) {

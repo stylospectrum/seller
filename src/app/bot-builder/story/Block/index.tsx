@@ -16,7 +16,7 @@ import SearchInPopover, { SearchInPopoverRef } from '../SearchInPopover';
 import { Box } from '../utils/box';
 import { CustomHierarchyNode } from '../utils/hierarchy';
 import styles from './index.module.scss';
-import { botBuilderApi } from '@/api';
+import { botBuilderStoryApi } from '@/api';
 import { BotStoryBlockType } from '@/enums';
 import Portal from '@/utils/Portal';
 
@@ -95,7 +95,7 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
   }
 
   async function handleConfirmDelete() {
-    const res = await botBuilderApi.deleteStoryBlock({
+    const res = await botBuilderStoryApi.deleteStoryBlock({
       id: data.id,
       isDeleteMany,
     });
@@ -104,7 +104,7 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
   }
 
   async function handleEditName(val: string) {
-    const res = await botBuilderApi.updateStoryBlock({
+    const res = await botBuilderStoryApi.updateStoryBlock({
       id: data.id,
       name: val,
     });

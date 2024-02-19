@@ -9,7 +9,7 @@ import useZoom from './hooks/useZoom';
 import { SearchInPopoverRef } from './SearchInPopover';
 import TopRightMenu from './TopRightMenu';
 import ZoomContainer from './ZoomContainer';
-import { botBuilderApi } from '@/api';
+import { botBuilderStoryApi } from '@/api';
 import { BotStoryBlock } from '@/model';
 
 export default function BotStoryPage() {
@@ -27,7 +27,7 @@ export default function BotStoryPage() {
 
   useEffect(() => {
     async function fetchBlocks() {
-      const res = await botBuilderApi.getStoryBlocks();
+      const res = await botBuilderStoryApi.getStoryBlocks();
 
       if (res) {
         setRawBlock(res);
