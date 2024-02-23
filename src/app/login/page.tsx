@@ -45,7 +45,7 @@ export default function LoginPage() {
         authStore.setAccessToken(response.data.accessToken);
       }
 
-      router.push('/');
+      router.push('/bot-builder/story');
     }
   };
 

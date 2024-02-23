@@ -2,17 +2,20 @@ import { FC, useEffect, useRef, useState } from 'react';
 import { Button } from '@stylospectrum/ui';
 import { ButtonDesign } from '@stylospectrum/ui/dist/types';
 import classNames from 'classnames';
+import Image from 'next/image';
 import { io, type Socket } from 'socket.io-client';
 
 import styles from './index.module.scss';
 import ChatBoxInput from './Input';
-import chatApi from '@/api/chat';
+import { MessageType } from '@/enums';
 import { Message } from '@/model';
 import { useUserStore } from '@/store';
 import storage from '@/utils/storage';
 
 import '@stylospectrum/ui/dist/icon/data/decline';
 import '@stylospectrum/ui/dist/icon/data/reset';
+
+import ChatBoxGallery from './Gallery';
 
 interface ChatBoxProps {
   onClose: () => void;
@@ -37,7 +40,9 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
   };
 
   const handleResetChat = async () => {
+    socket.current?.disconnect();
     setMessages([]);
+    socket.current!.connect();
   };
 
   const handleClose = () => {
@@ -46,15 +51,6 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
   };
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      const response = await chatApi.getMessages({
-        conversationId,
-        limit: 100,
-      });
-      setMessages(response);
-    };
-    fetchMessages();
-
     const url = process.env.NEXT_PUBLIC_API_URL!.replace('http://', '');
     const tokens = storage.getToken();
 
@@ -70,6 +66,10 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
           content: message.content,
           senderId: message.senderId,
           id: message.id,
+          type: message.type,
+          imgUrl: message.imgUrl,
+          buttons: message.buttons,
+          gallery: message.gallery,
         }),
       ]);
     });
@@ -79,6 +79,42 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const renderMessage = (message: Message) => {
+    if (message.type === MessageType.Image) {
+      return <Image src={message.imgUrl!} width={308} height={308} alt="" />;
+    }
+
+    if (message.type === MessageType.QuickReply) {
+      return (
+        <>
+          <div className={styles['message-box']}>
+            <div className={styles['message-content']}>{message.content}</div>
+          </div>
+
+          {message.buttons && (
+            <div className={styles['message-button-container']}>
+              {message.buttons.map((button, idx) => (
+                <Button key={`msg-button-${idx}`} type={ButtonDesign.Secondary}>
+                  {button.content}
+                </Button>
+              ))}
+            </div>
+          )}
+        </>
+      );
+    }
+
+    if (message.type === MessageType.Gallery) {
+      return <ChatBoxGallery data={message.gallery || []} />;
+    }
+
+    return (
+      <div className={styles['message-box']}>
+        <div className={styles['message-content']}>{message.content}</div>
+      </div>
+    );
+  };
 
   return (
     <div className={classNames(styles.container, className)}>
@@ -95,19 +131,28 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
 
       <div className={styles.content}>
         <div className={styles['message-container']}>
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={classNames({
-                [styles['message-left']]: message.senderId !== user.id,
-                [styles['message-right']]: message.senderId === user.id,
-              })}
-            >
-              <div className={styles['message-box']}>
-                <div className={styles['message-content']}>{message.content}</div>
+          {messages.map((message, idx) => {
+            let marginTop = messages?.[idx - 1]?.senderId === message.senderId ? '0.5rem' : '1rem';
+
+            if (idx === 0) {
+              marginTop = '0';
+            }
+
+            return (
+              <div
+                key={message.id}
+                style={{
+                  marginTop,
+                }}
+                className={classNames({
+                  [styles['message-left']]: message.senderId !== user.id,
+                  [styles['message-right']]: message.senderId === user.id,
+                })}
+              >
+                {renderMessage(message)}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
       <div className={styles.footer}>

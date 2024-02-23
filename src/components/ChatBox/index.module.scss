@@ -120,4 +120,12 @@
     font-family: $font-family;
     white-space: pre-wrap;
   }
+
+  .message-button-container {
+    max-width: 18rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
 }

@@ -225,7 +225,7 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
               .map((item, index) => (
                 <div
                   key={item.id}
-                  id={`gallery-item-${item}`}
+                  id={`gallery-item-${item.id}`}
                   style={{ opacity: activeIndex === index ? 1 : 0.7 }}
                 >
                   <GalleryItem

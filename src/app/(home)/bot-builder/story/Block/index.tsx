@@ -46,6 +46,13 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
   const addButtonRef: RefObject<IButton> = useRef(null);
   const { changeRawBlock } = useContext(BotBuilderContext);
   const isDeleteMany = useMemo(() => data.children.length > 0, [data]);
+  const enableAdd = useMemo(
+    () =>
+      data.type !== BotStoryBlockType.StartPoint &&
+      data.type !== BotStoryBlockType.DefaultFallback &&
+      data.parent?.type !== BotStoryBlockType.DefaultFallback,
+    [data],
+  );
   const enableMenu = useMemo(
     () =>
       data.type !== BotStoryBlockType.StartPoint &&
@@ -159,14 +166,16 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
                   Edit name
                 </MenuButton>
               )}
-              <Button
-                ref={addButtonRef}
-                circle
-                type={ButtonDesign.Secondary}
-                icon="add"
-                className={styles['add-button']}
-                onClick={handleAddButtonClick}
-              />
+              {enableAdd && (
+                <Button
+                  ref={addButtonRef}
+                  circle
+                  type={ButtonDesign.Secondary}
+                  icon="add"
+                  className={styles['add-button']}
+                  onClick={handleAddButtonClick}
+                />
+              )}
             </>
           )}
 

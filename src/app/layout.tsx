@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSelectedLayoutSegments } from 'next/navigation';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { userApi } from '@/api';
-import { Header, Sidebar, SplitPage } from '@/components';
 import { User } from '@/model';
 import { useUserStore } from '@/store';
 import storage from '@/utils/storage';
@@ -12,9 +11,7 @@ import storage from '@/utils/storage';
 import '../styles/global.scss';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const [accessToken, setAccessToken] = useState('');
   const router = useRouter();
-  const segs = useSelectedLayoutSegments();
   const userStore = useUserStore();
 
   useEffect(() => {
@@ -31,34 +28,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       );
     };
 
-    setAccessToken(tokens?.accessToken);
-
     if (!tokens) {
       router.push('/login');
     } else {
       fetchUser();
+      router.push('/bot-builder/story');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <html lang="en">
-      <body>
-        {accessToken ? (
-          <SplitPage>
-            <SplitPage.Master>
-              <Header />
-              <Sidebar
-                defaultSelectedId={`/${segs.join('/')}`}
-                onSelect={(id) => router.push(id)}
-              />
-            </SplitPage.Master>
-            <SplitPage.Detail>{children}</SplitPage.Detail>
-          </SplitPage>
-        ) : (
-          children
-        )}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

@@ -94,7 +94,7 @@ class BotBuilderStoryApi {
       const res: ServerResponse<{
         story_block: BotStoryBlock;
         bot_responses: (BotResponse & { image_url: string })[];
-      }> = await axios.get(`/bot-builder-story/story-block/bot-response/${storyBlockId}/`);
+      }> = await axios.get(`/bot-builder-story/bot-response/${storyBlockId}/`);
 
       if (res.statusCode === 404 || !res?.data) {
         return null;
@@ -125,7 +125,7 @@ class BotBuilderStoryApi {
   async createBotResponse(params: { storyBlock: BotStoryBlock; botResponses: BotResponse[] }) {
     try {
       const res: ServerResponse<{ story_block: BotStoryBlock; bot_response: BotResponse[] }> =
-        await axios.post('/bot-builder-story/story-block/bot-response/', {
+        await axios.post('/bot-builder-story/bot-response/', {
           story_block: params.storyBlock,
           bot_responses: params.botResponses,
         });
@@ -151,7 +151,7 @@ class BotBuilderStoryApi {
       const res: ServerResponse<{
         story_block: BotStoryBlock;
         user_inputs: BotUserInput[];
-      }> = await axios.get(`/bot-builder-story/story-block/user-input/${storyBlockId}/`);
+      }> = await axios.get(`/bot-builder-story/user-input/${storyBlockId}/`);
 
       if (res.statusCode === 404 || !res?.data) {
         return null;
@@ -178,7 +178,7 @@ class BotBuilderStoryApi {
   async createUserInput(params: { storyBlock: BotStoryBlock; userInputs: BotUserInput[] }) {
     try {
       const res: ServerResponse<{ story_block: BotStoryBlock; bot_response: BotResponse[] }> =
-        await axios.post('/bot-builder-story/story-block/user-input/', {
+        await axios.post('/bot-builder-story/user-input/', {
           story_block: params.storyBlock,
           user_inputs: params.userInputs,
         });

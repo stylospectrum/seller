@@ -1,0 +1,108 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.scroll-container {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  padding: 0.625rem 0 0.125rem 0.125rem;
+}
+
+.items {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.nav-button {
+  position: absolute;
+  z-index: 1;
+
+  &-next {
+    right: -1rem;
+  }
+
+  &-prev {
+    left: -1rem;
+  }
+}
+
+.item {
+  &-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 15rem;
+    border: 1px solid rgba(85, 107, 130, 0.1);
+    border-radius: 0.5rem;
+    box-shadow:
+      0 2px 8px 0 rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.35);
+  }
+
+  &-title {
+    height: 1.625rem;
+    width: 100%;
+    font-size: 0.875rem;
+    font-family: $font-family;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    padding-left: 0.5rem;
+  }
+
+  &-description {
+    min-height: 1.625rem;
+    max-height: 2.9375rem;
+    font-size: 0.875rem;
+    font-family: $font-family;
+    color: white;
+    display: flex;
+    width: 100%;
+    padding-top: 0.1875rem;
+    padding-left: 0.5rem;
+  }
+
+  &-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 2rem;
+    padding: 0.25rem 1rem 0.1875rem;
+    background-color: #1d232a;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    border-top: 1px solid #2e3742;
+
+    &:hover {
+      background-color: #222b35;
+    }
+
+    &-text {
+      color: #4db1ff;
+      font-weight: 400;
+      font-size: 0.875rem;
+      font-family: $font-family;
+      text-align: center;
+    }
+
+    &-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    &:last-child {
+      border-radius: 0 0 0.5rem 0.5rem;
+    }
+  }
+}
