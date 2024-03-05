@@ -19,6 +19,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
     const fetchUser = async () => {
       const response = await userApi.getUser();
+
+      if (!response) {
+        return;
+      }
+
       userStore.setUser(
         new User({
           id: response.id,

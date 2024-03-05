@@ -8,6 +8,10 @@ const data = [
         id: '/bot-builder/story',
         name: 'Story',
       },
+      {
+        id: '/bot-builder/entity',
+        name: 'Entity',
+      },
     ],
   },
 ];

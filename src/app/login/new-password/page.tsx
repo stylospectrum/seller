@@ -24,7 +24,7 @@ export default function PasswordAssistancePage() {
     if (values) {
       try {
         const response = await authApi.updatePassword({
-          password: values.password,
+          password: values.password as string,
           email: user.email,
         });
 

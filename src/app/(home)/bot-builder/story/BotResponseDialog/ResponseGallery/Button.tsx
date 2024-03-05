@@ -110,7 +110,7 @@ const GalleryButton = forwardRef<GalleryButtonRef, GalleryButtonProps>(
 
     function handleOk() {
       const values = formRef.current?.getFieldsValue();
-      setText(values?.['content']);
+      setText(values?.['content'] as string);
       popoverRef.current?.hide();
     }
 

@@ -65,7 +65,7 @@ export default function UserInputDialog({
         new BotUserInput({
           id: input.id?.includes('client') ? null : input.id,
           deleted: input.deleted,
-          content: values[input.id!],
+          content: values![input.id!] as string,
           storyBlockId: data.id!,
         }),
     );
@@ -156,7 +156,7 @@ export default function UserInputDialog({
               onBlur={() => {
                 const values = formRef.current?.getFieldsValue();
 
-                if (!values[input.id!] && inputs.length > 1 && index < inputs.length - 1) {
+                if (!values![input.id!] && inputs.length > 1 && index < inputs.length - 1) {
                   handleDelete(input.id!);
                 }
               }}

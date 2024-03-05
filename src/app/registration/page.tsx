@@ -19,7 +19,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleSubmit = async () => {
-    const values = await formRef.current?.validateFields();
+    const values = (await formRef.current?.validateFields()) as Record<string, string>;
 
     if (values) {
       try {

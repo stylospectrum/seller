@@ -23,7 +23,7 @@ export default function LoginPage() {
   const authStore = useAuthStore();
 
   const handleSubmit = async () => {
-    const values = await formRef.current?.validateFields();
+    const values = (await formRef.current?.validateFields()) as Record<string, string>;
 
     if (values) {
       const response = await authApi.signIn({

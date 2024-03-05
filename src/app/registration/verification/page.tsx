@@ -28,7 +28,7 @@ export default function VerificationPage() {
           name: user.name!,
           email: user.email,
           password: user.password!,
-          otp: values.otp,
+          otp: values.otp as string,
         });
 
         if (response.data.emailValid) {

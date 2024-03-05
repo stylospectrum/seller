@@ -23,7 +23,7 @@ export default function PasswordAssistancePage() {
     if (values) {
       try {
         const response = await authApi.sendOTPToEmail({
-          email: values.email,
+          email: values.email as string,
         });
 
         if (response.statusCode !== 200) {
@@ -32,7 +32,7 @@ export default function PasswordAssistancePage() {
         }
 
         if (response.data.sent) {
-          userStore.setUser(new User({ email: values.email }));
+          userStore.setUser(new User({ email: values.email as string }));
           router.push('/login/verification');
         }
       } catch (err) {

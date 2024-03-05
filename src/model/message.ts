@@ -27,7 +27,7 @@ export class Message {
   content: string;
   senderId: string;
   imgUrl?: string;
-  type: MessageType;
+  type?: MessageType;
   buttons?: MessageButton[];
   gallery?: MessageGalleryItem[];
 

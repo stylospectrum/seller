@@ -25,7 +25,7 @@ export default function VerificationPage() {
       try {
         const response = await authApi.verifyOTP({
           email: user.email,
-          otp: values.otp,
+          otp: values.otp as string,
         });
 
         if (response.data.valid) {

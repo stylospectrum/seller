@@ -95,7 +95,7 @@ const QuickReplyButton = forwardRef<QuickReplyButtonRef, QuickReplyButtonProps>(
 
     function handleOk() {
       const values = formRef.current?.getFieldsValue();
-      setText(values?.['content']);
+      setText(values?.['content'] as string);
       popoverRef.current?.hide();
     }
 
