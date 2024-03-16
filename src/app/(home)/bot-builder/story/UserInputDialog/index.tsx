@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { Button, Dialog, Form, Input } from '@stylospectrum/ui';
-import { ButtonDesign, IForm, IInput } from '@stylospectrum/ui/dist/types';
+import { ButtonDesign, IDialog, IForm, IInput } from '@stylospectrum/ui/dist/types';
 import { v4 as uuidv4 } from 'uuid';
 
 import styles from './index.module.scss';
@@ -22,7 +22,7 @@ export default function UserInputDialog({
   onChangeBlockName,
 }: UserInputDialogProps) {
   const [inputs, setInputs] = useState<BotUserInput[]>([]);
-  const dialogRef = useRef<any>(null);
+  const dialogRef = useRef<IDialog>(null);
   const formRef = useRef<IForm>(null);
   const count = useRef<{ [key: string]: number }>({});
   const [blockName, setBlockName] = useState(data.name);

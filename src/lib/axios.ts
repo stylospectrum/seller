@@ -1,7 +1,7 @@
 import Axios, { InternalAxiosRequestConfig } from 'axios';
 
 import storage from '@/utils/storage';
-import { toSnakeCaseKeys } from '@/utils/toSnakeCaseKeys';
+import { toSnakeCaseKeys, toCamelCaseKeys } from '@/utils/caseConversation';
 
 function requestInterceptor(config: InternalAxiosRequestConfig) {
   const tokens = storage.getToken();
@@ -23,7 +23,7 @@ export const axios = Axios.create({
 axios.interceptors.request.use(requestInterceptor);
 axios.interceptors.response.use(
   (response) => {
-    return response.data;
+    return toCamelCaseKeys(response.data) as any;
   },
   (error) => {
     return Promise.resolve(error?.response?.data);

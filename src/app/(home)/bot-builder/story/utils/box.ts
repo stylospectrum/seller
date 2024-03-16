@@ -29,6 +29,7 @@ function createBox(height: number, width: number, extraHeight = 85, extraWidth =
 const BOX_TYPES: { [key in BotStoryBlockType | 'Default']?: BoxSize } = {
   [BotStoryBlockType.UserInput]: createBox(60, 60, 80),
   [BotStoryBlockType.DefaultFallback]: createBox(40, 164),
+  [BotStoryBlockType.Filter]: createBox(40, 90),
   Default: createBox(40, 150),
 };
 

@@ -6,7 +6,7 @@ class UserApi {
   async getUser(): Promise<User | null> {
     const res: ServerResponse<User> = await axios.get('/auth/users');
 
-    if (!res) {
+    if (!res?.data) {
       return null;
     }
 

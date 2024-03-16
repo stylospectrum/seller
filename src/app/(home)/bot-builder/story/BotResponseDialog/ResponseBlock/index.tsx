@@ -2,7 +2,7 @@ import { Icon } from '@stylospectrum/ui';
 import { useDrag } from 'react-dnd';
 
 import styles from './index.module.scss';
-import { BotResponseType } from '@/model/bot-response';
+import { BotResponseType } from '@/enums';
 
 interface ResponseBlockProps {
   type: BotResponseType;

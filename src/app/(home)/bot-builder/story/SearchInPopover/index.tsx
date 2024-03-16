@@ -1,15 +1,16 @@
-import { forwardRef, useContext, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Input, ListItem, Popover } from '@stylospectrum/ui';
 import { IPopover, Placement } from '@stylospectrum/ui/dist/types';
 
 import { BotBuilderContext } from '../context';
+import { Box } from '../utils/box';
 import styles from './index.module.scss';
 import { botBuilderStoryApi } from '@/api';
 import { BotStoryBlockType } from '@/enums';
 
 interface SearchInPopoverProps {
   onClose: () => void;
-  type: BotStoryBlockType;
+  data: Box;
 }
 
 export interface SearchInPopoverRef {
@@ -17,7 +18,7 @@ export interface SearchInPopoverRef {
   close?: () => void;
 }
 
-const getDefaultOptions = (type: BotStoryBlockType) => {
+const getDefaultOptions = (data: Box) => {
   const defaultOptions = [
     {
       id: BotStoryBlockType.BotResponse,
@@ -29,27 +30,47 @@ const getDefaultOptions = (type: BotStoryBlockType) => {
       icon: 'post',
       title: 'User input',
     },
+    {
+      id: BotStoryBlockType.Filter,
+      icon: 'filter',
+      title: 'Filter',
+    },
   ];
 
-  if (type === BotStoryBlockType.UserInput) {
-    return defaultOptions.filter((option) => option.id !== BotStoryBlockType.UserInput);
+  if (data.type === BotStoryBlockType.UserInput) {
+    return defaultOptions.filter((option) => {
+      if (data.children.length > 0) {
+        return option.id === BotStoryBlockType.Filter;
+      }
+
+      return option.id !== BotStoryBlockType.UserInput;
+    });
   }
 
-  if (type === BotStoryBlockType.BotResponse) {
-    return defaultOptions.filter((option) => option.id !== BotStoryBlockType.BotResponse);
+  if (data.type === BotStoryBlockType.BotResponse) {
+    return defaultOptions.filter(
+      (option) => ![BotStoryBlockType.BotResponse, BotStoryBlockType.Filter].includes(option.id),
+    );
+  }
+
+  if (data.type === BotStoryBlockType.Filter) {
+    return defaultOptions.filter((option) => option.id === BotStoryBlockType.BotResponse);
   }
 
   return defaultOptions;
 };
 
 const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
-  ({ onClose, type }, ref) => {
+  ({ onClose, data }, ref) => {
     const searchRef = useRef<IPopover>(null);
     const dropDownRef = useRef<IPopover>(null);
     const parentId = useRef('');
-    const defaultOptions = getDefaultOptions(type);
-    const [options, setOptions] = useState(defaultOptions);
+    const [options, setOptions] = useState(getDefaultOptions(data));
     const { changeRawBlock } = useContext(BotBuilderContext);
+
+    useEffect(() => {
+      setOptions(getDefaultOptions(data));
+    }, [data]);
 
     const handleOpen = (opener: HTMLElement, pId: string) => {
       parentId.current = pId;
@@ -80,7 +101,7 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
 
     const handleSearch = (e: Event) => {
       const value = (e as any).detail;
-      const searchedOptions = defaultOptions.filter((option) =>
+      const searchedOptions = getDefaultOptions(data).filter((option) =>
         option.title.toLowerCase().includes(value.toLowerCase()),
       );
 

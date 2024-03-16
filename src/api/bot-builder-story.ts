@@ -1,6 +1,6 @@
 import type { ServerResponse } from '@/interface';
 import { axios } from '@/lib/axios';
-import { BotResponse, BotStoryBlock, BotUserInput } from '@/model';
+import { BotFilter, BotResponse, BotStoryBlock, BotUserInput } from '@/model';
 
 class BotBuilderStoryApi {
   async getStoryBlocks() {
@@ -92,8 +92,8 @@ class BotBuilderStoryApi {
   async getBotResponse(storyBlockId: string) {
     try {
       const res: ServerResponse<{
-        story_block: BotStoryBlock;
-        bot_responses: (BotResponse & { image_url: string })[];
+        storyBlock: BotStoryBlock;
+        botResponses: (BotResponse & { image_url: string })[];
       }> = await axios.get(`/bot-builder-story/bot-response/${storyBlockId}/`);
 
       if (res.statusCode === 404 || !res?.data) {
@@ -102,11 +102,11 @@ class BotBuilderStoryApi {
 
       return {
         storyBlock: new BotStoryBlock({
-          children: res.data.story_block.children,
-          name: res.data.story_block.name,
-          type: res.data.story_block.type,
+          children: res.data.storyBlock.children,
+          name: res.data.storyBlock.name,
+          type: res.data.storyBlock.type,
         }),
-        botResponses: res.data.bot_responses.map((item) => {
+        botResponses: res.data.botResponses.map((item) => {
           return new BotResponse({
             id: item.id,
             type: item.type,
@@ -124,21 +124,21 @@ class BotBuilderStoryApi {
 
   async createBotResponse(params: { storyBlock: BotStoryBlock; botResponses: BotResponse[] }) {
     try {
-      const res: ServerResponse<{ story_block: BotStoryBlock; bot_response: BotResponse[] }> =
+      const res: ServerResponse<{ storyBlock: BotStoryBlock; bot_response: BotResponse[] }> =
         await axios.post('/bot-builder-story/bot-response/', {
-          story_block: params.storyBlock,
-          bot_responses: params.botResponses,
+          storyBlock: params.storyBlock,
+          botResponses: params.botResponses,
         });
 
-      if (!res?.data?.story_block?.id) {
+      if (!res?.data?.storyBlock?.id) {
         return null;
       }
 
       return {
         storyBlock: new BotStoryBlock({
-          children: res.data.story_block.children,
-          name: res.data.story_block.name,
-          type: res.data.story_block.type,
+          children: res.data.storyBlock.children,
+          name: res.data.storyBlock.name,
+          type: res.data.storyBlock.type,
         }),
       };
     } catch (err) {
@@ -149,8 +149,8 @@ class BotBuilderStoryApi {
   async getUserInput(storyBlockId: string) {
     try {
       const res: ServerResponse<{
-        story_block: BotStoryBlock;
-        user_inputs: BotUserInput[];
+        storyBlock: BotStoryBlock;
+        userInputs: BotUserInput[];
       }> = await axios.get(`/bot-builder-story/user-input/${storyBlockId}/`);
 
       if (res.statusCode === 404 || !res?.data) {
@@ -159,11 +159,11 @@ class BotBuilderStoryApi {
 
       return {
         storyBlock: new BotStoryBlock({
-          children: res.data.story_block.children,
-          name: res.data.story_block.name,
-          type: res.data.story_block.type,
+          children: res.data.storyBlock.children,
+          name: res.data.storyBlock.name,
+          type: res.data.storyBlock.type,
         }),
-        userInputs: res.data.user_inputs.map((item) => {
+        userInputs: res.data.userInputs.map((item) => {
           return new BotUserInput({
             id: item.id,
             content: item.content,
@@ -177,21 +177,69 @@ class BotBuilderStoryApi {
 
   async createUserInput(params: { storyBlock: BotStoryBlock; userInputs: BotUserInput[] }) {
     try {
-      const res: ServerResponse<{ story_block: BotStoryBlock; bot_response: BotResponse[] }> =
+      const res: ServerResponse<{ storyBlock: BotStoryBlock; bot_response: BotResponse[] }> =
         await axios.post('/bot-builder-story/user-input/', {
-          story_block: params.storyBlock,
-          user_inputs: params.userInputs,
+          storyBlock: params.storyBlock,
+          userInputs: params.userInputs,
         });
 
-      if (!res?.data?.story_block?.id) {
+      if (!res?.data?.storyBlock?.id) {
         return null;
       }
 
       return {
         storyBlock: new BotStoryBlock({
-          children: res.data.story_block.children,
-          name: res.data.story_block.name,
-          type: res.data.story_block.type,
+          children: res.data.storyBlock.children,
+          name: res.data.storyBlock.name,
+          type: res.data.storyBlock.type,
+        }),
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getBotFilter(storyBlockId: string) {
+    try {
+      const res: ServerResponse<{
+        storyBlock: BotStoryBlock;
+        filter: BotFilter;
+      }> = await axios.get(`/bot-builder-story/filter/${storyBlockId}/`);
+
+      if (res.statusCode === 404 || !res?.data) {
+        return null;
+      }
+
+      return {
+        storyBlock: new BotStoryBlock({
+          children: res.data.storyBlock.children,
+          name: res.data.storyBlock.name,
+          type: res.data.storyBlock.type,
+        }),
+        filter: res.data.filter && new BotFilter(res.data.filter),
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async createFilter(params: { storyBlock: BotStoryBlock; filter: BotFilter }) {
+    try {
+      const res: ServerResponse<{ storyBlock: BotStoryBlock; bot_response: BotResponse[] }> =
+        await axios.post('/bot-builder-story/filter/', {
+          storyBlock: params.storyBlock,
+          filter: params.filter,
+        });
+
+      if (!res?.data?.storyBlock?.id) {
+        return null;
+      }
+
+      return {
+        storyBlock: new BotStoryBlock({
+          children: res.data.storyBlock.children,
+          name: res.data.storyBlock.name,
+          type: res.data.storyBlock.type,
         }),
       };
     } catch (err) {

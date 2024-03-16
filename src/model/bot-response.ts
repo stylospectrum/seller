@@ -1,10 +1,4 @@
-export enum BotResponseType {
-  Text = 'Text',
-  RandomText = 'RandomText',
-  Image = 'Image',
-  Gallery = 'Gallery',
-  QuickReply = 'QuickReply',
-}
+import { BotResponseType } from '@/enums';
 
 export class BotResponseGalleryItem {
   id?: string;

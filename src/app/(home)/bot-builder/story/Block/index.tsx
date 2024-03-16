@@ -27,6 +27,7 @@ import '@stylospectrum/ui/dist/icon/data/home';
 import '@stylospectrum/ui/dist/icon/data/post';
 import '@stylospectrum/ui/dist/icon/data/response';
 import '@stylospectrum/ui/dist/icon/data/move';
+import '@stylospectrum/ui/dist/icon/data/filter';
 
 interface BlockProps extends CustomHierarchyNode<Box> {
   chosen: boolean;
@@ -50,7 +51,8 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
     () =>
       data.type !== BotStoryBlockType.StartPoint &&
       data.type !== BotStoryBlockType.DefaultFallback &&
-      data.parent?.type !== BotStoryBlockType.DefaultFallback,
+      data.parent?.type !== BotStoryBlockType.DefaultFallback &&
+      !(data.type === BotStoryBlockType.Filter && data.children.length > 0),
     [data],
   );
   const enableMenu = useMemo(
@@ -84,6 +86,10 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
     },
     [BotStoryBlockType.UserInput]: {
       icon: 'post',
+    },
+    [BotStoryBlockType.Filter]: {
+      icon: 'filter',
+      text: 'Filter',
     },
   };
 
@@ -205,7 +211,7 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
         </div>
       </div>
       <SearchInPopover
-        type={data.type}
+        data={data}
         ref={searchInPopoverRef}
         onClose={() => {
           if (popoverOpened) {

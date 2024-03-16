@@ -24,13 +24,27 @@ const _processKeys = (convert: ConvertFunction, obj: AnyObject): any => {
   return output;
 };
 
-const separateWords = (string: string): string => {
-  return string
-    .split(/(?=[A-Z])/)
-    .join('_')
-    .toLowerCase();
+const toCamelCase = (str: string) => {
+  const s =
+    str &&
+    str
+      .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)!
+      .map((x) => x.slice(0, 1).toUpperCase() + x.slice(1).toLowerCase())
+      .join('');
+  return s.slice(0, 1).toLowerCase() + s.slice(1);
 };
 
+const toSnakeCase = (str: string) =>
+  str &&
+  str
+    .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)!
+    .map((x) => x.toLowerCase())
+    .join('_');
+
 export const toSnakeCaseKeys = (obj: AnyObject): AnyObject => {
-  return _processKeys(separateWords, obj);
+  return _processKeys(toSnakeCase, obj);
+};
+
+export const toCamelCaseKeys = (obj: AnyObject): AnyObject => {
+  return _processKeys(toCamelCase, obj);
 };

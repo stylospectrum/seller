@@ -4,6 +4,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import Block from '../Block';
 import BotResponseDialog from '../BotResponseDialog';
+import FilterDialog from '../FilterDialog';
 import UserInputDialog from '../UserInputDialog';
 import { Box } from '../utils/box';
 import type { CustomHierarchyNode } from '../utils/hierarchy';
@@ -23,7 +24,8 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
 ) {
   const [selectedBlock, setSelectedBlock] = useState<BotStoryBlock>();
   const [botResDialogVisible, setBotResDialogVisible] = useState(false);
-  const [userInputDialog, setUserInputDialog] = useState(false);
+  const [userInputDialogVisible, setUserInputDialogVisible] = useState(false);
+  const [filterDialogVisible, setFilterDialogVisible] = useState(false);
   const [blockName, setBlockName] = useState<{ [key: string]: string }>({});
 
   const handleClick = (e: MouseEvent, block: CustomHierarchyNode<Box>) => {
@@ -43,14 +45,26 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
     }
 
     if (block.data.type === BotStoryBlockType.UserInput) {
-      setUserInputDialog(true);
+      setUserInputDialogVisible(true);
+    }
+
+    if (block.data.type === BotStoryBlockType.Filter) {
+      setFilterDialogVisible(true);
     }
   };
 
   const handleCloseDialog = () => {
-    setUserInputDialog(false);
+    setFilterDialogVisible(false);
+    setUserInputDialogVisible(false);
     setBotResDialogVisible(false);
     setSelectedBlock({} as BotStoryBlock);
+  };
+
+  const handleChangeBlockName = (id: string, name: string) => {
+    setBlockName((prev) => {
+      prev[id] = name;
+      return prev;
+    });
   };
 
   return (
@@ -85,27 +99,25 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
       {botResDialogVisible && (
         <DndProvider backend={HTML5Backend}>
           <BotResponseDialog
-            onChangeBlockName={(blockId, blockName) =>
-              setBlockName((prev) => {
-                prev[blockId] = blockName;
-                return prev;
-              })
-            }
+            onChangeBlockName={handleChangeBlockName}
             onClose={handleCloseDialog}
             data={selectedBlock!}
           />
         </DndProvider>
       )}
 
-      {userInputDialog && (
+      {userInputDialogVisible && (
         <UserInputDialog
           data={selectedBlock!}
-          onChangeBlockName={(blockId, blockName) =>
-            setBlockName((prev) => {
-              prev[blockId] = blockName;
-              return prev;
-            })
-          }
+          onChangeBlockName={handleChangeBlockName}
+          onClose={handleCloseDialog}
+        />
+      )}
+
+      {filterDialogVisible && (
+        <FilterDialog
+          data={selectedBlock!}
+          onChangeBlockName={handleChangeBlockName}
           onClose={handleCloseDialog}
         />
       )}

@@ -3,4 +3,5 @@ export enum BotStoryBlockType {
   BotResponse = 'BotResponse',
   StartPoint = 'StartPoint',
   DefaultFallback = 'DefaultFallback',
+  Filter = 'Filter',
 }

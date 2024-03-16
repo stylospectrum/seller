@@ -41,7 +41,8 @@
 
 .container[data-type='StartPoint'],
 .container[data-type='BotResponse'],
-.container[data-type='DefaultFallback'] {
+.container[data-type='DefaultFallback'],
+.container[data-type='Filter'] {
   .body {
     display: flex;
     gap: 0.5rem;
@@ -52,6 +53,7 @@
     padding: 0.75rem;
     border-radius: 1rem;
     user-select: none;
+    height: 2.5rem;
 
     .text {
       font-size: 1rem;
@@ -65,24 +67,25 @@
 
   .edit-name-input {
     position: absolute;
-    right: 0.5rem;
     bottom: calc(100% + 0.5rem);
-    left: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
     width: 8.75rem;
   }
 
   .title {
     position: absolute;
     bottom: calc(100% + 0.5rem);
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 8.75rem;
   }
 
   .menu-button {
     position: absolute;
-    right: 1rem;
     bottom: calc(100% + 0.5rem);
-    left: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 
@@ -177,6 +180,25 @@
 
   .icon {
     color: #647283;
+  }
+}
+
+.container[data-type='Filter'] {
+  .body {
+    background: #686ad3;
+    min-width: 5.625rem;
+
+    .text {
+      color: #fff;
+    }
+
+    .icon {
+      color: #fff;
+    }
+  }
+
+  .menu-button {
+    width: max-content;
   }
 }
 

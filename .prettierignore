@@ -20,3 +20,5 @@ yarn-error.log
 .eslintignore
 .history
 **/*.yml
+
+src/app/(home)/bot-builder/story/FilterDialog/Form/index.ts

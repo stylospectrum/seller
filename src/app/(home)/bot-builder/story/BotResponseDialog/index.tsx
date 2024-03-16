@@ -15,9 +15,8 @@ import ResponseInput, { ResponseInputRef } from './ResponseInput';
 import ResponseQuickReply, { ResponseQuickReplyRef } from './ResponseQuickReply';
 import ResponseVariants, { ResponseVariantsRef } from './ResponseVariants';
 import { botBuilderStoryApi } from '@/api';
-import { BotStoryBlockType } from '@/enums';
+import { BotResponseType, BotStoryBlockType } from '@/enums';
 import { BotResponse, BotStoryBlock } from '@/model';
-import { BotResponseType } from '@/model/bot-response';
 
 import '@stylospectrum/ui/dist/icon/data/background';
 import '@stylospectrum/ui/dist/icon/data/image-viewer';
