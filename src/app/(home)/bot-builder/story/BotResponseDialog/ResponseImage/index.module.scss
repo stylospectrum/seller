@@ -9,18 +9,14 @@
   box-sizing: border-box;
   width: 20.3125rem;
   height: 16.25rem;
+  overflow: hidden;
   background: #242e38;
   border: 0.125rem solid transparent;
   border-radius: 0.5rem;
-
   box-shadow:
     0 2px 8px 0 rgba(0, 0, 0, 0.6),
     0 0 0 1px rgba(255, 255, 255, 0.35);
   cursor: pointer;
-
-  img {
-    border-radius: 0.5rem;
-  }
 
   &-no-image {
     border-color: rgba(85, 107, 130, 0.1);

@@ -93,7 +93,7 @@ class BotBuilderStoryApi {
     try {
       const res: ServerResponse<{
         storyBlock: BotStoryBlock;
-        botResponses: (BotResponse & { image_url: string })[];
+        botResponses: BotResponse[];
       }> = await axios.get(`/bot-builder-story/bot-response/${storyBlockId}/`);
 
       if (res.statusCode === 404 || !res?.data) {
@@ -112,7 +112,7 @@ class BotBuilderStoryApi {
             type: item.type,
             variants: item.variants,
             buttons: item.buttons,
-            imageUrl: item.image_url!,
+            imageUrl: item.imageUrl!,
             gallery: item.gallery,
           });
         }),

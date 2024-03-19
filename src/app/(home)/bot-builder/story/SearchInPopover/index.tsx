@@ -35,15 +35,26 @@ const getDefaultOptions = (data: Box) => {
       icon: 'filter',
       title: 'Filter',
     },
+    {
+      id: BotStoryBlockType.Fallback,
+      icon: 'fallback',
+      title: 'Fallback',
+    },
   ];
 
   if (data.type === BotStoryBlockType.UserInput) {
+    const hasFilterBlock = data.children.some((child) => child.type === BotStoryBlockType.Filter);
+
     return defaultOptions.filter((option) => {
       if (data.children.length > 0) {
+        if (hasFilterBlock) {
+          return [BotStoryBlockType.Filter, BotStoryBlockType.Fallback].includes(option.id);
+        }
+
         return option.id === BotStoryBlockType.Filter;
       }
 
-      return option.id !== BotStoryBlockType.UserInput;
+      return [BotStoryBlockType.Filter, BotStoryBlockType.BotResponse].includes(option.id);
     });
   }
 
@@ -53,7 +64,7 @@ const getDefaultOptions = (data: Box) => {
     );
   }
 
-  if (data.type === BotStoryBlockType.Filter) {
+  if ([BotStoryBlockType.Filter, BotStoryBlockType.Fallback].includes(data.type)) {
     return defaultOptions.filter((option) => option.id === BotStoryBlockType.BotResponse);
   }
 

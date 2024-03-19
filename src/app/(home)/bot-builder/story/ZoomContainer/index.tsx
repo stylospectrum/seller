@@ -30,8 +30,11 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
 
   const handleClick = (e: MouseEvent, block: CustomHierarchyNode<Box>) => {
     if (
-      block.data.type === BotStoryBlockType.StartPoint ||
-      block.data.type === BotStoryBlockType.DefaultFallback
+      [
+        BotStoryBlockType.StartPoint,
+        BotStoryBlockType.DefaultFallback,
+        BotStoryBlockType.Fallback,
+      ].includes(block.data.type)
     ) {
       return;
     }

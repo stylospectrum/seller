@@ -160,7 +160,11 @@ const GalleryButton = forwardRef<GalleryButtonRef, GalleryButtonProps>(
             Close
           </Button>
 
-          <Form ref={formRef} style={{ padding: '1rem', width: '15.3125rem', display: 'block' }}>
+          <Form
+            ref={formRef}
+            initialValues={{ content: text }}
+            style={{ padding: '1rem', width: '15.3125rem', display: 'block' }}
+          >
             <FormItem style={{ marginBottom: 0 }} label="Button text" name="content">
               <Input ref={buttonTextDomRef} style={{ width: '100%' }} />
             </FormItem>

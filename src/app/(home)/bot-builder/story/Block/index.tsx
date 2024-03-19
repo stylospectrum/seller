@@ -35,6 +35,32 @@ interface BlockProps extends CustomHierarchyNode<Box> {
   name: string;
 }
 
+const blockTemplate: { [key: string]: { [key1: string]: string } } = {
+  [BotStoryBlockType.StartPoint]: {
+    icon: 'home',
+    text: 'Start point',
+  },
+  [BotStoryBlockType.DefaultFallback]: {
+    icon: 'fallback',
+    text: 'Default fallback',
+  },
+  [BotStoryBlockType.BotResponse]: {
+    icon: 'response',
+    text: 'Bot response',
+  },
+  [BotStoryBlockType.UserInput]: {
+    icon: 'post',
+  },
+  [BotStoryBlockType.Filter]: {
+    icon: 'filter',
+    text: 'Filter',
+  },
+  [BotStoryBlockType.Fallback]: {
+    icon: 'fallback',
+    text: 'Fallback',
+  },
+};
+
 export default function Block({ data, chosen, onClick, name }: BlockProps) {
   const [innerName, setInnerName] = useState(name);
   const [msgBoxOpened, setMsgBoxOpened] = useState(false);
@@ -46,13 +72,20 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
   const searchInPopoverRef: RefObject<SearchInPopoverRef> = useRef(null);
   const addButtonRef: RefObject<IButton> = useRef(null);
   const { changeRawBlock } = useContext(BotBuilderContext);
-  const isDeleteMany = useMemo(() => data.children.length > 0, [data]);
+  const isDeleteMany = useMemo(
+    () => data.children.length > 0 && data.type !== BotStoryBlockType.Filter,
+    [data],
+  );
   const enableAdd = useMemo(
     () =>
       data.type !== BotStoryBlockType.StartPoint &&
       data.type !== BotStoryBlockType.DefaultFallback &&
       data.parent?.type !== BotStoryBlockType.DefaultFallback &&
-      !(data.type === BotStoryBlockType.Filter && data.children.length > 0),
+      data.parent?.type !== BotStoryBlockType.Fallback &&
+      !(
+        [BotStoryBlockType.Filter, BotStoryBlockType.Fallback].includes(data.type) &&
+        data.children.length > 0
+      ),
     [data],
   );
   const enableMenu = useMemo(
@@ -71,27 +104,6 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
       ),
     [data],
   );
-  const template: { [key: string]: { [key1: string]: string } } = {
-    [BotStoryBlockType.StartPoint]: {
-      icon: 'home',
-      text: 'Start point',
-    },
-    [BotStoryBlockType.DefaultFallback]: {
-      icon: 'fallback',
-      text: 'Default fallback',
-    },
-    [BotStoryBlockType.BotResponse]: {
-      icon: 'response',
-      text: 'Bot response',
-    },
-    [BotStoryBlockType.UserInput]: {
-      icon: 'post',
-    },
-    [BotStoryBlockType.Filter]: {
-      icon: 'filter',
-      text: 'Filter',
-    },
-  };
 
   useEffect(() => {
     if (editName) {
@@ -203,9 +215,9 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
               onClick(e);
             }}
           >
-            <Icon name={template[data.type].icon} className={styles.icon} />
-            {template[data.type].text && (
-              <div className={styles.text}>{template[data.type].text}</div>
+            <Icon name={blockTemplate[data.type].icon} className={styles.icon} />
+            {blockTemplate[data.type].text && (
+              <div className={styles.text}>{blockTemplate[data.type].text}</div>
             )}
           </div>
         </div>

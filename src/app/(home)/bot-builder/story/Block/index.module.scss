@@ -42,6 +42,7 @@
 .container[data-type='StartPoint'],
 .container[data-type='BotResponse'],
 .container[data-type='DefaultFallback'],
+.container[data-type='Fallback'],
 .container[data-type='Filter'] {
   .body {
     display: flex;
@@ -50,10 +51,10 @@
     box-sizing: border-box;
     min-width: 9.375rem;
     max-width: 13.125rem;
+    height: 2.5rem;
     padding: 0.75rem;
     border-radius: 1rem;
     user-select: none;
-    height: 2.5rem;
 
     .text {
       font-size: 1rem;
@@ -69,16 +70,16 @@
     position: absolute;
     bottom: calc(100% + 0.5rem);
     left: 50%;
-    transform: translateX(-50%);
     width: 8.75rem;
+    transform: translateX(-50%);
   }
 
   .title {
     position: absolute;
     bottom: calc(100% + 0.5rem);
     left: 50%;
-    transform: translateX(-50%);
     width: 8.75rem;
+    transform: translateX(-50%);
   }
 
   .menu-button {
@@ -153,7 +154,8 @@
 }
 
 .container[data-type='StartPoint'] .body,
-.container[data-type='DefaultFallback'] .body {
+.container[data-type='DefaultFallback'] .body,
+.container[data-type='Fallback'] .body {
   cursor: not-allowed;
 }
 
@@ -185,8 +187,8 @@
 
 .container[data-type='Filter'] {
   .body {
-    background: #686ad3;
     min-width: 5.625rem;
+    background: #686ad3;
 
     .text {
       color: #fff;
@@ -202,7 +204,8 @@
   }
 }
 
-.container[data-type='DefaultFallback'] .body {
+.container[data-type='DefaultFallback'] .body,
+.container[data-type='Fallback'] .body {
   background: #797b8c;
 
   .text {

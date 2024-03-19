@@ -9,10 +9,10 @@ export class BotResponseGalleryItem {
   buttons?: BotResponseButton[];
   deleted?: boolean;
 
-  constructor(galleryItem: BotResponseGalleryItem & { image_url?: string }) {
+  constructor(galleryItem: BotResponseGalleryItem) {
     this.id = galleryItem.id;
     this.imageId = galleryItem.imageId;
-    this.imageUrl = galleryItem.image_url;
+    this.imageUrl = galleryItem.imageUrl;
     this.title = galleryItem.title;
     this.description = galleryItem.description;
     this.buttons = (galleryItem.buttons || []).map((button) => new BotResponseButton(button));
