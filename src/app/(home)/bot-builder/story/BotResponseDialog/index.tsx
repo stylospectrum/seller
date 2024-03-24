@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useRef, useState } from 'react';
-import { Button, Dialog, Icon, Input } from '@stylospectrum/ui';
-import { ButtonDesign, IDialog, IInput } from '@stylospectrum/ui/dist/types';
+import { BusyIndicator, Button, Dialog, Icon, Input } from '@stylospectrum/ui';
+import { ButtonDesign, IInput } from '@stylospectrum/ui/dist/types';
 import update from 'immutability-helper';
 import Image from 'next/image';
 import { useDrop } from 'react-dnd';
@@ -14,9 +14,10 @@ import ResponseImage, { ResponseImageRef } from './ResponseImage';
 import ResponseInput, { ResponseInputRef } from './ResponseInput';
 import ResponseQuickReply, { ResponseQuickReplyRef } from './ResponseQuickReply';
 import ResponseVariants, { ResponseVariantsRef } from './ResponseVariants';
-import { botBuilderStoryApi } from '@/api';
 import { BotResponseType, BotStoryBlockType } from '@/enums';
+import { useBotResponses, useCreateBotResponse } from '@/hooks';
 import { BotResponse, BotStoryBlock } from '@/model';
+import Portal from '@/utils/Portal';
 
 import '@stylospectrum/ui/dist/icon/data/background';
 import '@stylospectrum/ui/dist/icon/data/image-viewer';
@@ -36,7 +37,6 @@ export default function BotResponseDialog({
   onChangeBlockName,
 }: BotResponseDialogProps) {
   const dropDomRef = useRef<HTMLDivElement>(null);
-  const dialogRef = useRef<IDialog>(null);
   const responseInputRefs: RefObject<{ [key: string]: ResponseInputRef }> = useRef({});
   const responseVariantsRef: RefObject<ResponseVariantsRef> = useRef(null);
   const responseQuickReply: RefObject<ResponseQuickReplyRef> = useRef(null);
@@ -45,21 +45,22 @@ export default function BotResponseDialog({
   const inputNameRef: RefObject<IInput> = useRef(null);
   const [responses, setResponses] = useState<BotResponse[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(0);
-  const [blockName, setBlockName] = useState(data.name);
+  const [visible, setVisible] = useState(false);
+  const botResponsesQuery = useBotResponses({
+    blockId: data.id!,
+    allowQuery: !!data.id && data.type === BotStoryBlockType.BotResponse,
+  });
+  const createBotResponseMutation = useCreateBotResponse({
+    blockId: data.id!,
+  });
 
   useEffect(() => {
-    async function fetchResponse() {
-      const res = await botBuilderStoryApi.getBotResponse(data.id!);
+    setResponses(botResponsesQuery.data?.botResponses || []);
 
-      if (res) {
-        setResponses(res.botResponses);
-        setBlockName(res.storyBlock.name);
-      }
-      dialogRef.current?.show();
+    if (botResponsesQuery.data?.botResponses) {
+      setVisible(true);
     }
-
-    fetchResponse();
-  }, [data.id]);
+  }, [botResponsesQuery.data]);
 
   const [{ item, isOver }, drop] = useDrop(
     () => ({
@@ -112,7 +113,7 @@ export default function BotResponseDialog({
   );
 
   function handleClose() {
-    dialogRef.current!.hide();
+    setVisible(false);
     onClose();
   }
 
@@ -194,7 +195,7 @@ export default function BotResponseDialog({
     );
 
     const name: string = (inputNameRef.current as any)._innerValue;
-    const res = await botBuilderStoryApi.createBotResponse({
+    const res = await createBotResponseMutation.mutateAsync({
       storyBlock: {
         id: name ? data.id : null,
         name,
@@ -268,84 +269,99 @@ export default function BotResponseDialog({
     );
   };
 
+  const renderResponsesNode = () => {
+    return responses.map((response, idx) => {
+      if (response.deleted) {
+        return null;
+      }
+
+      return (
+        <div key={response.id + '-wrapper'}>
+          {hoveredIndex === idx && isOver && (
+            <div style={{ marginBottom: '1rem' }}>{renderDraggingNode()}</div>
+          )}
+          <ResponseContainer
+            moveItem={handleMoveItem}
+            index={idx}
+            isGallery={response.type === BotResponseType.Gallery}
+            id={response.id!}
+            onDelete={() => handleDeleteResponse(idx)}
+          >
+            {getResponseNode(response)}
+          </ResponseContainer>
+        </div>
+      );
+    });
+  };
+
   drop(dropDomRef);
 
+  if (data.type !== BotStoryBlockType.BotResponse) {
+    return null;
+  }
+
   return (
-    <Dialog
-      onMaskClick={handleClose}
-      ref={dialogRef}
-      headerText="Bot response"
-      className={styles.dialog}
-    >
-      <Dialog
-        hideFooter
-        headerText="Responses"
-        slot="second-dialog"
-        className={styles['response-dialog']}
-      >
-        <div className={styles['response-dialog-content']}>
-          <div className={styles['response-dialog-row']}>
-            <ResponseBlock icon="text-formatting" text="Text" type={BotResponseType.Text} />
-            <ResponseBlock
-              icon="text-formatting"
-              text="Random text"
-              type={BotResponseType.RandomText}
-            />
-          </div>
+    <>
+      <Portal open={botResponsesQuery.isLoading || createBotResponseMutation.isPending}>
+        <BusyIndicator global />
+      </Portal>
+      <Portal open={visible}>
+        <Dialog onMaskClick={handleClose} headerText="Bot response" className={styles.dialog}>
+          <Dialog
+            hideMask
+            hideFooter
+            headerText="Responses"
+            slot="second-dialog"
+            className={styles['response-dialog']}
+          >
+            <div className={styles['response-dialog-content']}>
+              <div className={styles['response-dialog-row']}>
+                <ResponseBlock icon="text-formatting" text="Text" type={BotResponseType.Text} />
+                <ResponseBlock
+                  icon="text-formatting"
+                  text="Random text"
+                  type={BotResponseType.RandomText}
+                />
+              </div>
 
-          <div className={styles['response-dialog-row']}>
-            <ResponseBlock icon="background" text="Image" type={BotResponseType.Image} />
-            <ResponseBlock icon="image-viewer" text="Gallery" type={BotResponseType.Gallery} />
-          </div>
+              <div className={styles['response-dialog-row']}>
+                <ResponseBlock icon="background" text="Image" type={BotResponseType.Image} />
+                <ResponseBlock icon="image-viewer" text="Gallery" type={BotResponseType.Gallery} />
+              </div>
 
-          <div className={styles['response-dialog-row']}>
-            <ResponseBlock icon="response" text="Quick reply" type={BotResponseType.QuickReply} />
-          </div>
-        </div>
-      </Dialog>
-      <Input
-        disabled={
-          (data as any).parent?.type === BotStoryBlockType.StartPoint ||
-          (data as any).parent?.type === BotStoryBlockType.DefaultFallback
-        }
-        ref={inputNameRef}
-        slot="sub-header"
-        defaultValue={blockName}
-        style={{ width: '100%' }}
-      />
-
-      <div ref={dropDomRef} className={styles.content}>
-        {renderNoDraggingNode()}
-        {responses.map((response, idx) => {
-          if (response.deleted) {
-            return null;
-          }
-
-          return (
-            <div key={response.id + '-wrapper'}>
-              {hoveredIndex === idx && isOver && (
-                <div style={{ marginBottom: '1rem' }}>{renderDraggingNode()}</div>
-              )}
-              <ResponseContainer
-                moveItem={handleMoveItem}
-                index={idx}
-                isGallery={response.type === BotResponseType.Gallery}
-                id={response.id!}
-                onDelete={() => handleDeleteResponse(idx)}
-              >
-                {getResponseNode(response)}
-              </ResponseContainer>
+              <div className={styles['response-dialog-row']}>
+                <ResponseBlock
+                  icon="response"
+                  text="Quick reply"
+                  type={BotResponseType.QuickReply}
+                />
+              </div>
             </div>
-          );
-        })}
-        {hoveredIndex === responses.length && isOver && renderDraggingNode()}
-      </div>
-      <Button slot="ok-button" onClick={handleSave}>
-        Save
-      </Button>
-      <Button slot="cancel-button" onClick={handleClose} type={ButtonDesign.Tertiary}>
-        Close
-      </Button>
-    </Dialog>
+          </Dialog>
+          <Input
+            disabled={
+              (data as any).parent?.type === BotStoryBlockType.StartPoint ||
+              (data as any).parent?.type === BotStoryBlockType.DefaultFallback
+            }
+            ref={inputNameRef}
+            slot="sub-header"
+            defaultValue={botResponsesQuery.data?.storyBlock?.name || data.name}
+            style={{ width: '100%' }}
+          />
+
+          <div ref={dropDomRef} className={styles.content}>
+            {renderNoDraggingNode()}
+            {renderResponsesNode()}
+            {hoveredIndex === responses.length && isOver && renderDraggingNode()}
+          </div>
+          <Button slot="ok-button" onClick={handleSave}>
+            Save
+          </Button>
+          <Button slot="cancel-button" onClick={handleClose} type={ButtonDesign.Tertiary}>
+            Close
+          </Button>
+        </Dialog>
+      </Portal>
+    </>
   );
 }

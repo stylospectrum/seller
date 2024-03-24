@@ -1,50 +1,42 @@
 'use client';
 
-import { RefObject, useEffect, useRef, useState } from 'react';
-import { Button, MessageBox, Table } from '@stylospectrum/ui';
+import { RefObject, useRef, useState } from 'react';
+import { BusyIndicator, Button, MessageBox, Table } from '@stylospectrum/ui';
 import { ButtonDesign, ITable } from '@stylospectrum/ui/dist/types';
 
 import BotEntityDialog from './Dialog';
 import styles from './index.module.scss';
-import { botBuilderEntityApi } from '@/api';
+import { useBotEntities, useDeleteBotEntities } from '@/hooks';
 import { BotEntity } from '@/model';
 import Portal from '@/utils/Portal';
 
 const BotEntityPage = () => {
   const [dialogVisible, setDialogVisible] = useState(false);
-  const [entities, setEntities] = useState<BotEntity[]>([]);
   const [selectedEntities, setSelectedEntities] = useState<BotEntity[]>([]);
   const [addBtnClicked, setAddBtnClicked] = useState(false);
   const [msgBoxVisible, setMsgBoxVisible] = useState(false);
   const tableRef: RefObject<ITable> = useRef(null);
-
-  async function fetchEntities() {
-    const res = await botBuilderEntityApi.getEntities();
-
-    if (res) {
-      setEntities(res);
-    }
-  }
+  const entitiesQuery = useBotEntities();
+  const deleteEntitiesMutation = useDeleteBotEntities();
 
   function handleClose() {
     setDialogVisible(false);
-    fetchEntities();
     tableRef.current?.uncheckedAll();
   }
 
   async function handleConfirmDelete() {
     const entityIds = selectedEntities.map((entity) => entity.id!);
-    await botBuilderEntityApi.deleteEntities(entityIds);
+    await deleteEntitiesMutation.mutateAsync(entityIds);
     setMsgBoxVisible(false);
     handleClose();
   }
 
-  useEffect(() => {
-    fetchEntities();
-  }, []);
-
   return (
     <>
+      <Portal open={entitiesQuery.isLoading || deleteEntitiesMutation.isPending}>
+        <BusyIndicator global />
+      </Portal>
+
       <div className={styles.container}>
         <div className={styles.actions}>
           <Button
@@ -77,7 +69,7 @@ const BotEntityPage = () => {
         <Table
           ref={tableRef}
           onSelect={(e) => setSelectedEntities((e as CustomEvent).detail)}
-          rowData={entities.map((entity) => {
+          rowData={(entitiesQuery.data || []).map((entity) => {
             return {
               id: entity.id,
               name: entity.name,

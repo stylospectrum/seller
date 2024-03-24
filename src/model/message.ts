@@ -30,6 +30,7 @@ export class Message {
   type?: MessageType;
   buttons?: MessageButton[];
   gallery?: MessageGalleryItem[];
+  typing?: boolean;
 
   constructor(message: Message) {
     this.id = message.id;
@@ -38,6 +39,7 @@ export class Message {
     this.imgUrl = message.imgUrl;
     this.type = message.type;
     this.buttons = message.buttons;
+    this.typing = message.typing;
     this.gallery = (message.gallery || []).map((item) => new MessageGalleryItem(item));
   }
 }

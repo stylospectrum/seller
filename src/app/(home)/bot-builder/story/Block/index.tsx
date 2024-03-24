@@ -1,23 +1,22 @@
+import { MouseEvent, RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  KeyboardEvent,
-  MouseEvent,
-  RefObject,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { Button, Icon, Input, Menu, MenuButton, MenuItem, MessageBox } from '@stylospectrum/ui';
+  BusyIndicator,
+  Button,
+  Icon,
+  Input,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MessageBox,
+} from '@stylospectrum/ui';
 import { ButtonDesign, IButton, IInput, IMenu } from '@stylospectrum/ui/dist/types';
 
-import { BotBuilderContext } from '../context';
 import SearchInPopover, { SearchInPopoverRef } from '../SearchInPopover';
 import { Box } from '../utils/box';
 import { CustomHierarchyNode } from '../utils/hierarchy';
 import styles from './index.module.scss';
-import { botBuilderStoryApi } from '@/api';
 import { BotStoryBlockType } from '@/enums';
+import { useDeleteBotStoryBlock, useUpdateBotStoryBlock } from '@/hooks';
 import Portal from '@/utils/Portal';
 
 import '@stylospectrum/ui/dist/icon/data/add';
@@ -71,7 +70,6 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
   const editNameInputRef: RefObject<IInput> = useRef(null);
   const searchInPopoverRef: RefObject<SearchInPopoverRef> = useRef(null);
   const addButtonRef: RefObject<IButton> = useRef(null);
-  const { changeRawBlock } = useContext(BotBuilderContext);
   const isDeleteMany = useMemo(
     () => data.children.length > 0 && data.type !== BotStoryBlockType.Filter,
     [data],
@@ -104,6 +102,8 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
       ),
     [data],
   );
+  const deleteStoryBlockMutation = useDeleteBotStoryBlock({});
+  const updateStoryBlockMutation = useUpdateBotStoryBlock({});
 
   useEffect(() => {
     if (editName) {
@@ -120,20 +120,18 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
   }
 
   async function handleConfirmDelete() {
-    const res = await botBuilderStoryApi.deleteStoryBlock({
+    await deleteStoryBlockMutation.mutateAsync({
       id: data.id,
       isDeleteMany,
     });
-    changeRawBlock(res!);
     setMsgBoxOpened(false);
   }
 
   async function handleEditName(val: string) {
-    const res = await botBuilderStoryApi.updateStoryBlock({
+    await updateStoryBlockMutation.mutateAsync({
       id: data.id,
       name: val,
     });
-    setInnerName(res!.name!);
     setEditName(false);
   }
 
@@ -143,6 +141,9 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
 
   return (
     <>
+      <Portal open={deleteStoryBlockMutation.isPending || updateStoryBlockMutation.isPending}>
+        <BusyIndicator global />
+      </Portal>
       <div
         className={styles.container}
         data-type={data.type}

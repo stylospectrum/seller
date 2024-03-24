@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
-import { SearchInPopoverRef } from '../SearchInPopover';
 import { Box } from '../utils/box';
 import { CustomHierarchyNode } from '../utils/hierarchy';
 

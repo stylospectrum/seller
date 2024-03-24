@@ -1,11 +1,10 @@
 import { FC, RefObject, useMemo, useRef } from 'react';
-import { Button, Dialog, Form, FormItem, FormList, Input } from '@stylospectrum/ui';
+import { BusyIndicator, Button, Dialog, Form, FormItem, FormList, Input } from '@stylospectrum/ui';
 import { ButtonDesign, IForm } from '@stylospectrum/ui/dist/types';
 import classNames from 'classnames';
 import { html } from 'lit';
 
 import styles from './index.module.scss';
-import { botBuilderEntityApi } from '@/api';
 import Portal from '@/utils/Portal';
 
 import '@stylospectrum/ui/dist/icon/data/less';
@@ -13,6 +12,8 @@ import '@stylospectrum/ui/dist/button';
 import '@stylospectrum/ui/dist/form/form-item';
 import '@stylospectrum/ui/dist/multi-input';
 import '@stylospectrum/ui/dist/input';
+
+import { useCreateBotEntity, useUpdateBotEntity } from '@/hooks';
 
 interface BotEntityDialogProps {
   open: boolean;
@@ -41,6 +42,8 @@ const BotEntityDialog: FC<BotEntityDialogProps> = ({ open, onClose, selectedEnti
 
     return { options: [''] };
   }, [selectedEntity]);
+  const createEntityMutation = useCreateBotEntity();
+  const updateEntityMutation = useUpdateBotEntity();
 
   const handleDeleteSynonym = (option: Record<string, any>, synonymId: string) => {
     if (!(option.id in deletedSynonymIds)) {
@@ -78,7 +81,7 @@ const BotEntityDialog: FC<BotEntityDialogProps> = ({ open, onClose, selectedEnti
         if (selectedEntity) {
           const options = values.options.map((option: Record<string, any>) => {
             const deletedSynonyms = deletedSynonymIds.current[option.id] || [];
-            const synonyms = option.synonyms.map((synonym: Record<string, any>) => {
+            const synonyms = (option.synonyms || []).map((synonym: Record<string, any>) => {
               return {
                 id: synonym.id.includes('client') ? undefined : synonym.id,
                 name: synonym.name,
@@ -92,13 +95,13 @@ const BotEntityDialog: FC<BotEntityDialogProps> = ({ open, onClose, selectedEnti
               deleted: false,
             };
           });
-          await botBuilderEntityApi.updateEntity({
+          await updateEntityMutation.mutateAsync({
             id: selectedEntity.id,
             name: values.name,
             options: [...deletedOptions.current, ...options],
           });
         } else {
-          await botBuilderEntityApi.createEntity({
+          await createEntityMutation.mutateAsync({
             name: values.name,
             options: values.options.map((option: any) => ({
               name: option.name,
@@ -115,74 +118,80 @@ const BotEntityDialog: FC<BotEntityDialogProps> = ({ open, onClose, selectedEnti
   };
 
   return (
-    <Portal open={open}>
-      <Dialog headerText="Entity" onMaskClick={onClose} className={styles.dialog}>
-        <Form ref={formRef} initialValues={initialValues} className={styles.form}>
-          <FormItem
-            name="name"
-            label="Name"
-            rules={[{ required: true, message: 'Enter entity name' }]}
-          >
-            <Input style={{ width: '13.75rem' }} />
-          </FormItem>
+    <>
+      <Portal open={createEntityMutation.isPending || updateEntityMutation.isPending}>
+        <BusyIndicator global />
+      </Portal>
 
-          <div className={styles.row}>
-            <div className={classNames(styles.label, styles['first-col'])}>Option</div>
-            <div className={classNames(styles.label, styles['first-col'])}>Synonyms</div>
-          </div>
+      <Portal open={open}>
+        <Dialog headerText="Entity" onMaskClick={onClose} className={styles.dialog}>
+          <Form ref={formRef} initialValues={initialValues} className={styles.form}>
+            <FormItem
+              name="name"
+              label="Name"
+              rules={[{ required: true, message: 'Enter entity name' }]}
+            >
+              <Input style={{ width: '13.75rem' }} />
+            </FormItem>
 
-          <FormList
-            name="options"
-            renderChild={(name: number, value: Record<string, any>) => {
-              return html`<div style="display:flex;gap:.5rem;align-items:center;margin-top:.5rem">
-                <stylospectrum-form-item
-                  .name=${[name, 'id']}
-                  style="margin-bottom:0;display:none;"
-                >
-                  <div></div>
-                </stylospectrum-form-item>
+            <div className={styles.row}>
+              <div className={classNames(styles.label, styles['first-col'])}>Option</div>
+              <div className={classNames(styles.label, styles['first-col'])}>Synonyms</div>
+            </div>
 
-                <stylospectrum-form-item .name=${[name, 'name']} style="margin-bottom:0">
-                  <stylospectrum-input style="width: 13.75rem;"></stylospectrum-input>
-                </stylospectrum-form-item>
-
-                <stylospectrum-form-item .name=${[name, 'synonyms']} style="margin-bottom:0">
-                  <stylospectrum-multi-input
-                    @token-delete=${(e: CustomEvent) => handleDeleteSynonym(value, e.detail)}
-                    style="width: 18.75rem;"
+            <FormList
+              name="options"
+              renderChild={(name: number, value: Record<string, any>) => {
+                return html`<div style="display:flex;gap:.5rem;align-items:center;margin-top:.5rem">
+                  <stylospectrum-form-item
+                    .name=${[name, 'id']}
+                    style="margin-bottom:0;display:none;"
                   >
-                  </stylospectrum-multi-input>
-                </stylospectrum-form-item>
+                    <div></div>
+                  </stylospectrum-form-item>
 
-                <stylospectrum-button
-                  icon="less"
-                  type="Tertiary"
-                  @click=${() => {
-                    formRef.current?.list.options.delete(name);
-                    handleDeleteOption(value);
-                  }}
-                >
-                </stylospectrum-button>
-              </div> `;
-            }}
-          />
-          <Button
-            style={{ width: '100%', marginTop: '.5rem' }}
-            type={ButtonDesign.Tertiary}
-            onClick={() => formRef.current?.list.options.add()}
-          >
-            Add option
+                  <stylospectrum-form-item .name=${[name, 'name']} style="margin-bottom:0">
+                    <stylospectrum-input style="width: 13.75rem;"></stylospectrum-input>
+                  </stylospectrum-form-item>
+
+                  <stylospectrum-form-item .name=${[name, 'synonyms']} style="margin-bottom:0">
+                    <stylospectrum-multi-input
+                      @token-delete=${(e: CustomEvent) => handleDeleteSynonym(value, e.detail)}
+                      style="width: 18.75rem;"
+                    >
+                    </stylospectrum-multi-input>
+                  </stylospectrum-form-item>
+
+                  <stylospectrum-button
+                    icon="less"
+                    type="Tertiary"
+                    @click=${() => {
+                      formRef.current?.list.options.delete(name);
+                      handleDeleteOption(value);
+                    }}
+                  >
+                  </stylospectrum-button>
+                </div> `;
+              }}
+            />
+            <Button
+              style={{ width: '100%', marginTop: '.5rem' }}
+              type={ButtonDesign.Tertiary}
+              onClick={() => formRef.current?.list.options.add()}
+            >
+              Add option
+            </Button>
+          </Form>
+
+          <Button slot="ok-button" onClick={handleSave}>
+            Save
           </Button>
-        </Form>
-
-        <Button slot="ok-button" onClick={handleSave}>
-          Save
-        </Button>
-        <Button slot="cancel-button" type={ButtonDesign.Tertiary} onClick={handleClose}>
-          Close
-        </Button>
-      </Dialog>
-    </Portal>
+          <Button slot="cancel-button" type={ButtonDesign.Tertiary} onClick={handleClose}>
+            Close
+          </Button>
+        </Dialog>
+      </Portal>
+    </>
   );
 };
 

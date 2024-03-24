@@ -146,7 +146,7 @@ class BotBuilderStoryApi {
     }
   }
 
-  async getUserInput(storyBlockId: string) {
+  async getUserInputs(storyBlockId: string) {
     try {
       const res: ServerResponse<{
         storyBlock: BotStoryBlock;
@@ -199,7 +199,7 @@ class BotBuilderStoryApi {
     }
   }
 
-  async getBotFilter(storyBlockId: string) {
+  async getFilter(storyBlockId: string) {
     try {
       const res: ServerResponse<{
         storyBlock: BotStoryBlock;

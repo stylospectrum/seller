@@ -1,23 +1,19 @@
 'use client';
 
-import { MutableRefObject, RefObject, useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
+import { BusyIndicator } from '@stylospectrum/ui';
 
 import BottomLeftMenu, { BottomLeftMenuRef } from './BottomLeftMenu';
-import { BotBuilderContext } from './context';
-import useDiagram from './hooks/useDiagram';
 import useZoom from './hooks/useZoom';
-import { SearchInPopoverRef } from './SearchInPopover';
 import TopRightMenu from './TopRightMenu';
 import ZoomContainer from './ZoomContainer';
-import { botBuilderStoryApi } from '@/api';
-import { BotStoryBlock } from '@/model';
+import { useBotStoryBlock } from '@/hooks';
+import Portal from '@/utils/Portal';
 
 export default function BotStoryPage() {
   const zoomContainerDomRef = useRef<HTMLDivElement>(null);
   const bottomLeftMenuRef = useRef<BottomLeftMenuRef>(null);
-  const searchInPopoverRefs: MutableRefObject<SearchInPopoverRef[]> = useRef([]);
-  const [rawBlock, setRawBlock] = useState<BotStoryBlock>();
-  const { blocks, paths } = useDiagram(rawBlock!);
+  const { blocks, setBlock, loading, paths } = useBotStoryBlock();
   const { centerRoot, zoomIn, zoomOut, resetZoom, centerBlock } = useZoom({
     onChangeScale(scale) {
       bottomLeftMenuRef.current!.changeScale(scale);
@@ -25,24 +21,11 @@ export default function BotStoryPage() {
     getContainer: () => zoomContainerDomRef.current!,
   });
 
-  useEffect(() => {
-    async function fetchBlocks() {
-      const res = await botBuilderStoryApi.getStoryBlocks();
-
-      if (res) {
-        setRawBlock(res);
-      }
-    }
-
-    fetchBlocks();
-  }, []);
-
   return (
-    <BotBuilderContext.Provider
-      value={{
-        changeRawBlock: setRawBlock,
-      }}
-    >
+    <>
+      <Portal open={loading}>
+        <BusyIndicator global />
+      </Portal>
       <TopRightMenu />
       <ZoomContainer
         centerBlock={centerBlock}
@@ -57,6 +40,6 @@ export default function BotStoryPage() {
         onResetZoom={resetZoom}
         ref={bottomLeftMenuRef}
       />
-    </BotBuilderContext.Provider>
+    </>
   );
 }

@@ -1,10 +1,11 @@
 import { FC, useEffect, useRef, useState } from 'react';
-import { Button } from '@stylospectrum/ui';
-import { ButtonDesign } from '@stylospectrum/ui/dist/types';
+import { BusyIndicator, Button } from '@stylospectrum/ui';
+import { BusyIndicatorSize, ButtonDesign } from '@stylospectrum/ui/dist/types';
 import classNames from 'classnames';
 import Image from 'next/image';
 import { io, type Socket } from 'socket.io-client';
 
+import ChatBoxGallery from './Gallery';
 import styles from './index.module.scss';
 import ChatBoxInput from './Input';
 import { MessageType } from '@/enums';
@@ -14,8 +15,6 @@ import storage from '@/utils/storage';
 
 import '@stylospectrum/ui/dist/icon/data/decline';
 import '@stylospectrum/ui/dist/icon/data/reset';
-
-import ChatBoxGallery from './Gallery';
 
 interface ChatBoxProps {
   onClose: () => void;
@@ -60,16 +59,31 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
     });
     socket.current!.connect();
     socket.current!.on('chat', (message) => {
+      setMessages((prev) => {
+        const removedTypingMsg = prev.filter((msg) => !msg.typing);
+
+        return [
+          ...removedTypingMsg,
+          new Message({
+            content: message.content,
+            senderId: message.senderId,
+            id: message.id,
+            type: message.type,
+            imgUrl: message.imgUrl,
+            buttons: message.buttons,
+            gallery: message.gallery,
+          }),
+        ];
+      });
+    });
+    socket.current!.on('typing', (message) => {
       setMessages((prev) => [
         ...prev,
         new Message({
-          content: message.content,
-          senderId: message.senderId,
           id: message.id,
-          type: message.type,
-          imgUrl: message.imgUrl,
-          buttons: message.buttons,
-          gallery: message.gallery,
+          typing: message.typing,
+          senderId: message.senderId,
+          content: '',
         }),
       ]);
     });
@@ -81,6 +95,16 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
   }, []);
 
   const renderMessage = (message: Message) => {
+    if (message.typing) {
+      return (
+        <div className={styles['message-box']}>
+          <div className={styles['message-content']}>
+            <BusyIndicator size={BusyIndicatorSize.Small} />
+          </div>
+        </div>
+      );
+    }
+
     if (message.type === MessageType.Image) {
       return <Image src={message.imgUrl!} width={308} height={308} alt="" />;
     }
@@ -116,6 +140,29 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
     );
   };
 
+  const renderMessageWrap = (message: Message, idx: number) => {
+    let marginTop = messages?.[idx - 1]?.senderId === message.senderId ? '0.5rem' : '1rem';
+
+    if (idx === 0) {
+      marginTop = '0';
+    }
+
+    return (
+      <div
+        key={message.id}
+        style={{
+          marginTop,
+        }}
+        className={classNames({
+          [styles['message-left']]: message.senderId !== user.id,
+          [styles['message-right']]: message.senderId === user.id,
+        })}
+      >
+        {renderMessage(message)}
+      </div>
+    );
+  };
+
   return (
     <div className={classNames(styles.container, className)}>
       <div className={styles.header}>
@@ -130,30 +177,7 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
       </div>
 
       <div className={styles.content}>
-        <div className={styles['message-container']}>
-          {messages.map((message, idx) => {
-            let marginTop = messages?.[idx - 1]?.senderId === message.senderId ? '0.5rem' : '1rem';
-
-            if (idx === 0) {
-              marginTop = '0';
-            }
-
-            return (
-              <div
-                key={message.id}
-                style={{
-                  marginTop,
-                }}
-                className={classNames({
-                  [styles['message-left']]: message.senderId !== user.id,
-                  [styles['message-right']]: message.senderId === user.id,
-                })}
-              >
-                {renderMessage(message)}
-              </div>
-            );
-          })}
-        </div>
+        <div className={styles['message-container']}>{messages.map(renderMessageWrap)}</div>
       </div>
       <div className={styles.footer}>
         <ChatBoxInput onEnter={handleEnter} />

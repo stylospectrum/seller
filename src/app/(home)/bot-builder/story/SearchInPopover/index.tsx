@@ -1,12 +1,12 @@
-import { forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Input, ListItem, Popover } from '@stylospectrum/ui';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { BusyIndicator, Input, ListItem, Popover } from '@stylospectrum/ui';
 import { IPopover, Placement } from '@stylospectrum/ui/dist/types';
 
-import { BotBuilderContext } from '../context';
 import { Box } from '../utils/box';
 import styles from './index.module.scss';
-import { botBuilderStoryApi } from '@/api';
 import { BotStoryBlockType } from '@/enums';
+import { useCreateBotStoryBlock } from '@/hooks';
+import Portal from '@/utils/Portal';
 
 interface SearchInPopoverProps {
   onClose: () => void;
@@ -44,10 +44,13 @@ const getDefaultOptions = (data: Box) => {
 
   if (data.type === BotStoryBlockType.UserInput) {
     const hasFilterBlock = data.children.some((child) => child.type === BotStoryBlockType.Filter);
+    const hasFallbackBlock = data.children.some(
+      (child) => child.type === BotStoryBlockType.Fallback,
+    );
 
     return defaultOptions.filter((option) => {
       if (data.children.length > 0) {
-        if (hasFilterBlock) {
+        if (hasFilterBlock && !hasFallbackBlock) {
           return [BotStoryBlockType.Filter, BotStoryBlockType.Fallback].includes(option.id);
         }
 
@@ -60,7 +63,12 @@ const getDefaultOptions = (data: Box) => {
 
   if (data.type === BotStoryBlockType.BotResponse) {
     return defaultOptions.filter(
-      (option) => ![BotStoryBlockType.BotResponse, BotStoryBlockType.Filter].includes(option.id),
+      (option) =>
+        ![
+          BotStoryBlockType.BotResponse,
+          BotStoryBlockType.Filter,
+          BotStoryBlockType.Fallback,
+        ].includes(option.id),
     );
   }
 
@@ -77,7 +85,7 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
     const dropDownRef = useRef<IPopover>(null);
     const parentId = useRef('');
     const [options, setOptions] = useState(getDefaultOptions(data));
-    const { changeRawBlock } = useContext(BotBuilderContext);
+    const botStoryBlockMutation = useCreateBotStoryBlock({});
 
     useEffect(() => {
       setOptions(getDefaultOptions(data));
@@ -102,12 +110,11 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
       dropDownRef.current?.hide();
       onClose();
 
-      const res = await botBuilderStoryApi.createStoryBlock({
+      await botStoryBlockMutation.mutateAsync({
         name: '',
         type: id,
         parentId: parentId.current,
       });
-      changeRawBlock(res!);
     };
 
     const handleSearch = (e: Event) => {
@@ -135,6 +142,9 @@ const SearchInPopover = forwardRef<SearchInPopoverRef, SearchInPopoverProps>(
 
     return (
       <>
+        <Portal open={botStoryBlockMutation.isPending}>
+          <BusyIndicator global />
+        </Portal>
         <Popover
           placement={Placement.Right}
           className={styles.popover}

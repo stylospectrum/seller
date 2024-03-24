@@ -22,10 +22,7 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
   { blocks, paths, centerBlock },
   ref,
 ) {
-  const [selectedBlock, setSelectedBlock] = useState<BotStoryBlock>();
-  const [botResDialogVisible, setBotResDialogVisible] = useState(false);
-  const [userInputDialogVisible, setUserInputDialogVisible] = useState(false);
-  const [filterDialogVisible, setFilterDialogVisible] = useState(false);
+  const [selectedBlock, setSelectedBlock] = useState<BotStoryBlock>({});
   const [blockName, setBlockName] = useState<{ [key: string]: string }>({});
 
   const handleClick = (e: MouseEvent, block: CustomHierarchyNode<Box>) => {
@@ -42,24 +39,9 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
     e.preventDefault();
     setSelectedBlock(block.data);
     centerBlock(block);
-
-    if (block.data.type === BotStoryBlockType.BotResponse) {
-      setBotResDialogVisible(true);
-    }
-
-    if (block.data.type === BotStoryBlockType.UserInput) {
-      setUserInputDialogVisible(true);
-    }
-
-    if (block.data.type === BotStoryBlockType.Filter) {
-      setFilterDialogVisible(true);
-    }
   };
 
   const handleCloseDialog = () => {
-    setFilterDialogVisible(false);
-    setUserInputDialogVisible(false);
-    setBotResDialogVisible(false);
     setSelectedBlock({} as BotStoryBlock);
   };
 
@@ -99,31 +81,25 @@ export default forwardRef<HTMLDivElement, ZoomContainerProps>(function ZoomConta
         </div>
       </div>
 
-      {botResDialogVisible && (
-        <DndProvider backend={HTML5Backend}>
-          <BotResponseDialog
-            onChangeBlockName={handleChangeBlockName}
-            onClose={handleCloseDialog}
-            data={selectedBlock!}
-          />
-        </DndProvider>
-      )}
-
-      {userInputDialogVisible && (
-        <UserInputDialog
-          data={selectedBlock!}
+      <DndProvider backend={HTML5Backend}>
+        <BotResponseDialog
           onChangeBlockName={handleChangeBlockName}
           onClose={handleCloseDialog}
+          data={selectedBlock}
         />
-      )}
+      </DndProvider>
 
-      {filterDialogVisible && (
-        <FilterDialog
-          data={selectedBlock!}
-          onChangeBlockName={handleChangeBlockName}
-          onClose={handleCloseDialog}
-        />
-      )}
+      <UserInputDialog
+        data={selectedBlock!}
+        onChangeBlockName={handleChangeBlockName}
+        onClose={handleCloseDialog}
+      />
+
+      <FilterDialog
+        data={selectedBlock!}
+        onChangeBlockName={handleChangeBlockName}
+        onClose={handleCloseDialog}
+      />
     </>
   );
 });

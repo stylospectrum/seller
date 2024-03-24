@@ -10,6 +10,7 @@ import {styleMap} from 'lit/directives/style-map.js';
 
 import { BotFilterOperator } from '@/enums';
 import { botBuilderEntityApi } from '@/api';
+import { BotEntity } from '@/model';
 
 import '@stylospectrum/ui/dist/select';
 import '@stylospectrum/ui/dist/icon/data/add';
@@ -20,6 +21,7 @@ import '@stylospectrum/ui/dist/icon/data/navigation-right-arrow';
 interface RuleBuilderFormContext {
   getForm: () => IForm;
   forceRender: () => void;
+  entityTask: Task<never[], BotEntity[] | null>
 }
 
 const ruleBuilderFormContext =
@@ -53,11 +55,6 @@ export class RuleBuilderFormRow extends LitElement {
 
   _popoverRef = createRef<IPopover>();
 
-  private _entityTask = new Task(this, {
-    task: async () => await botBuilderEntityApi.getEntities(),
-    args: () => []
-  });
-
   protected override render() {
     if (this.isGroup) {
       return html`<rule-builder-form-group
@@ -75,7 +72,7 @@ export class RuleBuilderFormRow extends LitElement {
         >
           <stylospectrum-select
             style="width:8rem"
-            .options=${this._entityTask.status === TaskStatus.COMPLETE ? this._entityTask.value : []}
+            .options=${this._consumer.entityTask.status === TaskStatus.COMPLETE ? this._consumer.entityTask.value : []}
           >
           </stylospectrum-select>
         </stylospectrum-form-item>
@@ -281,10 +278,16 @@ export class RuleBuilderForm extends LitElement {
   @state()
   _forceRender: any;
 
+  private _entityTask = new Task(this, {
+    task: async () => await botBuilderEntityApi.getEntities(),
+    args: () => []
+  });
+
   override connectedCallback(): void {
     super.connectedCallback();
 
     this._provider.setValue({
+      entityTask: this._entityTask,
       getForm: () => this._form.value!,
       forceRender: () => {
         this._forceRender = {};

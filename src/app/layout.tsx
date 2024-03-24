@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
 import { userApi } from '@/api';
+import { queryClient } from '@/lib/react-query';
 import { User } from '@/model';
 import { useUserStore } from '@/store';
 import storage from '@/utils/storage';
@@ -44,7 +46,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <QueryClientProvider client={queryClient}>{children} </QueryClientProvider>
+      </body>
     </html>
   );
 }
