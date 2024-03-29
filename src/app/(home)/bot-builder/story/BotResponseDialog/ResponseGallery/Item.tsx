@@ -19,6 +19,7 @@ interface GalleryItemProps {
   index: number;
   moveItem: (dragIndex: number, hoverIndex: number) => void;
   defaultValue: BotResponseGalleryItem;
+  onButtonClick: (callback: Function) => void;
 }
 
 interface DragItem {
@@ -30,7 +31,7 @@ export interface GalleryItemRef {
 }
 
 const GalleryItem = forwardRef<GalleryItemRef, GalleryItemProps>(
-  ({ index, moveItem, onDelete, showActions, defaultValue }, ref) => {
+  ({ index, moveItem, onDelete, showActions, defaultValue, onButtonClick }, ref) => {
     const [buttons, setButtons] = useState<BotResponseButton[]>(
       defaultValue.buttons?.length
         ? defaultValue.buttons
@@ -132,7 +133,7 @@ const GalleryItem = forwardRef<GalleryItemRef, GalleryItemProps>(
               id: button.id?.startsWith('client-') ? undefined : button.id,
               deleted: button.deleted,
               content: value?.content || '',
-              go_to: value?.goTo || '',
+              goTo: value?.goTo || '',
             };
           }),
         };
@@ -195,7 +196,8 @@ const GalleryItem = forwardRef<GalleryItemRef, GalleryItemProps>(
                     key={button.id}
                     onDelete={() => handleDeleteButton(index)}
                     moveButton={handleMoveButton}
-                    defaultValue={button.content}
+                    defaultValue={button}
+                    onClick={onButtonClick}
                   />
                 );
               })}

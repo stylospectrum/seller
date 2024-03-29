@@ -13,6 +13,8 @@ import '@stylospectrum/ui/dist/icon/data/add';
 import '@stylospectrum/ui/dist/icon/data/navigation-right-arrow';
 import '@stylospectrum/ui/dist/icon/data/navigation-left-arrow';
 
+import scrollTo from '@/utils/scrollTo';
+
 const SCROLL_DISTANCE = 272;
 
 interface ResponseGalleryProps {
@@ -45,13 +47,15 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
     const filteredItems = useRef(items);
 
     function updateButtonVisibility() {
-      if (scrollContainerDomRef.current && containerDomRef.current) {
-        const containerWidth = containerDomRef.current.clientWidth;
-        const { scrollWidth, scrollLeft } = scrollContainerDomRef.current;
+      requestAnimationFrame(() => {
+        if (scrollContainerDomRef.current && containerDomRef.current) {
+          const containerWidth = containerDomRef.current.clientWidth;
+          const { scrollWidth, scrollLeft } = scrollContainerDomRef.current;
 
-        setPrevButtonVisible(scrollLeft > 0);
-        setNextButtonVisible(scrollLeft + containerWidth + 16 < scrollWidth);
-      }
+          setPrevButtonVisible(scrollLeft > 0);
+          setNextButtonVisible(scrollLeft + containerWidth + 16 < scrollWidth);
+        }
+      });
     }
 
     useEffect(() => {
@@ -75,18 +79,19 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
 
       const { scrollLeft } = scrollContainerDomRef.current!;
 
-      scrollContainerDomRef.current?.scrollTo({
-        left:
-          filteredItems.current.length >= prevItemsLength.current
-            ? scrollLeft + SCROLL_DISTANCE
-            : scrollLeft - SCROLL_DISTANCE,
-        behavior: 'smooth',
-      });
+      scrollTo(
+        filteredItems.current.length >= prevItemsLength.current
+          ? scrollLeft + SCROLL_DISTANCE
+          : scrollLeft - SCROLL_DISTANCE,
+        {
+          getContainer: () => scrollContainerDomRef.current!,
+        },
+      );
 
       prevItemsLength.current = filteredItems.current.length;
     }, [items]);
 
-    function handleScroll(direction: 'next' | 'prev') {
+    function handleScroll(direction: 'next' | 'prev', callback?: Function) {
       if (scrollContainerDomRef.current) {
         let scrollDistance = 0;
         let newActiveIndex = activeIndex;
@@ -116,9 +121,9 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
 
         setActiveIndex(newActiveIndex);
 
-        scrollContainerDomRef.current.scrollTo({
-          left: newScrollLeft,
-          behavior: 'smooth',
+        scrollTo(newScrollLeft, {
+          getContainer: () => scrollContainerDomRef.current!,
+          callback,
         });
       }
     }
@@ -235,6 +240,13 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
                     onDelete={() => handleDelete(item.id!)}
                     showActions={filteredItems.current.length > 1}
                     defaultValue={item}
+                    onButtonClick={(callback) => {
+                      if (index !== activeIndex) {
+                        handleScroll(index < activeIndex ? 'prev' : 'next', callback);
+                      } else {
+                        callback();
+                      }
+                    }}
                   />
                 </div>
               ))}

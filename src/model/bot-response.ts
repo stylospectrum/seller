@@ -36,10 +36,10 @@ export class BotResponseButton {
   goTo?: string;
   id?: string;
 
-  constructor(button: BotResponseButton & { go_to?: string }) {
+  constructor(button: BotResponseButton) {
     this.content = button?.content;
     this.id = button?.id;
-    this.goTo = button?.go_to;
+    this.goTo = button?.goTo;
   }
 }
 

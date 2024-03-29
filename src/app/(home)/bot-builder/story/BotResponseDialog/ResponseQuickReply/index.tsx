@@ -77,7 +77,7 @@ const ResponseQuickReply = forwardRef<ResponseQuickReplyRef, ResponseQuickReplyP
               id: button.id?.startsWith('client-') ? undefined : button.id,
               deleted: button.deleted,
               content: value?.content || '',
-              go_to: value?.goTo || '',
+              goTo: value?.goTo || '',
             };
           }),
         };
@@ -102,7 +102,7 @@ const ResponseQuickReply = forwardRef<ResponseQuickReplyRef, ResponseQuickReplyP
                 key={button.id}
                 onDelete={() => handleDelete(index)}
                 moveButton={handleMoveButton}
-                defaultValue={button.content}
+                defaultValue={button}
               />
             );
           })}

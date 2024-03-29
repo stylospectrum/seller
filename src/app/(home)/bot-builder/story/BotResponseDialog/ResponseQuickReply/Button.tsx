@@ -1,10 +1,12 @@
 import { forwardRef, MouseEvent, useImperativeHandle, useRef, useState } from 'react';
-import { Button, Form, FormItem, Input, Popover } from '@stylospectrum/ui';
+import { Button, Form, FormItem, Input, Popover, Select } from '@stylospectrum/ui';
 import { ButtonDesign, IForm, IInput, IPopover, Placement } from '@stylospectrum/ui/dist/types';
 import type { Identifier } from 'dnd-core';
 import { useDrag, useDrop } from 'react-dnd';
 
 import styles from './button.module.scss';
+import { useBotUserInputBlocks } from '@/hooks';
+import { BotResponseButton } from '@/model';
 
 import '@stylospectrum/ui/dist/icon/data/delete';
 import '@stylospectrum/ui/dist/icon/data/sort';
@@ -18,7 +20,7 @@ interface QuickReplyButtonProps {
   showActions: boolean;
   index: number;
   moveButton: (dragIndex: number, hoverIndex: number) => void;
-  defaultValue: string;
+  defaultValue: BotResponseButton;
 }
 
 interface DragItem {
@@ -27,12 +29,13 @@ interface DragItem {
 
 const QuickReplyButton = forwardRef<QuickReplyButtonRef, QuickReplyButtonProps>(
   ({ onDelete, showActions, index, moveButton, defaultValue }, ref) => {
-    const [text, setText] = useState<string>(defaultValue);
+    const [text, setText] = useState<string>(defaultValue.content);
     const [hover, setHover] = useState<boolean>(false);
     const buttonTextDomRef = useRef<IInput>(null);
     const popoverRef = useRef<IPopover>(null);
     const formRef = useRef<IForm>(null);
     const wrapperDomRef = useRef<HTMLDivElement>(null);
+    const userInputBlocksQuery = useBotUserInputBlocks();
 
     const [{ isDragging }, drag, dragPreview] = useDrag(
       () => ({
@@ -85,7 +88,10 @@ const QuickReplyButton = forwardRef<QuickReplyButtonRef, QuickReplyButtonProps>(
       setHover(false);
       popoverRef.current?.showAt(wrapperDomRef.current!);
       buttonTextDomRef.current?.input.focus();
-      formRef.current?.setFieldsValue({ content: text });
+      formRef.current?.setFieldsValue({
+        content: text,
+        ['go-to']: formRef.current?.getFieldsValue()['go-to'] || defaultValue.goTo,
+      });
     }
 
     function handleClose() {
@@ -108,7 +114,7 @@ const QuickReplyButton = forwardRef<QuickReplyButtonRef, QuickReplyButtonProps>(
       getValue() {
         return {
           content: text,
-          goTo: '',
+          goTo: (formRef.current?.getFieldsValue()['go-to'] as string) || '',
         };
       },
     }));
@@ -146,8 +152,18 @@ const QuickReplyButton = forwardRef<QuickReplyButtonRef, QuickReplyButtonProps>(
           </Button>
 
           <Form ref={formRef} style={{ padding: '1rem', width: '15.3125rem', display: 'block' }}>
-            <FormItem style={{ marginBottom: 0 }} label="Button text" name="content">
+            <FormItem label="Button text" name="content">
               <Input ref={buttonTextDomRef} style={{ width: '100%' }} />
+            </FormItem>
+
+            <FormItem style={{ marginBottom: 0 }} label="Go to" name="go-to">
+              <Select
+                options={(userInputBlocksQuery.data || []).map((opt) => ({
+                  id: opt.id!,
+                  name: opt.name!,
+                }))}
+                style={{ width: '100%' }}
+              />
             </FormItem>
           </Form>
         </Popover>

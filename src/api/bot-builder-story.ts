@@ -21,6 +21,29 @@ class BotBuilderStoryApi {
     }
   }
 
+  async getStoryUserInputBlocks() {
+    try {
+      const res: ServerResponse<BotStoryBlock[]> = await axios.get(
+        '/bot-builder-story/story-block/user-input-block/',
+      );
+
+      if (!res?.data) {
+        return null;
+      }
+
+      return res.data.map(
+        (item) =>
+          new BotStoryBlock({
+            name: item.name,
+            type: item.type,
+            id: item.id,
+          }),
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async createStoryBlock(params: BotStoryBlock) {
     try {
       const res: ServerResponse<BotStoryBlock> = await axios.post(
@@ -49,7 +72,7 @@ class BotBuilderStoryApi {
         {
           data: {
             id: params.id,
-            is_delete_many: params.isDeleteMany,
+            isDeleteMany: params.isDeleteMany,
           },
         },
       );
@@ -124,11 +147,13 @@ class BotBuilderStoryApi {
 
   async createBotResponse(params: { storyBlock: BotStoryBlock; botResponses: BotResponse[] }) {
     try {
-      const res: ServerResponse<{ storyBlock: BotStoryBlock; bot_response: BotResponse[] }> =
-        await axios.post('/bot-builder-story/bot-response/', {
+      const res: ServerResponse<{ storyBlock: BotStoryBlock }> = await axios.post(
+        '/bot-builder-story/bot-response/',
+        {
           storyBlock: params.storyBlock,
           botResponses: params.botResponses,
-        });
+        },
+      );
 
       if (!res?.data?.storyBlock?.id) {
         return null;
@@ -177,11 +202,13 @@ class BotBuilderStoryApi {
 
   async createUserInput(params: { storyBlock: BotStoryBlock; userInputs: BotUserInput[] }) {
     try {
-      const res: ServerResponse<{ storyBlock: BotStoryBlock; bot_response: BotResponse[] }> =
-        await axios.post('/bot-builder-story/user-input/', {
+      const res: ServerResponse<{ storyBlock: BotStoryBlock }> = await axios.post(
+        '/bot-builder-story/user-input/',
+        {
           storyBlock: params.storyBlock,
           userInputs: params.userInputs,
-        });
+        },
+      );
 
       if (!res?.data?.storyBlock?.id) {
         return null;
@@ -225,11 +252,13 @@ class BotBuilderStoryApi {
 
   async createFilter(params: { storyBlock: BotStoryBlock; filter: BotFilter }) {
     try {
-      const res: ServerResponse<{ storyBlock: BotStoryBlock; bot_response: BotResponse[] }> =
-        await axios.post('/bot-builder-story/filter/', {
+      const res: ServerResponse<{ storyBlock: BotStoryBlock }> = await axios.post(
+        '/bot-builder-story/filter/',
+        {
           storyBlock: params.storyBlock,
           filter: params.filter,
-        });
+        },
+      );
 
       if (!res?.data?.storyBlock?.id) {
         return null;

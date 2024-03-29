@@ -2,9 +2,11 @@ import { MessageType } from '@/enums';
 
 class MessageButton {
   content: string;
+  goTo: string;
 
   constructor(params: MessageButton) {
     this.content = params.content;
+    this.goTo = params.goTo;
   }
 }
 

@@ -9,19 +9,27 @@ interface PortalProps {
 }
 
 const Portal: FC<PortalProps> = ({ open, children }) => {
-  const [container] = useState(() => document.createElement('div'));
+  const [container, setContainer] = useState<HTMLElement>();
 
   useLayoutEffect(() => {
-    if (open && !container.parentElement) {
+    if (!container) {
+      setContainer(document.createElement('div'));
+    }
+
+    if (open && container && !container.parentElement) {
       document.body.appendChild(container);
     }
 
-    if (!open && container.parentElement) {
+    if (!open && container?.parentElement) {
       setTimeout(() => {
-        container.parentElement?.removeChild(container);
+        container?.parentElement?.removeChild(container);
       });
     }
   }, [open, container]);
+
+  if (!container) {
+    return null;
+  }
 
   return createPortal(children, container);
 };

@@ -8,9 +8,10 @@ import { io, type Socket } from 'socket.io-client';
 import ChatBoxGallery from './Gallery';
 import styles from './index.module.scss';
 import ChatBoxInput from './Input';
+import { botBuilderStoryApi } from '@/api';
 import { MessageType } from '@/enums';
 import { Message } from '@/model';
-import { useUserStore } from '@/store';
+import { useAuthStore, useUserStore } from '@/store';
 import storage from '@/utils/storage';
 
 import '@stylospectrum/ui/dist/icon/data/decline';
@@ -29,7 +30,7 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
   const user = useUserStore((state) => state.user);
   const socket = useRef<Socket>();
 
-  const handleEnter = (message: string) => {
+  const handleChat = (message: string) => {
     socket.current?.emit('chat', {
       message,
       conversationId: conversationId,
@@ -49,13 +50,23 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
     onClose();
   };
 
-  useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_API_URL!.replace('http://', '');
-    const tokens = storage.getToken();
+  const handleButtonClick = async (goTo: string) => {
+    const res = await botBuilderStoryApi.getUserInputs(goTo);
 
-    socket.current = io(`ws://${url}`, {
+    if (res) {
+      const userInput = res.userInputs[Math.floor(Math.random() * res.userInputs.length)];
+
+      handleChat(userInput.content);
+    }
+  };
+
+  useEffect(() => {
+    const tokens = storage.getToken() || useAuthStore.getState();
+
+    socket.current = io(process.env.NEXT_PUBLIC_API_URL!, {
       path: '/chat/socket.io',
       extraHeaders: { Authorization: `Bearer ${tokens.accessToken}` },
+      secure: true,
     });
     socket.current!.connect();
     socket.current!.on('chat', (message) => {
@@ -119,7 +130,11 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
           {message.buttons && (
             <div className={styles['message-button-container']}>
               {message.buttons.map((button, idx) => (
-                <Button key={`msg-button-${idx}`} type={ButtonDesign.Secondary}>
+                <Button
+                  key={`msg-button-${idx}`}
+                  type={ButtonDesign.Secondary}
+                  onClick={() => handleButtonClick(button.goTo)}
+                >
                   {button.content}
                 </Button>
               ))}
@@ -180,7 +195,7 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
         <div className={styles['message-container']}>{messages.map(renderMessageWrap)}</div>
       </div>
       <div className={styles.footer}>
-        <ChatBoxInput onEnter={handleEnter} />
+        <ChatBoxInput onEnter={handleChat} />
       </div>
     </div>
   );

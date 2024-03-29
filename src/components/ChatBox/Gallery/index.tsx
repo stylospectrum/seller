@@ -110,7 +110,11 @@ const ChatBoxGallery: FC<ChatBoxGalleryProps> = ({ data }) => {
               style={{ opacity: activeIndex === index ? 1 : 0.7 }}
             >
               <div className={styles['item-card']}>
-                <Image src={item.imgUrl} width={240} height={145} alt="" />
+                {item.imgUrl ? (
+                  <Image src={item.imgUrl} width={240} height={145} alt="" />
+                ) : (
+                  <div style={{ height: 145, width: 240 }} />
+                )}
                 <div className={styles['item-title']}>{item.title}</div>
                 <div className={styles['item-description']}>{item.description}</div>
                 <div className={styles['item-button-container']}>

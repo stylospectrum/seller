@@ -2,15 +2,16 @@ import Axios, { InternalAxiosRequestConfig } from 'axios';
 
 import storage from '@/utils/storage';
 import { toSnakeCaseKeys, toCamelCaseKeys } from '@/utils/caseConversation';
+import { useAuthStore } from '@/store';
 
 function requestInterceptor(config: InternalAxiosRequestConfig) {
-  const tokens = storage.getToken();
+  const tokens = storage.getToken() || useAuthStore.getState();
   if (tokens) {
     config.headers.authorization = `Bearer ${tokens.accessToken}`;
   }
   config.headers!.Accept = 'application/json';
 
-  if (config.data) {
+  if (config.data && !config.url?.startsWith('auth')) {
     config.data = toSnakeCaseKeys(config.data);
   }
   return config;

@@ -69,7 +69,7 @@ const ResponseImage = forwardRef<ResponseImageRef, ResponseImageProps>(
     }
 
     function extractKeyFromUrl(url: string) {
-      const match = url.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/);
+      const match = url?.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/);
       return match?.[0];
     }
 
@@ -86,7 +86,7 @@ const ResponseImage = forwardRef<ResponseImageRef, ResponseImageProps>(
           axios.post(presignedUrl.current!.url, formData);
         }
 
-        return presignedUrl.current?.fields?.key || extractKeyFromUrl(imageUrl!);
+        return presignedUrl.current?.fields?.key || extractKeyFromUrl(imageUrl!) || '';
       },
     }));
 
