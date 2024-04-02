@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import styles from './index.module.scss';
 import GalleryItem, { GalleryItemRef } from './Item';
-import { BotResponseGalleryItem } from '@/model/bot-response';
+import { BotResponseGalleryItem } from '@/model';
 
 import '@stylospectrum/ui/dist/icon/data/add';
 import '@stylospectrum/ui/dist/icon/data/navigation-right-arrow';
@@ -191,7 +191,7 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
               title: value?.title,
               description: value?.description,
               buttons: value?.buttons || [],
-              image_id: value?.imageId,
+              imageId: value?.imageId,
             };
           }),
         ),

@@ -26,14 +26,14 @@ class BotEntityOption {
 
 export class BotEntity {
   id?: string;
-  name: string;
+  name?: string;
   deleted?: boolean;
-  options: BotEntityOption[];
+  options?: BotEntityOption[];
 
   constructor(entity: BotEntity) {
     this.id = entity.id;
     this.name = entity.name;
     this.deleted = entity.deleted;
-    this.options = entity.options.map((option) => new BotEntityOption(option));
+    this.options = (entity.options || []).map((option) => new BotEntityOption(option));
   }
 }

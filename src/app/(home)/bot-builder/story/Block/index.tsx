@@ -11,7 +11,7 @@ import {
 } from '@stylospectrum/ui';
 import { ButtonDesign, IButton, IInput, IMenu } from '@stylospectrum/ui/dist/types';
 
-import SearchInPopover, { SearchInPopoverRef } from '../SearchInPopover';
+import SearchStoryBlock from '../SearchStoryBlock';
 import { Box } from '../utils/box';
 import { CustomHierarchyNode } from '../utils/hierarchy';
 import styles from './index.module.scss';
@@ -64,11 +64,10 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
   const [innerName, setInnerName] = useState(name);
   const [msgBoxOpened, setMsgBoxOpened] = useState(false);
   const [hover, setHover] = useState(false);
-  const [popoverOpened, setPopoverOpened] = useState(false);
+  const [searchOpener, setSearchOpener] = useState<HTMLElement | null>();
   const [editName, setEditName] = useState(false);
   const menuRef: RefObject<IMenu> = useRef(null);
   const editNameInputRef: RefObject<IInput> = useRef(null);
-  const searchInPopoverRef: RefObject<SearchInPopoverRef> = useRef(null);
   const addButtonRef: RefObject<IButton> = useRef(null);
   const isDeleteMany = useMemo(
     () => data.children.length > 0 && data.type !== BotStoryBlockType.Filter,
@@ -115,8 +114,7 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
 
   function handleAddButtonClick(e: MouseEvent) {
     e.stopPropagation();
-    setPopoverOpened(true);
-    searchInPopoverRef.current?.open?.(addButtonRef.current!, data.id);
+    setSearchOpener(addButtonRef.current!);
   }
 
   async function handleConfirmDelete() {
@@ -149,7 +147,7 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
         data-type={data.type}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => {
-          if (popoverOpened) return;
+          if (searchOpener) return;
           setHover(false);
         }}
       >
@@ -223,13 +221,13 @@ export default function Block({ data, chosen, onClick, name }: BlockProps) {
           </div>
         </div>
       </div>
-      <SearchInPopover
+      <SearchStoryBlock
+        opener={searchOpener!}
         data={data}
-        ref={searchInPopoverRef}
         onClose={() => {
-          if (popoverOpened) {
+          if (searchOpener) {
             setHover(false);
-            setPopoverOpened(false);
+            setSearchOpener(null);
           }
         }}
       />

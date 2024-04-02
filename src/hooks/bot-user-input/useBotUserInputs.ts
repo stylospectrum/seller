@@ -11,7 +11,7 @@ type UseBotUserInputsOptions = {
   config?: QueryConfig<QueryFnType>;
 };
 
-export const useBotUserInputs = ({ blockId, allowQuery, config }: UseBotUserInputsOptions) => {
+export const useBotUserInputs = ({ blockId, allowQuery, config }: UseBotUserInputsOptions = {}) => {
   return useQuery<ExtractFnReturnType<QueryFnType>>({
     queryKey: ['botUserInputs', blockId],
     queryFn: () => {

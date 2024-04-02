@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@lit/task": "^1.0.0",
-    "@stylospectrum/ui": "^0.0.54",
+    "@stylospectrum/ui": "^0.0.57",
     "@tanstack/react-query": "^5.28.6",
     "axios": "^1.6.2",
     "classnames": "^2.5.1",

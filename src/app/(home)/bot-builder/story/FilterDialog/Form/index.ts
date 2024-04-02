@@ -21,7 +21,7 @@ import '@stylospectrum/ui/dist/icon/data/navigation-right-arrow';
 interface RuleBuilderFormContext {
   getForm: () => IForm;
   forceRender: () => void;
-  entityTask: Task<never[], BotEntity[] | null>
+  variableTask: Task<never[], BotEntity[] | null>
 }
 
 const ruleBuilderFormContext =
@@ -68,11 +68,11 @@ export class RuleBuilderFormRow extends LitElement {
       <div style="display:flex;gap:.5rem;">
         <stylospectrum-form-item
           style="margin-bottom:0"
-          .name=${[this.name, 'attribute']}
+          .name=${[this.name, 'variableId']}
         >
           <stylospectrum-select
-            style="width:8rem"
-            .options=${this._consumer.entityTask.status === TaskStatus.COMPLETE ? this._consumer.entityTask.value : []}
+            style="width:11rem"
+            .options=${this._consumer.variableTask.status === TaskStatus.COMPLETE ? this._consumer.variableTask.value : []}
           >
           </stylospectrum-select>
         </stylospectrum-form-item>
@@ -219,7 +219,7 @@ export class RuleBuilderFormGroup extends LitElement {
             .name=${this.name.length > 1 ? [this.name[0], 'operator'] : 'operator'}
           >
             <stylospectrum-select
-              style="width:8rem"
+              style="width:11rem"
               .options=${[
                 {id: BotFilterOperator.And, name: 'and'},
                 {id: BotFilterOperator.Or, name: 'or'},
@@ -278,8 +278,8 @@ export class RuleBuilderForm extends LitElement {
   @state()
   _forceRender: any;
 
-  private _entityTask = new Task(this, {
-    task: async () => await botBuilderEntityApi.getEntities(),
+  private _variableTask = new Task(this, {
+    task: async () => await botBuilderEntityApi.getVariables(),
     args: () => []
   });
 
@@ -287,7 +287,7 @@ export class RuleBuilderForm extends LitElement {
     super.connectedCallback();
 
     this._provider.setValue({
-      entityTask: this._entityTask,
+      variableTask: this._variableTask,
       getForm: () => this._form.value!,
       forceRender: () => {
         this._forceRender = {};

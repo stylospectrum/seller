@@ -30,12 +30,13 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
   const user = useUserStore((state) => state.user);
   const socket = useRef<Socket>();
 
-  const handleChat = (message: string) => {
+  const handleChat = (message: string, options: Record<string, string> = {}) => {
     socket.current?.emit('chat', {
       message,
       conversationId: conversationId,
       sellerId: user.id,
       role: 'Seller',
+      ...options,
     });
   };
 
@@ -50,14 +51,8 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
     onClose();
   };
 
-  const handleButtonClick = async (goTo: string) => {
-    const res = await botBuilderStoryApi.getUserInputs(goTo);
-
-    if (res) {
-      const userInput = res.userInputs[Math.floor(Math.random() * res.userInputs.length)];
-
-      handleChat(userInput.content);
-    }
+  const handleButtonClick = async (goTo: string, options: Record<string, string> = {}) => {
+    handleChat('', { userInputBlockId: goTo, ...options });
   };
 
   useEffect(() => {
@@ -145,7 +140,7 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
     }
 
     if (message.type === MessageType.Gallery) {
-      return <ChatBoxGallery data={message.gallery || []} />;
+      return <ChatBoxGallery data={message.gallery || []} onButtonClick={handleButtonClick} />;
     }
 
     return (

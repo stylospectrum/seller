@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ResponseInput, { ResponseInputRef } from '../ResponseInput';
 import QuickReplyButton, { QuickReplyButtonRef } from './Button';
 import styles from './index.module.scss';
-import { BotResponseButton, BotResponseText } from '@/model/bot-response';
+import { BotResponseButton, BotResponseText } from '@/model';
 
 import '@stylospectrum/ui/dist/icon/data/add';
 

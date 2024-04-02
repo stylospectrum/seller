@@ -9,7 +9,7 @@ import styles from './index.module.scss';
 import '@stylospectrum/ui/dist/icon/data/add';
 import '@stylospectrum/ui/dist/icon/data/delete';
 
-import { BotResponseText } from '@/model/bot-response';
+import { BotResponseText } from '@/model';
 
 interface ResponseVariantsProps {
   defaultValues: BotResponseText[];
@@ -71,7 +71,7 @@ const ResponseVariants = forwardRef<ResponseVariantsRef, ResponseVariantsProps>(
         return variants.map((variant) => ({
           id: variant.id?.startsWith('client-') ? undefined : variant.id,
           content: inputRefs.current[variant.id!]?.getValue?.()?.content || '',
-          deleted: variant.deleted || false,
+          deleted: variant.deleted,
         }));
       },
     }));

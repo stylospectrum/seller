@@ -1,15 +1,17 @@
 import { forwardRef, MouseEvent, useImperativeHandle, useRef, useState } from 'react';
-import { Button, Form, FormItem, Input, Popover, Select } from '@stylospectrum/ui';
+import { Button, Form, FormItem, FormList, Input, Label, Popover, Select } from '@stylospectrum/ui';
 import { ButtonDesign, IForm, IInput, IPopover, Placement } from '@stylospectrum/ui/dist/types';
 import type { Identifier, XYCoord } from 'dnd-core';
+import { html } from 'lit-html';
 import { useDrag, useDrop } from 'react-dnd';
 
 import styles from './button.module.scss';
-import { useBotUserInputBlocks } from '@/hooks';
-import { BotResponseButton } from '@/model';
+import { useBotUserInputBlocks, useBotVariables } from '@/hooks';
+import { BotResponseButton, BotResponseButtonExpr } from '@/model';
 
 import '@stylospectrum/ui/dist/icon/data/delete';
 import '@stylospectrum/ui/dist/icon/data/sort';
+import '@stylospectrum/ui/dist/select';
 
 interface GalleryButtonProps {
   onDelete: () => void;
@@ -25,7 +27,7 @@ interface DragItem {
 }
 
 export interface GalleryButtonRef {
-  getValue: () => { [key: string]: string };
+  getValue: () => BotResponseButton;
 }
 
 const GalleryButton = forwardRef<GalleryButtonRef, GalleryButtonProps>(
@@ -37,6 +39,8 @@ const GalleryButton = forwardRef<GalleryButtonRef, GalleryButtonProps>(
     const formRef = useRef<IForm>(null);
     const wrapperDomRef = useRef<HTMLDivElement>(null);
     const userInputBlocksQuery = useBotUserInputBlocks();
+    const botVariablesQuery = useBotVariables();
+    const deletedIds = useRef<string[]>([]);
 
     const [{ isDragging }, drag, dragPreview] = useDrag(
       () => ({
@@ -108,6 +112,7 @@ const GalleryButton = forwardRef<GalleryButtonRef, GalleryButtonProps>(
         formRef.current?.setFieldsValue({
           content: text,
           ['go-to']: formRef.current?.getFieldsValue()['go-to'] || defaultValue.goTo,
+          exprs: formRef.current?.getFieldsValue().exprs || defaultValue.exprs || [],
         });
       });
     }
@@ -130,9 +135,18 @@ const GalleryButton = forwardRef<GalleryButtonRef, GalleryButtonProps>(
 
     useImperativeHandle(ref, () => ({
       getValue() {
+        const deletedExprs = (defaultValue.exprs || [])
+          .filter((expr) => deletedIds.current.includes(expr.id!))
+          .map((expr) => ({
+            ...expr,
+            deleted: true,
+          }));
+        const exprs = (formRef.current?.getFieldsValue()['exprs'] as BotResponseButtonExpr[]) || [];
+
         return {
           content: text,
           goTo: (formRef.current?.getFieldsValue()['go-to'] as string) || '',
+          exprs: [...deletedExprs, ...exprs],
         };
       },
     }));
@@ -161,7 +175,11 @@ const GalleryButton = forwardRef<GalleryButtonRef, GalleryButtonProps>(
             </div>
           )}
         </div>
-        <Popover ref={popoverRef} placement={Placement.Left} style={{ display: 'none' }}>
+        <Popover
+          ref={popoverRef}
+          placement={Placement.Left}
+          style={{ display: 'none', width: '32rem' }}
+        >
           <Button slot="ok-button" onClick={handleOk}>
             Ok
           </Button>
@@ -172,21 +190,71 @@ const GalleryButton = forwardRef<GalleryButtonRef, GalleryButtonProps>(
           <Form
             ref={formRef}
             initialValues={{ content: text }}
-            style={{ padding: '1rem', width: '15.3125rem', display: 'block' }}
+            style={{ padding: '1rem', display: 'block' }}
           >
             <FormItem label="Button text" name="content">
-              <Input ref={buttonTextDomRef} style={{ width: '100%' }} />
+              <Input ref={buttonTextDomRef} />
             </FormItem>
 
-            <FormItem style={{ marginBottom: 0 }} label="Go to" name="go-to">
+            <FormItem label="Go to" name="go-to">
               <Select
                 options={(userInputBlocksQuery.data || []).map((opt) => ({
                   id: opt.id!,
                   name: opt.name!,
                 }))}
-                style={{ width: '100%' }}
               />
             </FormItem>
+
+            <Label>Expressions:</Label>
+
+            <FormList
+              name="exprs"
+              renderChild={(name: number, value: BotResponseButtonExpr) => {
+                return html`<div
+                  style="display:flex;gap:.5rem;align-items:center;margin-top:.125rem"
+                >
+                  <stylospectrum-form-item
+                    .name=${[name, 'id']}
+                    style="margin-bottom:0;display:none;"
+                  >
+                    <div></div>
+                  </stylospectrum-form-item>
+
+                  <stylospectrum-form-item .name=${[name, 'variableId']} style="margin-bottom:0">
+                    <stylospectrum-select
+                      .options=${(botVariablesQuery.data || []).filter(
+                        (opt) => !opt.isSystem && !opt.entity?.name,
+                      )}
+                    >
+                    </stylospectrum-select>
+                  </stylospectrum-form-item>
+
+                  <span>=</span>
+
+                  <stylospectrum-form-item .name=${[name, 'value']} style="margin-bottom:0">
+                    <stylospectrum-input> </stylospectrum-input>
+                  </stylospectrum-form-item>
+
+                  <stylospectrum-button
+                    icon="less"
+                    type="Tertiary"
+                    @click=${() => {
+                      formRef.current?.list.exprs.delete(name);
+                      deletedIds.current.push(value.id!);
+                    }}
+                  >
+                  </stylospectrum-button>
+                </div> `;
+              }}
+            />
+
+            <Button
+              style={{ width: '100%', marginTop: '.5rem' }}
+              type={ButtonDesign.Tertiary}
+              onClick={() => formRef.current?.list.exprs.add()}
+            >
+              Add expression
+            </Button>
           </Form>
         </Popover>
       </div>

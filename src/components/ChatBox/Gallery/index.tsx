@@ -5,15 +5,17 @@ import classNames from 'classnames';
 import Image from 'next/image';
 
 import styles from './index.module.scss';
+import { BotResponseType } from '@/enums';
 import { MessageGalleryItem } from '@/model';
 
 const SCROLL_DISTANCE = 240;
 
 interface ChatBoxGalleryProps {
   data: MessageGalleryItem[];
+  onButtonClick: Function;
 }
 
-const ChatBoxGallery: FC<ChatBoxGalleryProps> = ({ data }) => {
+const ChatBoxGallery: FC<ChatBoxGalleryProps> = ({ data, onButtonClick }) => {
   const scrollContainerDomRef = useRef<HTMLDivElement>(null);
   const containerDomRef = useRef<HTMLDivElement>(null);
   const [prevButtonVisible, setPrevButtonVisible] = useState(false);
@@ -119,7 +121,17 @@ const ChatBoxGallery: FC<ChatBoxGalleryProps> = ({ data }) => {
                 <div className={styles['item-description']}>{item.description}</div>
                 <div className={styles['item-button-container']}>
                   {item.buttons.map((button, idx) => (
-                    <div key={`msg-gallery-item-button-${idx}`} className={styles['item-button']}>
+                    <div
+                      key={`msg-gallery-item-button-${idx}`}
+                      className={styles['item-button']}
+                      onClick={() =>
+                        onButtonClick(button.goTo, {
+                          exprs: button.exprs,
+                          botResponseType: BotResponseType.Gallery,
+                          isButtonClick: true,
+                        })
+                      }
+                    >
                       <span className={styles['item-button-text']}>{button.content}</span>
                     </div>
                   ))}

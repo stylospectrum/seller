@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ResponseImage, { ResponseImageRef } from '../ResponseImage';
 import GalleryButton, { GalleryButtonRef } from './Button';
 import styles from './item.module.scss';
-import { BotResponseButton, BotResponseGalleryItem } from '@/model/bot-response';
+import { BotResponseButton, BotResponseGalleryItem } from '@/model';
 
 import '@stylospectrum/ui/dist/icon/data/add';
 
@@ -134,6 +134,7 @@ const GalleryItem = forwardRef<GalleryItemRef, GalleryItemProps>(
               deleted: button.deleted,
               content: value?.content || '',
               goTo: value?.goTo || '',
+              exprs: value?.exprs || [],
             };
           }),
         };

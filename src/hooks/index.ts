@@ -13,3 +13,6 @@ export * from './bot-entity/useUpdateBotEntity';
 export * from './bot-entity/useDeleteBotEntities';
 export * from './bot-filter/useBotFilter';
 export * from './bot-filter/useCreateBotFilter';
+export * from './bot-variable/useBotVariables';
+export * from './bot-variable/useCreateBotVariable';
+export * from './bot-variable/useDeleteBotVariable';

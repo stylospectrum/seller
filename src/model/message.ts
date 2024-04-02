@@ -1,12 +1,15 @@
+import { BotResponseButtonExpr } from '.';
 import { MessageType } from '@/enums';
 
 class MessageButton {
   content: string;
   goTo: string;
+  exprs?: BotResponseButtonExpr[];
 
   constructor(params: MessageButton) {
     this.content = params.content;
     this.goTo = params.goTo;
+    this.exprs = params.exprs;
   }
 }
 

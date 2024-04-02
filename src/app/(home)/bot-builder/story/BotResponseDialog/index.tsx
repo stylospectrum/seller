@@ -162,7 +162,6 @@ export default function BotResponseDialog({
             {
               id: value.id,
               content: value.content,
-              deleted: false,
             },
           ];
         }
@@ -177,7 +176,6 @@ export default function BotResponseDialog({
             {
               id: value?.text?.id,
               content: value?.text?.content!,
-              deleted: false,
             },
           ];
           input[index].buttons = value?.buttons || [];
@@ -190,6 +188,10 @@ export default function BotResponseDialog({
 
         if (response.type === BotResponseType.Gallery) {
           input[index].gallery = await responseGalleryRef.current?.getValues()!;
+        }
+
+        if (!input[index]?.variants?.[0]?.id && !input[index]?.variants?.[0]?.content) {
+          input[index].variants! = [];
         }
       }),
     );

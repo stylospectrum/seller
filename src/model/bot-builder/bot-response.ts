@@ -30,16 +30,31 @@ export class BotResponseText {
   }
 }
 
+export class BotResponseButtonExpr {
+  deleted?: boolean;
+  variableId: string;
+  value?: string;
+  id?: string;
+
+  constructor(button: BotResponseButtonExpr) {
+    this.variableId = button?.variableId;
+    this.id = button?.id;
+    this.value = button?.value;
+  }
+}
+
 export class BotResponseButton {
   deleted?: boolean;
   content: string;
   goTo?: string;
   id?: string;
+  exprs?: BotResponseButtonExpr[];
 
   constructor(button: BotResponseButton) {
     this.content = button?.content;
     this.id = button?.id;
     this.goTo = button?.goTo;
+    this.exprs = (button.exprs || []).map((expr) => new BotResponseButtonExpr(expr));
   }
 }
 

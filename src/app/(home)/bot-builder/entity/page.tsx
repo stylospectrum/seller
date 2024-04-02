@@ -68,6 +68,7 @@ const BotEntityPage = () => {
 
         <Table
           ref={tableRef}
+          allowSelect
           onSelect={(e) => setSelectedEntities((e as CustomEvent).detail)}
           rowData={(entitiesQuery.data || []).map((entity) => {
             return {

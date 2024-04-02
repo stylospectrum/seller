@@ -156,6 +156,7 @@ export default function UserInputDialog({
                   id={input.id!}
                   showDeleteButton={inputs.length > 1 && index < inputs.length - 1}
                   onDelete={handleDelete}
+                  getForm={() => formRef.current!}
                   onChange={(value) => {
                     if (value && !(input.id! in count.current)) {
                       count.current[input.id!]++;
