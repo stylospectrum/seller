@@ -2,8 +2,8 @@
   &::part(wrap) {
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
     width: 50rem;
+    transform: translate(-50%, -50%);
   }
 
   &::part(content) {

@@ -74,7 +74,7 @@ const BotEntityPage = () => {
             return {
               id: entity.id,
               name: entity.name,
-              children: entity.options.map((option) => ({
+              children: (entity.options || []).map((option) => ({
                 id: option.id,
                 option: option.name,
                 synonyms: option.synonyms || [],
