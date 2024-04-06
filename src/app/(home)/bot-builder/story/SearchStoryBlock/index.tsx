@@ -76,14 +76,14 @@ const getDefaultOptions = (data: Box) => {
 
 const SearchStoryBlock: FC<SearchStoryBlockProps> = ({ onClose, data, opener }) => {
   const [options, setOptions] = useState(getDefaultOptions(data));
-  const botStoryBlockMutation = useCreateBotStoryBlock({});
+  const createBotStoryBlockMutation = useCreateBotStoryBlock({});
 
   useEffect(() => {
     setOptions(getDefaultOptions(data));
   }, [data]);
 
   const handleItemClick = async ({ type }: { type: BotStoryBlockType }) => {
-    await botStoryBlockMutation.mutateAsync({
+    await createBotStoryBlockMutation.mutateAsync({
       name: '',
       type,
       parentId: data.id,
@@ -101,7 +101,7 @@ const SearchStoryBlock: FC<SearchStoryBlockProps> = ({ onClose, data, opener }) 
 
   return (
     <>
-      <Portal open={botStoryBlockMutation.isPending}>
+      <Portal open={createBotStoryBlockMutation.isPending}>
         <BusyIndicator global />
       </Portal>
 

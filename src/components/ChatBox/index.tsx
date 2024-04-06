@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { BusyIndicator, Button } from '@stylospectrum/ui';
 import { BusyIndicatorSize, ButtonDesign } from '@stylospectrum/ui/dist/types';
 import classNames from 'classnames';
@@ -29,6 +29,7 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
   const [messages, setMessages] = useState<Message[]>([]);
   const user = useUserStore((state) => state.user);
   const socket = useRef<Socket>();
+  const msgContainerDomRef = useRef<HTMLDivElement>(null);
 
   const handleChat = (message: string, options: Record<string, string> = {}) => {
     socket.current?.emit('chat', {
@@ -99,6 +100,12 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useLayoutEffect(() => {
+    if (msgContainerDomRef.current) {
+      msgContainerDomRef.current.scrollTop = msgContainerDomRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const renderMessage = (message: Message) => {
     if (message.typing) {
@@ -187,7 +194,9 @@ const ChatBox: FC<ChatBoxProps> = ({ onClose, className, showResetChat, name, co
       </div>
 
       <div className={styles.content}>
-        <div className={styles['message-container']}>{messages.map(renderMessageWrap)}</div>
+        <div className={styles['message-container']} ref={msgContainerDomRef}>
+          {messages.map(renderMessageWrap)}
+        </div>
       </div>
       <div className={styles.footer}>
         <ChatBoxInput onEnter={handleChat} />

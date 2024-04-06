@@ -124,13 +124,17 @@ const ChatBoxGallery: FC<ChatBoxGalleryProps> = ({ data, onButtonClick }) => {
                     <div
                       key={`msg-gallery-item-button-${idx}`}
                       className={styles['item-button']}
-                      onClick={() =>
+                      onClick={() => {
+                        if (index !== activeIndex) {
+                          handleScroll(index < activeIndex ? 'prev' : 'next');
+                        }
+
                         onButtonClick(button.goTo, {
                           exprs: button.exprs,
                           botResponseType: BotResponseType.Gallery,
                           isButtonClick: true,
-                        })
-                      }
+                        });
+                      }}
                     >
                       <span className={styles['item-button-text']}>{button.content}</span>
                     </div>

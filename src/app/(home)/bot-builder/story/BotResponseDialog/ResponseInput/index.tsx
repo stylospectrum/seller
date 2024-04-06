@@ -127,14 +127,16 @@ const ResponseInput = forwardRef<ResponseInputRef, ResponseInputProps>(({ defaul
           placeholder="Enter bot response"
         />
 
-        <div className={styles['bottom-actions-wrap']}>
-          <Button
-            tabIndex={-1}
-            icon="syntax"
-            type={ButtonDesign.Secondary}
-            onClick={handleVarButtonClick}
-          />
-        </div>
+        {focused && (
+          <div className={styles['bottom-actions-wrap']}>
+            <Button
+              tabIndex={-1}
+              icon="syntax"
+              type={ButtonDesign.Secondary}
+              onClick={handleVarButtonClick}
+            />
+          </div>
+        )}
       </div>
 
       {!botVariablesQuery.isLoading && (

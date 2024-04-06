@@ -81,7 +81,7 @@ export class RuleBuilderFormRow extends LitElement {
           style="margin-bottom:0"
           .name=${[this.name, 'operator']}
         >
-          <stylospectrum-select style="width:8rem" .options=${[{id: BotFilterOperator.Equal, name: '=='}]}>
+          <stylospectrum-select style="width:8rem" .options=${[{id: BotFilterOperator.Equal, name: '=='}, {id: BotFilterOperator.NotEqual, name: '!='}]}>
           </stylospectrum-select>
         </stylospectrum-form-item>
 

@@ -240,7 +240,10 @@ const GalleryButton = forwardRef<GalleryButtonRef, GalleryButtonProps>(
                     type="Tertiary"
                     @click=${() => {
                       formRef.current?.list.exprs.delete(name);
-                      deletedIds.current.push(value.id!);
+
+                      if (value?.id) {
+                        deletedIds.current.push(value.id!);
+                      }
                     }}
                   >
                   </stylospectrum-button>

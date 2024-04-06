@@ -144,15 +144,13 @@ export default function UserInput({
 
   return (
     <>
-      <div className={styles['textarea-wrap']}>
+      <div
+        className={styles['textarea-wrap']}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <div className={styles.mirror} ref={mirrorRef} />
-        <FormItem
-          ref={formItemRef}
-          name={id}
-          style={{ position: 'relative', padding: '0 1rem' }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
+        <FormItem ref={formItemRef} name={id} style={{ position: 'relative', padding: '0 1rem' }}>
           <Textarea
             ref={textareaRef}
             placeholder="Enter user message"
