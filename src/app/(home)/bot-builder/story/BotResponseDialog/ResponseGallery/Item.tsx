@@ -32,16 +32,7 @@ export interface GalleryItemRef {
 
 const GalleryItem = forwardRef<GalleryItemRef, GalleryItemProps>(
   ({ index, moveItem, onDelete, showActions, defaultValue, onButtonClick }, ref) => {
-    const [buttons, setButtons] = useState<BotResponseButton[]>(
-      defaultValue.buttons?.length
-        ? defaultValue.buttons
-        : [
-            {
-              id: 'client-' + uuidv4(),
-              content: 'Button',
-            },
-          ],
-    );
+    const [buttons, setButtons] = useState<BotResponseButton[]>(defaultValue.buttons || []);
     const [hover, setHover] = useState(false);
     const wrapperDomRef = useRef<HTMLDivElement>(null);
     const buttonsRef = useRef<{ [key: string]: GalleryButtonRef }>({});
@@ -178,7 +169,14 @@ const GalleryItem = forwardRef<GalleryItemRef, GalleryItemProps>(
             </FormItem>
 
             <FormItem name="description" style={{ marginBottom: 0 }}>
-              <Textarea placeholder="Enter description" className={styles.input} />
+              <Textarea
+                placeholder="Enter description"
+                className={styles.input}
+                style={{
+                  marginBottom: buttons.length > 0 ? undefined : 0,
+                  background: buttons.length > 0 ? undefined : 'none',
+                }}
+              />
             </FormItem>
           </Form>
 

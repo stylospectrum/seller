@@ -232,6 +232,11 @@ const ResponseGallery = forwardRef<ResponseGalleryRef, ResponseGalleryProps>(
                   key={item.id}
                   id={`gallery-item-${item.id}`}
                   style={{ opacity: activeIndex === index ? 1 : 0.7 }}
+                  onClick={() => {
+                    if (index !== activeIndex) {
+                      handleScroll(index < activeIndex ? 'prev' : 'next');
+                    }
+                  }}
                 >
                   <GalleryItem
                     ref={(el) => (itemsRef.current[item.id!] = el!)}

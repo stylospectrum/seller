@@ -110,7 +110,13 @@ const ResponseImage = forwardRef<ResponseImageRef, ResponseImageProps>(
           onClick={(e) => e.stopPropagation()}
         />
         {imageUrl ? (
-          <Image src={imageUrl} width={width || 325} height={height || 260} alt="" />
+          <Image
+            src={imageUrl}
+            style={{ objectFit: 'contain' }}
+            width={width || 325}
+            height={height || 260}
+            alt=""
+          />
         ) : (
           <>
             <Icon name="upload" className={styles.icon} style={{ fontSize: `${iconSize}rem` }} />

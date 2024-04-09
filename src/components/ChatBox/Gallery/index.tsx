@@ -113,7 +113,13 @@ const ChatBoxGallery: FC<ChatBoxGalleryProps> = ({ data, onButtonClick }) => {
             >
               <div className={styles['item-card']}>
                 {item.imgUrl ? (
-                  <Image src={item.imgUrl} width={240} height={145} alt="" />
+                  <Image
+                    src={item.imgUrl}
+                    width={240}
+                    height={145}
+                    style={{ objectFit: 'contain' }}
+                    alt=""
+                  />
                 ) : (
                   <div style={{ height: 145, width: 240 }} />
                 )}

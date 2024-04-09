@@ -32,7 +32,7 @@ export default function VariableDialog({ visible, onClose }: VariableDialogProps
   const createBotVariableMutation = useCreateBotVariable();
   const deleteBotVariableMutation = useDeleteBotVariable();
   const showActions = useMemo(
-    () => botVariablesQuery.data?.some((variable) => !variable.isSystem),
+    () => botVariablesQuery.data?.some((variable) => !variable.isSystem && !variable.entity),
     [botVariablesQuery.data],
   );
 
